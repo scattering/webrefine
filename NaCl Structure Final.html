@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - geometry - cube</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+
+		<script src="../build/Three.js"></script>
+
+		<script src="js/Stats.js"></script>
+
+		<script>
+
+			var container, stats;
+
+			var camera, scene, renderer;
+
+			var cube, plane, NaCl;
+
+			var targetRotation = 0;
+			var targetRotationOnMouseDown = 0;
+
+			var mouseX = 0;
+			var mouseXOnMouseDown = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				var info = document.createElement( 'div' );
+				info.style.position = 'absolute';
+				info.style.top = '10px';
+				info.style.width = '100%';
+				info.style.textAlign = 'center';
+				info.innerHTML = 'Drag to spin the cube';
+				container.appendChild( info );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.y = 150;
+				camera.position.z = 500;
+				scene.add( camera );
+
+				function createCubeMain(xdist, zdist){
+					
+					zdist = zdist*2;
+ 
+					// sphereNa
+					var sphereNa = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xff3333
+					}));
+					sphereNa.overdraw = true;
+					sphereNa.translateX(-1 * xdist);
+					sphereNa.translateY(xdist);
+					scene.add(sphereNa);
+	
+					// sphereCl
+					var sphereCl = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xffCC00
+					}));
+					sphereCl.overdraw = true;
+					sphereCl.translateX(-1 * xdist);
+					sphereCl.translateY(-1 * xdist);	
+					scene.add(sphereCl);
+	
+					// sphereNa
+					var sphereNa2 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xff3333
+					}));
+					sphereNa2.overdraw = true;
+					sphereNa2.translateX(xdist);
+					sphereNa2.translateY(-1 * xdist);
+					scene.add(sphereNa2);
+	
+					// sphereCl
+					var sphereCl2 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xffCC00
+					}));
+					sphereCl2.overdraw = true;
+					sphereCl2.translateX(xdist);
+					sphereCl2.translateY(xdist)
+					scene.add(sphereCl2);
+	
+					// sphereNa
+					var sphereNa3 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xff3333
+					}));
+					sphereNa3.overdraw = true;
+					sphereNa3.translateX(xdist);
+					sphereNa3.translateY(xdist);
+					sphereNa3.translateZ(-1 * (zdist));
+					scene.add(sphereNa3);
+	
+					// sphereCl
+					var sphereCl3 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xffCC00
+					}));
+					sphereCl3.overdraw = true;
+					sphereCl3.translateX(xdist);
+					sphereCl3.translateY(-1 * xdist);
+					sphereCl3.translateZ(-1 * (zdist));
+					scene.add(sphereCl3);
+
+					// sphereNa
+					var sphereNa4 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xff3333
+					}));
+					sphereNa4.overdraw = true;
+					sphereNa4.translateX(-1 * xdist);
+					sphereNa4.translateY(-1 * xdist);
+					sphereNa4.translateZ(-1 * (zdist));
+					scene.add(sphereNa4);
+	
+					// sphereCl
+					var sphereCl4 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+					    color: 0xffCC00
+					}));
+					sphereCl4.overdraw = true;
+					sphereCl4.translateX(-1 * xdist);
+					sphereCl4.translateY(xdist);
+					sphereCl4.translateZ(-1 * (zdist));
+					scene.add(sphereCl4);
+
+					// cube
+					cube = new THREE.Object3D();
+					cube.add(sphereNa);
+					cube.add(sphereNa2);
+					cube.add(sphereNa3);
+					cube.add(sphereNa4);
+					cube.add(sphereCl);
+					cube.add(sphereCl2);
+					cube.add(sphereCl3);
+					cube.add(sphereCl4);
+					scene.add(cube);
+				    }
+	
+			    function createCube(xdist, ydist, zdist){
+			 
+				// sphereNa
+				var sphereNa = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xff3333
+				}));
+				sphereNa.overdraw = true;
+				sphereNa.translateX(-1 * xdist);
+				sphereNa.translateY(ydist);
+				sphereNa.translateZ(-zdist);
+				scene.add(sphereNa);
+	
+				// sphereCl
+				var sphereCl = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xffCC00
+				}));
+				sphereCl.overdraw = true;
+				sphereCl.translateX(-1 * xdist);
+				sphereCl.translateY(-1 * ydist);	
+				sphereCl.translateZ(-zdist);
+				scene.add(sphereCl);
+	
+				// sphereNa
+				var sphereNa2 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xff3333
+				}));
+				sphereNa2.overdraw = true;
+				sphereNa2.translateX(xdist);
+				sphereNa2.translateY(-1 * ydist);
+				sphereNa2.translateZ(-zdist);
+				scene.add(sphereNa2);
+	
+				// sphereCl
+				var sphereCl2 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xffCC00
+				}));
+				sphereCl2.overdraw = true;
+				sphereCl2.translateX(xdist);
+				sphereCl2.translateY(ydist)
+				sphereCl2.translateZ(-zdist);
+				scene.add(sphereCl2);
+	
+				// sphereNa
+				var sphereNa3 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xff3333
+				}));
+				sphereNa3.overdraw = true;
+				sphereNa3.translateX(xdist);
+				sphereNa3.translateY(ydist);
+				sphereNa3.translateZ(-1 * (zdist + xdist));
+				scene.add(sphereNa3);
+	
+				// sphereCl
+				var sphereCl3 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xffCC00
+				}));
+				sphereCl3.overdraw = true;
+				sphereCl3.translateX(xdist);
+				sphereCl3.translateY(-1 * ydist);
+				sphereCl3.translateZ(-1 * (zdist + xdist));
+				scene.add(sphereCl3);
+
+				// sphereNa
+				var sphereNa4 = new THREE.Mesh(new THREE.SphereGeometry(70, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xff3333
+				}));
+				sphereNa4.overdraw = true;
+				sphereNa4.translateX(-1 * xdist);
+				sphereNa4.translateY(-1 * ydist);
+				sphereNa4.translateZ(-1 * (zdist + xdist));
+				scene.add(sphereNa4);
+	
+				// sphereCl
+				var sphereCl4 = new THREE.Mesh(new THREE.SphereGeometry(50, 50, 50), new THREE.MeshLambertMaterial({
+				    color: 0xffCC00
+				}));
+				sphereCl4.overdraw = true;
+				sphereCl4.translateX(-1 * xdist);
+				sphereCl4.translateY(ydist);
+				sphereCl4.translateZ(-1 * (zdist + xdist));
+				scene.add(sphereCl4);
+
+				// cube
+				var cube = new THREE.Object3D();
+				cube.add(sphereNa);
+				cube.add(sphereNa2);
+				cube.add(sphereNa3);
+				cube.add(sphereNa4);
+				cube.add(sphereCl);
+				cube.add(sphereCl2);
+				cube.add(sphereCl3);
+				cube.add(sphereCl4);
+				scene.add(cube);
+			    }
+
+ 
+       	createCubeMain(100, 100);
+	//var NaClCube = createCube(100, 100, 200);
+	//var NaClCubeCube = createCube(100,100,400);
+
+	//var final = new THREE.Object3D();
+	//final.add(NaCl);
+	//final.add(NaClCube);				
+	//scene.add(final);
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.top = '0px';
+				container.appendChild( stats.domElement );
+
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+			}
+
+			//
+
+			function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+				document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+				mouseXOnMouseDown = event.clientX - windowHalfX;
+				targetRotationOnMouseDown = targetRotation;
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = event.clientX - windowHalfX;
+
+				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+			}
+
+			function onDocumentMouseUp( event ) {
+
+				document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+				document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			}
+
+			function onDocumentMouseOut( event ) {
+
+				document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+				document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length == 1 ) {
+
+					event.preventDefault();
+
+					mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
+					targetRotationOnMouseDown = targetRotation;
+
+				}
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length == 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
+
+				}
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				
+
+				render();
+				stats.update();
+
+			}
+
+			function render() {
+
+				cube.rotation.y += (targetRotation - cube.rotation.y) * 0.05;
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
