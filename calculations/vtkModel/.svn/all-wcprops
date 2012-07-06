@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/377/trunk/spinwaves/vtkModel
+END
+BondClass.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/368/trunk/spinwaves/vtkModel/BondClass.py
+END
+StarFile.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/331/trunk/spinwaves/vtkModel/StarFile.py
+END
+VTKDrawer.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/359/trunk/spinwaves/vtkModel/VTKDrawer.py
+END
+Parameter_Manager.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/331/trunk/spinwaves/vtkModel/Parameter_Manager.py
+END
+SpaceGroups.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/332/trunk/spinwaves/vtkModel/SpaceGroups.py
+END
+CutoffCellClass.py
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/331/trunk/spinwaves/vtkModel/CutoffCellClass.py
+END
+MagneticCellClass.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/375/trunk/spinwaves/vtkModel/MagneticCellClass.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/331/trunk/spinwaves/vtkModel/__init__.py
+END
+CifFile.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/339/trunk/spinwaves/vtkModel/CifFile.py
+END
+SymmetryUtilities.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/331/trunk/spinwaves/vtkModel/SymmetryUtilities.py
+END
+CellClass.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/375/trunk/spinwaves/vtkModel/CellClass.py
+END
+AtomClass.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/374/trunk/spinwaves/vtkModel/AtomClass.py
+END
