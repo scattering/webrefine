@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>jqPlot error bars</title>
+
+<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="jqplot/excanvas.js"></<!script><![endif]-->
+<script language="javascript" type="text/javascript" src="jqplot/jquery-1.5.1.js"></script>
+<script language="javascript" type="text/javascript" src="jqplot/jquery.jqplot.js"></script>
+<script language="javascript" type="text/javascript" src="jqplot/plugins/jqplot.pcolorRenderer.js"></script>
+<script language="javascript" type="text/javascript" src="jqplot/plugins/jqplot.logAxisRenderer.js"></script>
+<script language="javascript" type="text/javascript" src="jqplot/plugins/jqplot.cursor.js"></script>
+<!--<script language="javascript" type="text/javascript" src="jqplot/plugins/jqplot.AxisTickRenderer.js"></script>-->
+<script language="javascript" type="text/javascript" src="plotting_api.js"></script>
+<script language="javascript" type="text/javascript" src="palettes.js"></script>
+<script language="javascript" type="text/javascript" src="sansdata.js"></script>
+<script language="javascript" type="text/javascript" src="andrdata2.js"></script>
+<link rel="stylesheet" type="text/css" href="jqplot/jquery.jqplot.css" />
+<style rel="stylesheet" type="text/css">
+.jqplot-target { font-family: helvetica; }
+.m { font-family: cambria,serif; }
+h3 { font-weight: normal; }
+.jqplot-bubble-point { border: 1px dashed orange; }
+</style>
+<script type="text/javascript">
+sansdata=andrdata2;
+sansdata.z=$.map(sansdata.z, function(x){f= $.map(x, function(d){return d+1}); return [f];});
+var m = Matrix(sansdata.z);
+sansdata.dims = { xmin: -3, xmax: 3, dx: .5*96/1024, ymin: -3, ymax: 3, dy: .5*96/1024 };
+/*
+var data =
+[
+  DataSeries({
+    type: sansdata.type,
+    name: "Sans data",
+    func: m.at,
+    desc: 'sans data',
+    axis: "lin",
+    dims: m.autodims,
+    palette: "jet",
+    edges: 255,
+  }),
+  DataSeries({
+    name: "Test",
+    func: noob,
+    desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = (1 &minus; <i>x</i>/2 + <i>x</i><sup>5</sup> + <i>y</i><sup>3</sup>) * exp(&minus;<i>x</i><sup>2</sup> &minus; <i>y</i><sup>2</sup>)</span>',
+    axis: 'lin',
+    dims: { xmin: -3, xmax: 3, dx: .5*96/1024, ymin: -3, ymax: 3, dy: .5*96/1024 },
+    palette: 'jet',
+    edges: 255,
+  })
+];*/
+
+function noob(x,y) {
+  return (1 - x/2 + Math.pow(x,5) + Math.pow(y,3))*Math.exp(-Math.pow(x,2)-Math.pow(y,2));
+}
+function noob2(x,y) {
+  return Math.sin(x*x + y*y);
+}
+function noob3(x,y) { return x; }
+function noob4(x,y) { return x*y; }
+function noob5(x,y) { return x*y*y*y-y*x*x*x; }
+function noob6(x,y) { return -x*y*Math.exp(-x*x-y*y); }
+
+var funcs = {
+  sans: { f: m.at, desc: 'asdf' },
+  noob: { f: noob, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = (1 &minus; <i>x</i>/2 + <i>x</i><sup>5</sup> + <i>y</i><sup>3</sup>) * exp(&minus;<i>x</i><sup>2</sup> &minus; <i>y</i><sup>2</sup>)</span>' },
+  noob2: { f: noob2, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = sin(<i>x</i><sup>2</sup> + <i>y</i><sup>2</sup>)</span>' },
+  noob3: { f: noob3, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = <i>x</i></span>' },
+  noob4: { f: noob4, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = <i>x</i><i>y</i></span>' },
+  noob5: { f: noob5, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = <i>x</i><i>y</i><sup>3</sup> &minus; <i>y</i><i>x</i><sup>3</sup></span>' },
+  noob6: { f: noob6, desc: '<span class="m"><i>f</i>(<i>x</i>, <i>y</i>) = &minus;<i>x</i><i>y</i> * exp(&minus;<i>x</i><sup>2</sup> &minus; <i>y</i><sup>2</sup>)</span></span>' },
+};
+
+$(document).ready(function() {
+  $.jqplot.config.enablePlugins = true;
+  renderSelects(['funcs', 'palettes', 'numedges', 'res', 'submit']);
+  plottingAPI(sansdata, 'chart1');
+  console.log('Ready');
+});
+</script>
+</head>
+<body>
+<div id="chart1" style="float: left; height: 600px; width: 600px;"></div>
+<canvas id="colorbar" width="60" height="600" style="float: left;"></canvas>
+<hr style="clear: left;" />
+<form id="form1">
+<p><label for="funcs">Select a function:</label> <select id="funcs"></select></p>
+<p><label for="palettes">Select a palette:</label> <select id="palettes"></select></p>
+<p><label for="numedges">Select the number of edges:</label> <select id="numedges"></select></p>
+<p><label for="res">Select the resolution:</label> <select id="res"></select></p>
+<p><input id="submit" type="button" value="Update plot" /></p>
+</form>
+<h3 id="desc"></h3>
+<canvas id="mycanvas" width="1024" height="1024" style="border: 1px dotted #bbb;"></canvas>
+<canvas id="invis" width="1024" height="1024" style="display: one;"></canvas>
+<canvas id="invis2" width="1" height="1024" style="display: one;"></canvas>
+</body>
+</html>
