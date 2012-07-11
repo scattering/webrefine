@@ -18,264 +18,402 @@ Ext.require([
 ]);
 
 Ext.onReady(function () {
-    /* FILE ASSOCIATIONS TABLE, Andrew Tracer, 6/8/2011
-
-     Field:
-     -filename, the name of the file
-     - accepts any string
-     -filetype, the type of file (e.g., measurement or background)
-     - combobox options MEA or BAC
-     -group, associating a bunch of files (e.g., measurement and
-     background from one experiment)
-     - accepts lone integers and comma separated integers
-
-     Editing:
-     -Double-click on a cell to edit an individual record's field values.
-     -Shift + right-click will allow you to edit the filetype and group of all selected rows.
-     -the group field will accept a single integer or a list of integers.
-     The latter option is to allow association of a single file
-     with multiple groups
+    /* 
 
      */
 
-    //The following line is evil and worse, it is impolite.    We should try to replace it!!!
-    Object.prototype.clone = function() {
-        var newObj = (this instanceof Array) ? [] : {};
-        for (i in this) {
-            if (i == 'clone') continue;
-            if (this[i] && typeof this[i] == "object") {
-                newObj[i] = this[i].clone();
-            } else newObj[i] = this[i]
-        } return newObj;
-    };
+    //The following line is evil and worse, it is impolite.    We should try to replace it!!
+      
+    var aField = new Ext.form.NumberField({
+        fieldLabel: 'a',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var bField = new Ext.form.NumberField({
+        fieldLabel: 'b',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var cField = new Ext.form.NumberField({
+        fieldLabel: 'c',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var alphaField = new Ext.form.NumberField({
+        fieldLabel: 'α',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var betaField = new Ext.form.NumberField({
+        fieldLabel: 'β',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var gammaField = new Ext.form.NumberField({
+        fieldLabel: 'γ',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var spaceGroupField = new Ext.form.NumberField({
+        fieldLabel: 'Space Group',
+        allowBlank: true,
+        decimalPrecision: 7
+    });
+    /*var symbolField = new Ext.form.NumberField({
+        fieldLabel: 'Symbol',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var elementField = new Ext.form.NumberField({
+        fieldLabel: 'Element',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var wPosField = new Ext.form.NumberField({
+        fieldLabel: 'Weincoff Position',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var xField = new Ext.form.NumberField({
+        fieldLabel: 'X',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var yField = new Ext.form.NumberField({
+        fieldLabel: 'Y',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var zField = new Ext.form.NumberField({
+        fieldLabel: 'Z',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var occupancyField = new Ext.form.NumberField({
+        fieldLabel: 'Occupancy',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10'
+    });
+    var bField = new Ext.form.NumberField({
+        fieldLabel: 'B',
+        allowBlank: true,
+        decimalPrecision: 7,
+        anchor: '-10' 
+    
+    
+       });
+*/
 
-    var maxvals = [];
-    var minvals = [];
-    var instrument = 'sans10m';  // FIXME: should be a parameter
-    var root = 'http://' + window.location.hostname + ':8001/' + instrument;
-    var device = new io.connect(root + '/device');
-    var control = new io.connect(root + '/control');
-    var events = new io.connect(root + '/events');
-    var storeFields = [];
-    var dataArray = [];
-    var keys = [];
-	
-	 function trim_data(data) {
-            $.each(data, function (idx,node) {
-			    if (node.currentValue === undefined) {
-				    node.currentValue = { 'val': 'undefined' };
-                } else if ($.isArray(node.currentValue.val) && node.currentValue.val.length > 5) {
-                    node.currentValue.val = "[...]";
+    var numberFieldEditor = new Ext.form.NumberField({
+        allowBlank: false,
+        allowDecimals: true,
+        decimalPrecision: 7
+    });
+    var textFieldEditor = new Ext.form.TextField({
+        maxLength: 11,
+    });
+    
+    
+
+//    var cm = new Ext.grid.ColumnModel({
+//        // specify any defaults for each column
+//        defaults: {
+//            sortable: false,
+//            align: 'right',
+//            width: 60,
+//            editor: new Ext.form.NumberField({
+//                allowBlank: false,
+//                allowDecimals: true,
+//                decimalPrecision: 7
+//            })
+//        },
+//        columns: [
+//            {
+//            header: 'Symbol',
+//            dataIndex: 'Symbol'
+//            },
+//        {
+//            header: 'Element',
+//            dataIndex: 'Element'
+//            },
+//        {
+//            header: 'Wycoff Position',
+//            dataIndex: 'Wycoff Position'
+//            },
+//        {
+//            header: 'X',
+//            dataIndex: 'X'
+//            },
+//        {
+//            header: 'Y',
+//            dataIndex: 'Y'
+//            },
+//	{
+//            header: 'Z',
+//            dataIndex: 'Z'
+//            },
+//        ]
+//    });
+//
+//    var cm2 = new Ext.grid.ColumnModel({
+//        defaults: {
+//            sortable: false,
+//            align: 'right',
+//            width: 65
+//        },
+//        columns: [
+//        {
+//            header: "",
+//            dataIndex: 'mycheckbox',
+//            width: 25,
+//            renderer: renderCheckBox
+//        }, {
+//            header: 'Symbol',
+//            dataIndex: 'Symbol',
+//            width: 55,
+//            editor: numberFieldEditor
+//        }, {
+//             header: 'Element',
+//            dataIndex: 'Element',
+//            width: 55,
+//            editor: numberFieldEditor
+//        }, {
+//            header: 'Weincoff Position',
+//            dataIndex: 'Weincoff Position',
+//            width: 55,
+//            editor: numberFieldEditor
+//        }, {
+//            header: 'X',
+//            dataIndex: 'X',
+//            editor: textFieldEditor
+//        }, {
+//            header: 'Y',
+//            dataIndex: 'Y',
+//            editor: textFieldEditor
+//        }, {
+//            header: 'Z',
+//            dataIndex: 'Z',
+//            editor: textFieldEditor
+//        }
+//        ]
+//    });
+//    //Setting the calculated angle values to uneditable
+//    cm2.setEditable(4, false);
+//    cm2.setEditable(5, false);
+//    cm2.setEditable(6, false);
+//    cm2.setEditable(7, false);
+//    cm2.setEditable(8, false);
+    // ********* END - Creating Column Models *********
+    
+    
+
+    function displayLattice (responseObject){
+        lattice = Ext.decode(responseObject.responseText);
+        
+        aField.setValue(lattice['a']);
+        bField.setValue(lattice['b']);
+        cField.setValue(lattice['c']);
+        alphaField.setValue(lattice['alpha']);
+        betaField.setValue(lattice['beta']);
+        gammaField.setValue(lattice['gamma']);
+    }
+    
+    // ****************** END - Defining grid button functions ****************** 
+    // ********* START - Setting up lattice constants GUI  *********
+
+
+    var tmpFieldset = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'numberfield',
+        defaults    : {
+            allowBlank : false,
+            decimalPrecision: 10
+        },
+        items: [
+                {
+                xtype       : 'container',
+                border      : false,
+                layout      : 'column',
+                anchor      : '115%',
+                items       : [
+                                {
+                            xtype       : 'container',
+                            layout      : 'form',
+                            width       : 100,
+                            labelWidth  : 10,
+                            items   : [aField]
+                                }
+                    ]
                 }
-                if (node.desiredValue === undefined) {
-				    node.desiredValue = { 'val': 'undefined' };
-                } else if ($.isArray(node.desiredValue.val) && node.desiredValue.val.length > 5) {
-                    node.desiredValue.val = "[...]";
-                }
-            });
-            return data;
-        }
-
-    function sorted_keys(obj) {
-        var keys = [];
-        for (var i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                keys.push(i);
-            }
-        }
-
-        // may have to craft a custom sort function to get the right order
-        keys.sort();
-        return keys;
+            ]
     }
 
-    device.on('connect', function () {
-        console.log("device connect");
-        device.emit('subscribe', function (data) {
-			data=trim_data(data);
-            console.log("device subscribe", data);
-            dataArray = [];
-            var datum = {};
-            keys=Object.keys(data);
-            for (var i = 0; i < keys.length; i++) {
-                var datum = {};
-                if (keys[i] !== "detector.counts") {
-                    datum['position'] = data[keys[i]]['currentValue']['val'];
-                    datum['target'] = data[keys[i]]['desiredValue']['val'];
-                    datum['device'] = data[keys[i]]['id'];
-                    dataArray.push(datum);
+
+
+
+
+//    var topFieldset = {
+//        xtype       : 'fieldset',
+//        border      : false,
+//        defaultType : 'numberfield',
+//        defaults    : {
+//                        allowBlank : false,
+//                        decimalPrecision: 10
+//                      },
+//        items: [
+//                 {
+//                xtype       : 'container',
+//                border      : false,
+//                layout      : 'column',
+//                anchor      : '115%',
+//                items       : [
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items   : [
+//                            aField
+//                        ]
+//                    },
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items       : [
+//                            bField
+//                        ]
+//                    },
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items       : [
+//                            cField
+//                        ]
+//                    }, {
+//                        //Buffer blank space to even out the c inputbox
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        columnWidth : 1,
+//                        labelWidth  : 1
+//                    }
+//                ]
+//            },
+//                 {
+//                xtype       : 'container',
+//                border      : false,
+//                layout      : 'column',
+//                anchor      : '100%',
+//                items       : [
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items   : [alphaField]
+//                    },
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items       : [betaField]
+//                    },
+//                    {
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        width       : 100,
+//                        labelWidth  : 10,
+//                        items       : [
+//                            gammaField
+//                        ]
+//                    },
+//                    {
+//                        //Buffer blank space to even out the gamma inputbox
+//                        xtype       : 'container',
+//                        layout      : 'form',
+//                        columnWidth : 1,
+//                        labelWidth  : 1
+//                    }
+//                ]
+//            },
+//            spaceGroupField,
+//        ]
+//    };
+   
+    
+    
+   
+
+    var innerRightTopPanel = new Ext.Panel({
+        layout: 'border',
+        width: 350,
+        height: 290,
+        border: true,
+        items: [{
+                title   : 'Lattice Parameters',
+                region  : 'center',
+                id      : 'center-component',
+                layout  : 'fit',
+                margins : '0 5 0 0', //small margins to the east of box
+                items   : [tmpFieldset]
                 }
+                ]
+    });  
+
+//    var TopPanel = new Ext.Panel({
+//        layout: 'table',
+//        width: 790,
+//        layoutConfig: {
+//            columns: 1
+//        },
+//        items: [innerRightTopPanel]
+//    });
+
+
+    var myTabs = new Ext.TabPanel({
+        resizeTabs: true, // turn on tab resizing
+        minTabWidth: 115,
+        tabWidth: 135,
+        enableTabScroll: true,
+        width: 793,
+        height: 524,
+        activeItem: 'webrefinetab', //Making the calculator tab selected first
+        defaults: {autoScroll:true},
+        items: [
+            {
+                title: 'WebRefine',
+                id: 'webrefinetab',
+                iconCls: '/static/img/silk/calculator.png',
+                items: [innerRightTopPanel]
+            }, {
+                title: 'Help Manual',
+                id: 'helpmanualtab',
+                padding: 5,
+                iconCls: '/static/img/silk/help.png',
+		        html: '<h1>Hi</h1>'
+                    
             }
-            keys.splice(keys.indexOf('detector.counts'), 1);
-            var localData=dataArray.clone();
-            grid.store.loadData(localData);
-            grid.getView().refresh();
-            //load_data();
-            //var keys = sorted_keys(data);
-            //for (var i=0; i < keys.length; i++) show_node(data[keys[i]]);
-        });
-    });
-
-    device.on('changed', function (data) {
-		data=trim_data(data);
-        console.log("device changed");
-		
-        var changedData = [];
-        var datum = {};
-        var changedKeys=Object.keys(data);
-        for (var i=0; i < changedKeys.length; i++){
-            if (changedKeys[i] !== "detector.counts") {
-                datum['position'] = data[changedKeys[i]].currentValue.val;
-                datum['target'] = data[changedKeys[i]].desiredValue.val;
-                datum['device'] = data[changedKeys[i]].id;
-                changedData.push(datum);
-				record=grid.store.getAt(i);
-				record.set('position',datum['position']);
-				record.set('target',datum['target']);
-				record.commit();
-				
-            }
-        }
-		return;
-        //updates dataArray based on the changed positions from changedData
-        for (var i=0; i < changedData.length; i++) {
-            var x = keys.indexOf(changedData[i]['device']);
-            dataArray[x] = changedData[i]
-        }
-        var localData=dataArray.clone();
-		return;
-        grid.store.loadData(localData);
-        //grid.getView().refresh();
-        //for (var i=0; i < data.length; i++) show_node(data[i]);
-    });
-
-
-    Ext.regModel('deviceModel', {
-        fields:[
-            {name:'device', type:'string'},
-            'position',
-            {name:'target', type:'string'}
         ]
     });
 
-    var store = Ext.create('Ext.data.Store', { model:'deviceModel'});
-
-    var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-        clicksToEdit: 1
-    });
-
-//	var store = new Ext.data.Store({
-//        proxy: new Ext.data.proxy.Memory(dataArray),
-//        reader: new Ext.data.ArrayReader({},storeFields),
-//        remoteSort: true,
-//    });
-    var gridColumns = [];
-
-    gridColumns.push({header:'device', width:150, sortable:true, dataIndex:'device'});
-    gridColumns.push({header:'position', width:150, hidden:false, sortable:true, dataIndex:'position'})
-        //field: {xtype: 'numberfield', allowBlank: false}});
-    gridColumns.push({header:'target', width:150, hidden:false, sortable:true, dataIndex:'target'})
-        //field: {xtype: 'numberfield', allowBlank: false}});
-
-    /*GridPanel that displays the data*/
-    var grid = new Ext.grid.GridPanel({
-        store:store,
-        columns:gridColumns,
-        stripeRows:true,
-        height:500,
-        width:700,
-        plugins: [{
-            ptype: 'rowexpander',
-            rowBodyTpl : [
-                '<p><b>Device:</b> {device}</p><br>',
-                '<p><b>Target:</b> {target}</p>'
-            ]
-        },
-        cellEditing],
-        title:'Devices',
-        collapsible: true,
-        animCollapse: false,
-    });
-
-    grid.render('gridtest');
-
-
-    /*After data is retrieved from server, we have to reinitiallize the Store reconfigure the ArrayGrid
-     so that the new data is displayed on the page*/
-    function load_data(dataArray) {
-
-        var gridColumns = [];
-        storeFields = [];
-        gridColumns.push({header:'device', width: 150, sortable: true, dataIndex: 'device'});
-
-        gridColumns.push({header: 'position', width: 150,hidden:false, sortable: true, dataIndex: 'position'});
-
-        gridColumns.push({header: 'target', width: 150,hidden:false, sortable: true, dataIndex: 'target'});
-
-
-        //storeFields.push({name:'device'});
-       // storeFields.push({name:'position'});
-        //storeFields.push({name:'target'});
-
-
-       // Ext.regModel('deviceModel', {
-       //     fields:storeFields
-        //});
-        //var store = Ext.create('Ext.data.Store', { model:'deviceModel'});
-        //grid.columns = gridColumns;
-
-        //add all devices to the store..
-//        var devicerecs = [];
-//        for (var j = 0; j < dataArray.length; ++j) {
-//            var devicerec = {};
-//            devicerec['position'] = dataArray[j]['position'];
-//            devicerec['device'] = dataArray[j]['device'];
-//            devicerec['target'] = dataArray[j]['target'];
-//            devicerecs.push(devicerec);
-//
-//        }
-        //grid.store.loadData(devicerecs);
-        grid.store.loadData(dataArray);
-
-
-        //colModel = new Ext.grid.ColumnModel({columns: gridColumns});
-        //store.load({params:{start:0, limit:10}});
-        //grid.getBottomToolbar().removeAll();
-        //grid.getBottomToolbar().add(new Ext.PagingToolbar({
-        //        store:store,
-        //        pageSize: 10,
-        //        displayInfo: false,
-        //        displayMsg: 'Displaying topics {0} - {1} of {2}',
-        //        emptyMsg: "No topics to display",
-        //    }))
-        //grid.getBottomToolbar().doLayout();
-
-        //gridColumns = store.data.items;
-        grid.getView().refresh();
-
-    }
-
-
-    /*Retrieve data in json format via a GET request to the server. This is used
-     anytime there is new data, and initially to populate the table.*/
-    function update() {
-        //dataArray=[['file name','database id','sha1','x','y','z'],[NaN,NaN,NaN,10,10,10],[NaN,NaN,NaN,-10,-10,-10],['file1','1','sh1','1,9','2,3','3,4'],['file2','1','sh2','4,5','2,3','5,5']];
-        var conn = new Ext.data.Connection();
-        conn.request({
-            url:'/json/',
-            method:'GET',
-            params:{},
-            success:function (responseObject) {
-                dataArray = Ext.decode(responseObject.responseText);//decodes the response
-                reload_data();                                      //resets the store and grids
-            },
-            failure:function () {
-            }
-        });
-        //reload_data();
-    }
-
-    update();
-
-
+// ************************** END - Setting up the tabs  **************************
+    myTabs.render('tabs');
 });
