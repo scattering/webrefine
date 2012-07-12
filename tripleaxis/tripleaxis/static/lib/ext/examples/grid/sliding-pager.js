@@ -6,12 +6,15 @@ Ext.require([
     'Ext.data.*',
     'Ext.grid.*',
     'Ext.util.*',
+    'Ext.tip.QuickTipManager',
     'Ext.ux.data.PagingMemoryProxy',
     'Ext.toolbar.Paging',
     'Ext.ux.SlidingPager'
 ]);
 
 Ext.onReady(function(){
+    
+    Ext.tip.QuickTipManager.init();
 
     var myData = [
         ['3m Co',71.72,0.02,0.03,'9/1 12:00am'],
@@ -94,7 +97,7 @@ Ext.onReady(function(){
     });
     
     // create the Grid
-    var grid = Ext.createWidget('gridpanel', {
+    var grid = Ext.widget('gridpanel', {
         title:'Sliding Pager',
         store: store,
         columns: [{
@@ -129,6 +132,7 @@ Ext.onReady(function(){
             }],
         stripeRows: true,
         height:320,
+        minHeight: 160,
         width:600,
         frame:true,
         resizable: {

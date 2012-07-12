@@ -1,7 +1,4 @@
 /**
- * @class Ext.selection.TreeModel
- * @extends Ext.selection.RowModel
- *
  * Adds custom behavior for left/right keyboard navigation for use with a tree.
  * Depends on the view having an expand and collapse method which accepts a
  * record.
@@ -28,7 +25,7 @@ Ext.define('Ext.selection.TreeModel', {
             if (focused.isExpanded()) {
                 this.onKeyDown(e, t);
             // if its not a leaf node, expand it
-            } else if (!focused.isLeaf()) {
+            } else if (focused.isExpandable()) {
                 view.expand(focused);
             }
         }
@@ -63,20 +60,19 @@ Ext.define('Ext.selection.TreeModel', {
         }
     },
     
-    onKeyPress: function(e, t) {
-        var selected, checked;
-        
-        if (e.getKey() === e.SPACE || e.getKey() === e.ENTER) {
-            e.stopEvent();
-            selected = this.getLastSelected();
-            if (selected && selected.isLeaf()) {
-                checked = selected.get('checked');
-                if (Ext.isBoolean(checked)) {
-                    selected.set('checked', !checked);
-                }
-            }
-        } else {
-            this.callParent(arguments);
+    onKeySpace: function(e, t) {
+        this.toggleCheck(e);
+    },
+    
+    onKeyEnter: function(e, t) {
+        this.toggleCheck(e);
+    },
+    
+    toggleCheck: function(e){
+        e.stopEvent();
+        var selected = this.getLastSelected();
+        if (selected) {
+            this.view.onCheckChange(selected);
         }
     }
 });

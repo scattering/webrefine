@@ -1,28 +1,24 @@
 /**
- * @class Ext.grid.feature.Chunking
- * @extends Ext.grid.feature.Feature
+ *
  */
 Ext.define('Ext.grid.feature.Chunking', {
     extend: 'Ext.grid.feature.Feature',
     alias: 'feature.chunking',
-    
+
     chunkSize: 20,
     rowHeight: Ext.isIE ? 27 : 26,
     visibleChunk: 0,
     hasFeatureEvent: false,
     attachEvents: function() {
-        var grid = this.view.up('gridpanel'),
-            scroller = grid.down('gridscroller[dock=right]');
-        scroller.el.on('scroll', this.onBodyScroll, this, {buffer: 300});
-        //this.view.on('bodyscroll', this.onBodyScroll, this, {buffer: 300});
+        this.view.el.on('scroll', this.onBodyScroll, this, {buffer: 300});
     },
-    
+
     onBodyScroll: function(e, t) {
         var view = this.view,
             top  = t.scrollTop,
             nextChunk = Math.floor(top / this.rowHeight / this.chunkSize);
         if (nextChunk !== this.visibleChunk) {
-        
+
             this.visibleChunk = nextChunk;
             view.refresh();
             view.el.dom.scrollTop = top;
@@ -30,45 +26,43 @@ Ext.define('Ext.grid.feature.Chunking', {
             view.el.dom.scrollTop = top;
         }
     },
-    
-    collectData: function(records, preppedRecords, startIndex, fullWidth, orig) {
-        var o = {
-            fullWidth: orig.fullWidth,
-            chunks: []
-        },
+
+    collectData: function(records, preppedRecords, startIndex, fullWidth, o) {
         //headerCt = this.view.headerCt,
         //colums = headerCt.getColumnsForTpl(),
-        recordCount = orig.rows.length,
-        start = 0,
-        i = 0,
-        visibleChunk = this.visibleChunk,
-        chunk,
-        rows,
-        chunkLength;
+        var me = this,
+            recordCount = o.rows.length,
+            start = 0,
+            i = 0,
+            visibleChunk = me.visibleChunk,
+            rows,
+            chunkLength,
+            origRows = o.rows;
 
-        for (; start < recordCount; start+=this.chunkSize, i++) {
-            if (start+this.chunkSize > recordCount) {
+        delete o.rows;
+        o.chunks = [];
+        for (; start < recordCount; start += me.chunkSize, i++) {
+            if (start + me.chunkSize > recordCount) {
                 chunkLength = recordCount - start;
             } else {
-                chunkLength = this.chunkSize;
+                chunkLength = me.chunkSize;
             }
             
             if (i >= visibleChunk - 1 && i <= visibleChunk + 1) {
-                rows = orig.rows.slice(start, start+this.chunkSize);
+                rows = origRows.slice(start, start + me.chunkSize);
             } else {
                 rows = [];
             }
             o.chunks.push({
                 rows: rows,
                 fullWidth: fullWidth,
-                chunkHeight: chunkLength * this.rowHeight
+                chunkHeight: chunkLength * me.rowHeight
             });
         }
-        
-        
+
         return o;
     },
-    
+
     getTableFragments: function() {
         return {
             openTableWrap: function() {

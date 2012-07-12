@@ -3,355 +3,38 @@
  * @docauthor Jacky Nguyen <jacky@sencha.com>
  * @class Ext.Base
  *
- * The root of all classes created with {@link Ext#define}
- * All prototype and static members of this class are inherited by any other class
+ * The root of all classes created with {@link Ext#define}.
  *
+ * Ext.Base is the building block of all Ext classes. All classes in Ext inherit from Ext.Base.
+ * All prototype and static members of this class are inherited by all other classes.
  */
 (function(flexSetter) {
 
-var Base = Ext.Base = function() {};
-    Base.prototype = {
-        $className: 'Ext.Base',
-
-        $class: Base,
-
-        /**
-         * Get the reference to the current class from which this object was instantiated. Unlike {@link Ext.Base#statics},
-         * `this.self` is scope-dependent and it's meant to be used for dynamic inheritance. See {@link Ext.Base#statics}
-         * for a detailed comparison
-         *
-         *     Ext.define('My.Cat', {
-         *         statics: {
-         *             speciesName: 'Cat' // My.Cat.speciesName = 'Cat'
-         *         },
-         *
-         *         constructor: function() {
-         *             alert(this.self.speciesName); / dependent on 'this'
-         *
-         *             return this;
-         *         },
-         *
-         *         clone: function() {
-         *             return new this.self();
-         *         }
-         *     });
-         *
-         *
-         *     Ext.define('My.SnowLeopard', {
-         *         extend: 'My.Cat',
-         *         statics: {
-         *             speciesName: 'Snow Leopard'         // My.SnowLeopard.speciesName = 'Snow Leopard'
-         *         }
-         *     });
-         *
-         *     var cat = new My.Cat();                     // alerts 'Cat'
-         *     var snowLeopard = new My.SnowLeopard();     // alerts 'Snow Leopard'
-         *
-         *     var clone = snowLeopard.clone();
-         *     alert(Ext.getClassName(clone));             // alerts 'My.SnowLeopard'
-         *
-         * @type Class
-         * @protected
-         * @markdown
-         */
-        self: Base,
-
-        /**
-         * Default constructor, simply returns `this`
-         *
-         * @constructor
-         * @protected
-         * @return {Object} this
-         */
-        constructor: function() {
-            return this;
-        },
-
-        /**
-         * Initialize configuration for this class. a typical example:
-         *
-         *     Ext.define('My.awesome.Class', {
-         *         // The default config
-         *         config: {
-         *             name: 'Awesome',
-         *             isAwesome: true
-         *         },
-         *
-         *         constructor: function(config) {
-         *             this.initConfig(config);
-         *
-         *             return this;
-         *         }
-         *     });
-         *
-         *     var awesome = new My.awesome.Class({
-         *         name: 'Super Awesome'
-         *     });
-         *
-         *     alert(awesome.getName()); // 'Super Awesome'
-         *
-         * @protected
-         * @param {Object} config
-         * @return {Object} mixins The mixin prototypes as key - value pairs
-         * @markdown
-         */
-        initConfig: function(config) {
-            if (!this.$configInited) {
-                this.config = Ext.Object.merge({}, this.config || {}, config || {});
-
-                this.applyConfig(this.config);
-
-                this.$configInited = true;
-            }
-
-            return this;
-        },
-
-        /**
-         * @private
-         */
-        setConfig: function(config) {
-            this.applyConfig(config || {});
-
-            return this;
-        },
-
-        /**
-         * @private
-         */
-        applyConfig: flexSetter(function(name, value) {
-            var setter = 'set' + Ext.String.capitalize(name);
-
-            if (typeof this[setter] === 'function') {
-                this[setter].call(this, value);
-            }
-
-            return this;
-        }),
-
-        /**
-         * Call the parent's overridden method. For example:
-         *
-         *     Ext.define('My.own.A', {
-         *         constructor: function(test) {
-         *             alert(test);
-         *         }
-         *     });
-         *
-         *     Ext.define('My.own.B', {
-         *         extend: 'My.own.A',
-         *
-         *         constructor: function(test) {
-         *             alert(test);
-         *
-         *             this.callParent([test + 1]);
-         *         }
-         *     });
-         *
-         *     Ext.define('My.own.C', {
-         *         extend: 'My.own.B',
-         *
-         *         constructor: function() {
-         *             alert("Going to call parent's overriden constructor...");
-         *
-         *             this.callParent(arguments);
-         *         }
-         *     });
-         *
-         *     var a = new My.own.A(1); // alerts '1'
-         *     var b = new My.own.B(1); // alerts '1', then alerts '2'
-         *     var c = new My.own.C(2); // alerts "Going to call parent's overriden constructor..."
-         *                              // alerts '2', then alerts '3'
-         *
-         * @protected
-         * @param {Array/Arguments} args The arguments, either an array or the `arguments` object
-         * from the current method, for example: `this.callParent(arguments)`
-         * @return {Mixed} Returns the result from the superclass' method
-         * @markdown
-         */
-        callParent: function(args) {
-            var method = this.callParent.caller,
-                parentClass, methodName;
-
-            if (!method.$owner) {
-                //<debug error>
-                if (!method.caller) {
-                    Ext.Error.raise({
-                        sourceClass: Ext.getClassName(this),
-                        sourceMethod: "callParent",
-                        msg: "Attempting to call a protected method from the public scope, which is not allowed"
-                    });
-                }
-                //</debug>
-
-                method = method.caller;
-            }
-
-            parentClass = method.$owner.superclass;
-            methodName = method.$name;
-
-            //<debug error>
-            if (!(methodName in parentClass)) {
-                Ext.Error.raise({
-                    sourceClass: Ext.getClassName(this),
-                    sourceMethod: methodName,
-                    msg: "this.callParent() was called but there's no such method (" + methodName +
-                         ") found in the parent class (" + (Ext.getClassName(parentClass) || 'Object') + ")"
-                 });
-            }
-            //</debug>
-
-            return parentClass[methodName].apply(this, args || []);
-        },
-
-
-        /**
-         * Get the reference to the class from which this object was instantiated. Note that unlike {@link Ext.Base#self},
-         * `this.statics()` is scope-independent and it always returns the class from which it was called, regardless of what
-         * `this` points to during run-time
-         *
-         *     Ext.define('My.Cat', {
-         *         statics: {
-         *             totalCreated: 0,
-         *             speciesName: 'Cat' // My.Cat.speciesName = 'Cat'
-         *         },
-         *  
-         *         constructor: function() {
-         *             var statics = this.statics();
-         *  
-         *             alert(statics.speciesName);     // always equals to 'Cat' no matter what 'this' refers to
-         *                                             // equivalent to: My.Cat.speciesName
-         *  
-         *             alert(this.self.speciesName);   // dependent on 'this'
-         *  
-         *             statics.totalCreated++;
-         *  
-         *             return this;
-         *         },
-         *  
-         *         clone: function() {
-         *             var cloned = new this.self;                      // dependent on 'this'
-         *  
-         *             cloned.groupName = this.statics().speciesName;   // equivalent to: My.Cat.speciesName
-         *  
-         *             return cloned;
-         *         }
-         *     });
-         *
-         *
-         *     Ext.define('My.SnowLeopard', {
-         *         extend: 'My.Cat',
-         *  
-         *         statics: {
-         *             speciesName: 'Snow Leopard'     // My.SnowLeopard.speciesName = 'Snow Leopard'
-         *         },
-         *  
-         *         constructor: function() {
-         *             this.callParent();
-         *         }
-         *     });
-         *
-         *     var cat = new My.Cat();                 // alerts 'Cat', then alerts 'Cat'
-         *
-         *     var snowLeopard = new My.SnowLeopard(); // alerts 'Cat', then alerts 'Snow Leopard'
-         *
-         *     var clone = snowLeopard.clone();
-         *     alert(Ext.getClassName(clone));         // alerts 'My.SnowLeopard'
-         *     alert(clone.groupName);                 // alerts 'Cat'
-         *
-         *     alert(My.Cat.totalCreated);             // alerts 3
-         *
-         * @protected
-         * @return {Class}
-         * @markdown
-         */
-        statics: function() {
-            var method = this.statics.caller,
-                self = this.self;
-
-            if (!method) {
-                return self;
-            }
-
-            return method.$owner;
-        },
-
-        /**
-         * Call the original method that was previously overridden with {@link Ext.Base#override}
-         *
-         *     Ext.define('My.Cat', {
-         *         constructor: function() {
-         *             alert("I'm a cat!");
-         *   
-         *             return this;
-         *         }
-         *     });
-         *
-         *     My.Cat.override({
-         *         constructor: function() {
-         *             alert("I'm going to be a cat!");
-         *   
-         *             var instance = this.callOverridden();
-         *   
-         *             alert("Meeeeoooowwww");
-         *   
-         *             return instance;
-         *         }
-         *     });
-         *
-         *     var kitty = new My.Cat(); // alerts "I'm going to be a cat!"
-         *                               // alerts "I'm a cat!"
-         *                               // alerts "Meeeeoooowwww"
-         *
-         * @param {Array/Arguments} args The arguments, either an array or the `arguments` object
-         * @return {Mixed} Returns the result after calling the overridden method
-         * @markdown
-         */
-        callOverridden: function(args) {
-            var method = this.callOverridden.caller;
-
-            //<debug error>
-            if (!method.$owner) {
-                Ext.Error.raise({
-                    sourceClass: Ext.getClassName(this),
-                    sourceMethod: "callOverridden",
-                    msg: "Attempting to call a protected method from the public scope, which is not allowed"
-                });
-            }
-
-            if (!method.$previous) {
-                Ext.Error.raise({
-                    sourceClass: Ext.getClassName(this),
-                    sourceMethod: "callOverridden",
-                    msg: "this.callOverridden was called in '" + method.$name +
-                         "' but this method has never been overridden"
-                 });
-            }
-            //</debug>
-
-            return method.$previous.apply(this, args || []);
-        },
-
-        destroy: function() {}
-    };
+var noArgs = [],
+    Base = function(){};
 
     // These static properties will be copied to every newly created class with {@link Ext#define}
-    Ext.apply(Ext.Base, {
+    Ext.apply(Base, {
+        $className: 'Ext.Base',
+
+        $isClass: true,
+
         /**
          * Create a new instance of this Class.
          *
          *     Ext.define('My.cool.Class', {
          *         ...
          *     });
-         *      
+         *
          *     My.cool.Class.create({
          *         someConfig: true
          *     });
          *
-         * @property create
+         * All parameters are passed to the constructor of the class.
+         *
+         * @return {Object} the created instance.
          * @static
-         * @type Function
-         * @markdown
+         * @inheritable
          */
         create: function() {
             return Ext.create.apply(Ext, [this].concat(Array.prototype.slice.call(arguments, 0)));
@@ -359,41 +42,135 @@ var Base = Ext.Base = function() {};
 
         /**
          * @private
+         * @static
+         * @inheritable
+         * @param config
          */
-        own: flexSetter(function(name, value) {
-            if (typeof value === 'function') {
-                this.ownMethod(name, value);
+        extend: function(parent) {
+            var parentPrototype = parent.prototype,
+                basePrototype, prototype, i, ln, name, statics;
+
+            prototype = this.prototype = Ext.Object.chain(parentPrototype);
+            prototype.self = this;
+
+            this.superclass = prototype.superclass = parentPrototype;
+
+            if (!parent.$isClass) {
+                basePrototype = Ext.Base.prototype;
+
+                for (i in basePrototype) {
+                    if (i in prototype) {
+                        prototype[i] = basePrototype[i];
+                    }
+                }
             }
-            else {
-                this.prototype[name] = value;
+
+            //<feature classSystem.inheritableStatics>
+            // Statics inheritance
+            statics = parentPrototype.$inheritableStatics;
+
+            if (statics) {
+                for (i = 0,ln = statics.length; i < ln; i++) {
+                    name = statics[i];
+
+                    if (!this.hasOwnProperty(name)) {
+                        this[name] = parent[name];
+                    }
+                }
             }
-        }),
+            //</feature>
+
+            if (parent.$onExtended) {
+                this.$onExtended = parent.$onExtended.slice();
+            }
+
+            //<feature classSystem.config>
+            prototype.config = new prototype.configClass();
+            prototype.initConfigList = prototype.initConfigList.slice();
+            prototype.initConfigMap = Ext.clone(prototype.initConfigMap);
+            prototype.configMap = Ext.Object.chain(prototype.configMap);
+            //</feature>
+        },
 
         /**
          * @private
+         * @static
+         * @inheritable
          */
-        ownMethod: function(name, fn) {
-            var originalFn;
+        $onExtended: [],
 
-            if (fn.$owner !== undefined && fn !== Ext.emptyFn) {
-                originalFn = fn;
+        /**
+         * @private
+         * @static
+         * @inheritable
+         */
+        triggerExtended: function() {
+            var callbacks = this.$onExtended,
+                ln = callbacks.length,
+                i, callback;
 
-                fn = function() {
-                    return originalFn.apply(this, arguments);
-                };
+            if (ln > 0) {
+                for (i = 0; i < ln; i++) {
+                    callback = callbacks[i];
+                    callback.fn.apply(callback.scope || this, arguments);
+                }
+            }
+        },
+
+        /**
+         * @private
+         * @static
+         * @inheritable
+         */
+        onExtended: function(fn, scope) {
+            this.$onExtended.push({
+                fn: fn,
+                scope: scope
+            });
+
+            return this;
+        },
+
+        /**
+         * @private
+         * @static
+         * @inheritable
+         * @param config
+         */
+        addConfig: function(config, fullMerge) {
+            var prototype = this.prototype,
+                configNameCache = Ext.Class.configNameCache,
+                hasConfig = prototype.configMap,
+                initConfigList = prototype.initConfigList,
+                initConfigMap = prototype.initConfigMap,
+                defaultConfig = prototype.config,
+                initializedName, name, value;
+
+            for (name in config) {
+                if (config.hasOwnProperty(name)) {
+                    if (!hasConfig[name]) {
+                        hasConfig[name] = true;
+                    }
+
+                    value = config[name];
+
+                    initializedName = configNameCache[name].initialized;
+
+                    if (!initConfigMap[name] && value !== null && !prototype[initializedName]) {
+                        initConfigMap[name] = true;
+                        initConfigList.push(name);
+                    }
+                }
             }
 
-            //<debug>
-            var className;
-            className = Ext.getClassName(this);
-            if (className) {
-                fn.displayName = className + '#' + name;
+            if (fullMerge) {
+                Ext.merge(defaultConfig, config);
             }
-            //</debug>
-            fn.$owner = this;
-            fn.$name = name;
+            else {
+                Ext.mergeIf(defaultConfig, config);
+            }
 
-            this.prototype[name] = fn;
+            prototype.configClass = Ext.Object.classify(defaultConfig);
         },
 
         /**
@@ -409,16 +186,63 @@ var Base = Ext.Base = function() {};
          *         method2: function() { ... }     // My.cool.Class.method2 = function() { ... };
          *     });
          *
-         * @property addStatics
-         * @static
-         * @type Function
          * @param {Object} members
-         * @markdown
+         * @return {Ext.Base} this
+         * @static
+         * @inheritable
          */
         addStatics: function(members) {
-            for (var name in members) {
+            var member, name;
+
+            for (name in members) {
                 if (members.hasOwnProperty(name)) {
-                    this[name] = members[name];
+                    member = members[name];
+                    //<debug>
+                    if (typeof member == 'function') {
+                        member.displayName = Ext.getClassName(this) + '.' + name;
+                    }
+                    //</debug>
+                    this[name] = member;
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * @private
+         * @static
+         * @inheritable
+         * @param {Object} members
+         */
+        addInheritableStatics: function(members) {
+            var inheritableStatics,
+                hasInheritableStatics,
+                prototype = this.prototype,
+                name, member;
+
+            inheritableStatics = prototype.$inheritableStatics;
+            hasInheritableStatics = prototype.$hasInheritableStatics;
+
+            if (!inheritableStatics) {
+                inheritableStatics = prototype.$inheritableStatics = [];
+                hasInheritableStatics = prototype.$hasInheritableStatics = {};
+            }
+
+            for (name in members) {
+                if (members.hasOwnProperty(name)) {
+                    member = members[name];
+                    //<debug>
+                    if (typeof member == 'function') {
+                        member.displayName = Ext.getClassName(this) + '.' + name;
+                    }
+                    //</debug>
+                    this[name] = member;
+
+                    if (!hasInheritableStatics[name]) {
+                        hasInheritableStatics[name] = true;
+                        inheritableStatics.push(name);
+                    }
                 }
             }
 
@@ -434,7 +258,7 @@ var Base = Ext.Base = function() {};
          *         }
          *     });
          *
-         *      My.awesome.Cat.implement({
+         *      My.awesome.Cat.addMembers({
          *          meow: function() {
          *             alert('Meowww...');
          *          }
@@ -443,29 +267,35 @@ var Base = Ext.Base = function() {};
          *      var kitty = new My.awesome.Cat;
          *      kitty.meow();
          *
-         * @property implement
-         * @static
-         * @type Function
          * @param {Object} members
-         * @markdown
+         * @static
+         * @inheritable
          */
-        implement: function(members) {
+        addMembers: function(members) {
             var prototype = this.prototype,
-                name, i, member, previous;
-            //<debug>
-            var className = Ext.getClassName(this);
-            //</debug>
+                enumerables = Ext.enumerables,
+                names = [],
+                i, ln, name, member;
+
             for (name in members) {
+                names.push(name);
+            }
+
+            if (enumerables) {
+                names.push.apply(names, enumerables);
+            }
+
+            for (i = 0,ln = names.length; i < ln; i++) {
+                name = names[i];
+
                 if (members.hasOwnProperty(name)) {
                     member = members[name];
 
-                    if (typeof member === 'function') {
+                    if (typeof member == 'function' && !member.$isClass && member !== Ext.emptyFn) {
                         member.$owner = this;
                         member.$name = name;
                         //<debug>
-                        if (className) {
-                            member.displayName = className + '#' + name;
-                        }
+                        member.displayName = (this.$className || '') + '#' + name;
                         //</debug>
                     }
 
@@ -473,20 +303,38 @@ var Base = Ext.Base = function() {};
                 }
             }
 
-            if (Ext.enumerables) {
-                var enumerables = Ext.enumerables;
+            return this;
+        },
 
-                for (i = enumerables.length; i--;) {
-                    name = enumerables[i];
-
-                    if (members.hasOwnProperty(name)) {
-                        member = members[name];
-                        member.$owner = this;
-                        member.$name = name;
-                        prototype[name] = member;
-                    }
-                }
+        /**
+         * @private
+         * @static
+         * @inheritable
+         * @param name
+         * @param member
+         */
+        addMember: function(name, member) {
+            if (typeof member == 'function' && !member.$isClass && member !== Ext.emptyFn) {
+                member.$owner = this;
+                member.$name = name;
+                //<debug>
+                member.displayName = (this.$className || '') + '#' + name;
+                //</debug>
             }
+
+            this.prototype[name] = member;
+
+            return this;
+        },
+
+        /**
+         * Adds members to class.
+         * @static
+         * @inheritable
+         * @deprecated 4.1 Use {@link #addMembers} instead.
+         */
+        implement: function() {
+            this.addMembers.apply(this, arguments);
         },
 
         /**
@@ -510,38 +358,57 @@ var Base = Ext.Base = function() {};
          *     alert(steve.money); // alerts '$$$'
          *     steve.printMoney(); // alerts '$$$$$$$'
          *
-         * @property borrow
-         * @static
-         * @type Function
          * @param {Ext.Base} fromClass The class to borrow members from
          * @param {Array/String} members The names of the members to borrow
          * @return {Ext.Base} this
-         * @markdown
+         * @static
+         * @inheritable
+         * @private
          */
         borrow: function(fromClass, members) {
-            var fromPrototype = fromClass.prototype,
-                i, ln, member;
+            var prototype = this.prototype,
+                fromPrototype = fromClass.prototype,
+                //<debug>
+                className = Ext.getClassName(this),
+                //</debug>
+                i, ln, name, fn, toBorrow;
 
             members = Ext.Array.from(members);
 
-            for (i = 0, ln = members.length; i < ln; i++) {
-                member = members[i];
+            for (i = 0,ln = members.length; i < ln; i++) {
+                name = members[i];
 
-                this.own(member, fromPrototype[member]);
+                toBorrow = fromPrototype[name];
+
+                if (typeof toBorrow == 'function') {
+                    fn = Ext.Function.clone(toBorrow);
+
+                    //<debug>
+                    if (className) {
+                        fn.displayName = className + '#' + name;
+                    }
+                    //</debug>
+
+                    fn.$owner = this;
+                    fn.$name = name;
+
+                    prototype[name] = fn;
+                }
+                else {
+                    prototype[name] = toBorrow;
+                }
             }
 
             return this;
         },
 
         /**
-         * Override prototype members of this class. Overridden methods can be invoked via
-         * {@link Ext.Base#callOverridden}
+         * Override members of this class. Overridden methods can be invoked via
+         * {@link Ext.Base#callParent}.
          *
          *     Ext.define('My.Cat', {
          *         constructor: function() {
          *             alert("I'm a cat!");
-         *
-         *             return this;
          *         }
          *     });
          *
@@ -549,11 +416,9 @@ var Base = Ext.Base = function() {};
          *         constructor: function() {
          *             alert("I'm going to be a cat!");
          *
-         *             var instance = this.callOverridden();
+         *             this.callParent(arguments);
          *
          *             alert("Meeeeoooowwww");
-         *
-         *             return instance;
          *         }
          *     });
          *
@@ -561,93 +426,155 @@ var Base = Ext.Base = function() {};
          *                               // alerts "I'm a cat!"
          *                               // alerts "Meeeeoooowwww"
          *
-         * @property override
+         * As of 4.1, direct use of this method is deprecated. Use {@link Ext#define Ext.define}
+         * instead:
+         *
+         *     Ext.define('My.CatOverride', {
+         *         override: 'My.Cat',
+         *         constructor: function() {
+         *             alert("I'm going to be a cat!");
+         *
+         *             this.callParent(arguments);
+         *
+         *             alert("Meeeeoooowwww");
+         *         }
+         *     });
+         *
+         * The above accomplishes the same result but can be managed by the {@link Ext.Loader}
+         * which can properly order the override and its target class and the build process
+         * can determine whether the override is needed based on the required state of the
+         * target class (My.Cat).
+         *
+         * @param {Object} members The properties to add to this class. This should be
+         * specified as an object literal containing one or more properties.
+         * @return {Ext.Base} this class
          * @static
-         * @type Function
-         * @param {Object} members
-         * @return {Ext.Base} this
+         * @inheritable
          * @markdown
+         * @deprecated 4.1.0 Use {@link Ext#define Ext.define} instead
          */
         override: function(members) {
-            var prototype = this.prototype,
-                name, i, member, previous;
+            var me = this,
+                enumerables = Ext.enumerables,
+                target = me.prototype,
+                cloneFunction = Ext.Function.clone,
+                name, index, member, statics, names, previous;
 
-            for (name in members) {
-                if (members.hasOwnProperty(name)) {
-                    member = members[name];
-
-                    if (typeof member === 'function') {
-                        if (typeof prototype[name] === 'function') {
-                            previous = prototype[name];
-                            member.$previous = previous;
-                        }
-
-                        this.ownMethod(name, member);
-                    }
-                    else {
-                        prototype[name] = member;
-                    }
-                }
+            if (arguments.length === 2) {
+                name = members;
+                members = {};
+                members[name] = arguments[1];
+                enumerables = null;
             }
 
-            if (Ext.enumerables) {
-                var enumerables = Ext.enumerables;
+            do {
+                names = []; // clean slate for prototype (1st pass) and static (2nd pass)
+                statics = null; // not needed 1st pass, but needs to be cleared for 2nd pass
 
-                for (i = enumerables.length; i--;) {
-                    name = enumerables[i];
+                for (name in members) { // hasOwnProperty is checked in the next loop...
+                    if (name == 'statics') {
+                        statics = members[name];
+                    } else if (name == 'config') {
+                        me.addConfig(members[name], true);
+                    } else {
+                        names.push(name);
+                    }
+                }
+
+                if (enumerables) {
+                    names.push.apply(names, enumerables);
+                }
+
+                for (index = names.length; index--; ) {
+                    name = names[index];
 
                     if (members.hasOwnProperty(name)) {
-                        if (prototype[name] !== undefined) {
-                            previous = prototype[name];
-                            members[name].$previous = previous;
+                        member = members[name];
+
+                        if (typeof member == 'function' && !member.$className && member !== Ext.emptyFn) {
+                            if (typeof member.$owner != 'undefined') {
+                                member = cloneFunction(member);
+                            }
+
+                            //<debug>
+                            if (me.$className) {
+                                member.displayName = me.$className + '#' + name;
+                            }
+                            //</debug>
+
+                            member.$owner = me;
+                            member.$name = name;
+
+                            previous = target[name];
+                            if (previous) {
+                                member.$previous = previous;
+                            }
                         }
 
-                        this.ownMethod(name, members[name]);
+                        target[name] = member;
                     }
                 }
-            }
+
+                target = me; // 2nd pass is for statics
+                members = statics; // statics will be null on 2nd pass
+            } while (members);
 
             return this;
         },
 
+        // Documented downwards
+        callParent: function(args) {
+            var method;
+
+            // This code is intentionally inlined for the least number of debugger stepping
+            return (method = this.callParent.caller) && (method.$previous ||
+                  ((method = method.$owner ? method : method.caller) &&
+                        method.$owner.superclass.$class[method.$name])).apply(this, args || noArgs);
+        },
+
+        //<feature classSystem.mixins>
         /**
          * Used internally by the mixins pre-processor
          * @private
+         * @static
+         * @inheritable
          */
-        mixin: flexSetter(function(name, cls) {
-            var mixin = cls.prototype,
-                my = this.prototype,
-                i, fn;
+        mixin: function(name, mixinClass) {
+            var mixin = mixinClass.prototype,
+                prototype = this.prototype,
+                key;
 
-            for (i in mixin) {
-                if (mixin.hasOwnProperty(i)) {
-                    if (my[i] === undefined) {
-                        if (typeof mixin[i] === 'function') {
-                            fn = mixin[i];
+            if (typeof mixin.onClassMixedIn != 'undefined') {
+                mixin.onClassMixedIn.call(mixinClass, this);
+            }
 
-                            if (fn.$owner === undefined) {
-                                this.ownMethod(i, fn);
-                            }
-                            else {
-                                my[i] = fn;
-                            }
-                        }
-                        else {
-                            my[i] = mixin[i];
-                        }
-                    }
-                    else if (i === 'config' && my.config && mixin.config) {
-                        Ext.Object.merge(my.config, mixin.config);
-                    }
+            if (!prototype.hasOwnProperty('mixins')) {
+                if ('mixins' in prototype) {
+                    prototype.mixins = Ext.Object.chain(prototype.mixins);
+                }
+                else {
+                    prototype.mixins = {};
                 }
             }
 
-            if (my.mixins === undefined) {
-                my.mixins = {};
+            for (key in mixin) {
+                if (key === 'mixins') {
+                    Ext.merge(prototype.mixins, mixin[key]);
+                }
+                else if (typeof prototype[key] == 'undefined' && key != 'mixinId' && key != 'config') {
+                    prototype[key] = mixin[key];
+                }
             }
 
-            my.mixins[name] = mixin;
-        }),
+            //<feature classSystem.config>
+            if ('config' in mixin) {
+                this.addConfig(mixin.config, false);
+            }
+            //</feature>
+
+            prototype.mixins[name] = mixin;
+        },
+        //</feature>
 
         /**
          * Get the current class' name in string format.
@@ -661,7 +588,8 @@ var Base = Ext.Base = function() {};
          *     My.cool.Class.getName(); // 'My.cool.Class'
          *
          * @return {String} className
-         * @markdown
+         * @static
+         * @inheritable
          */
         getName: function() {
             return Ext.getClassName(this);
@@ -688,17 +616,502 @@ var Base = Ext.Base = function() {};
          *
          *     test.method5(); // test.method3() -> test.method1()
          *
-         * @property createAlias
-         * @static
-         * @type Function
          * @param {String/Object} alias The new method name, or an object to set multiple aliases. See
          * {@link Ext.Function#flexSetter flexSetter}
          * @param {String/Object} origin The original method name
-         * @markdown
+         * @static
+         * @inheritable
+         * @method
          */
         createAlias: flexSetter(function(alias, origin) {
-            this.prototype[alias] = this.prototype[origin];
-        })
+            this.override(alias, function() {
+                return this[origin].apply(this, arguments);
+            });
+        }),
+
+        /**
+         * @private
+         * @static
+         * @inheritable
+         */
+        addXtype: function(xtype) {
+            var prototype = this.prototype,
+                xtypesMap = prototype.xtypesMap,
+                xtypes = prototype.xtypes,
+                xtypesChain = prototype.xtypesChain;
+
+            if (!prototype.hasOwnProperty('xtypesMap')) {
+                xtypesMap = prototype.xtypesMap = Ext.merge({}, prototype.xtypesMap || {});
+                xtypes = prototype.xtypes = prototype.xtypes ? [].concat(prototype.xtypes) : [];
+                xtypesChain = prototype.xtypesChain = prototype.xtypesChain ? [].concat(prototype.xtypesChain) : [];
+                prototype.xtype = xtype;
+            }
+
+            if (!xtypesMap[xtype]) {
+                xtypesMap[xtype] = true;
+                xtypes.push(xtype);
+                xtypesChain.push(xtype);
+                Ext.ClassManager.setAlias(this, 'widget.' + xtype);
+            }
+
+            return this;
+        }
     });
 
-})(Ext.Function.flexSetter);
+    Base.implement({
+        /** @private */
+        isInstance: true,
+
+        /** @private */
+        $className: 'Ext.Base',
+
+        /** @private */
+        configClass: Ext.emptyFn,
+
+        /** @private */
+        initConfigList: [],
+
+        /** @private */
+        configMap: {},
+
+        /** @private */
+        initConfigMap: {},
+
+        /**
+         * Get the reference to the class from which this object was instantiated. Note that unlike {@link Ext.Base#self},
+         * `this.statics()` is scope-independent and it always returns the class from which it was called, regardless of what
+         * `this` points to during run-time
+         *
+         *     Ext.define('My.Cat', {
+         *         statics: {
+         *             totalCreated: 0,
+         *             speciesName: 'Cat' // My.Cat.speciesName = 'Cat'
+         *         },
+         *
+         *         constructor: function() {
+         *             var statics = this.statics();
+         *
+         *             alert(statics.speciesName);     // always equals to 'Cat' no matter what 'this' refers to
+         *                                             // equivalent to: My.Cat.speciesName
+         *
+         *             alert(this.self.speciesName);   // dependent on 'this'
+         *
+         *             statics.totalCreated++;
+         *         },
+         *
+         *         clone: function() {
+         *             var cloned = new this.self;                      // dependent on 'this'
+         *
+         *             cloned.groupName = this.statics().speciesName;   // equivalent to: My.Cat.speciesName
+         *
+         *             return cloned;
+         *         }
+         *     });
+         *
+         *
+         *     Ext.define('My.SnowLeopard', {
+         *         extend: 'My.Cat',
+         *
+         *         statics: {
+         *             speciesName: 'Snow Leopard'     // My.SnowLeopard.speciesName = 'Snow Leopard'
+         *         },
+         *
+         *         constructor: function() {
+         *             this.callParent();
+         *         }
+         *     });
+         *
+         *     var cat = new My.Cat();                 // alerts 'Cat', then alerts 'Cat'
+         *
+         *     var snowLeopard = new My.SnowLeopard(); // alerts 'Cat', then alerts 'Snow Leopard'
+         *
+         *     var clone = snowLeopard.clone();
+         *     alert(Ext.getClassName(clone));         // alerts 'My.SnowLeopard'
+         *     alert(clone.groupName);                 // alerts 'Cat'
+         *
+         *     alert(My.Cat.totalCreated);             // alerts 3
+         *
+         * @protected
+         * @return {Ext.Class}
+         */
+        statics: function() {
+            var method = this.statics.caller,
+                self = this.self;
+
+            if (!method) {
+                return self;
+            }
+
+            return method.$owner;
+        },
+
+        /**
+         * Call the "parent" method of the current method. That is the method previously
+         * overridden by derivation or by an override (see {@link Ext#define}).
+         *
+         *      Ext.define('My.Base', {
+         *          constructor: function (x) {
+         *              this.x = x;
+         *          },
+         *
+         *          statics: {
+         *              method: function (x) {
+         *                  return x;
+         *              }
+         *          }
+         *      });
+         *
+         *      Ext.define('My.Derived', {
+         *          extend: 'My.Base',
+         *
+         *          constructor: function () {
+         *              this.callParent([21]);
+         *          }
+         *      });
+         *
+         *      var obj = new My.Derived();
+         *
+         *      alert(obj.x);  // alerts 21
+         *
+         * This can be used with an override as follows:
+         *
+         *      Ext.define('My.DerivedOverride', {
+         *          override: 'My.Derived',
+         *
+         *          constructor: function (x) {
+         *              this.callParent([x*2]); // calls original My.Derived constructor
+         *          }
+         *      });
+         *
+         *      var obj = new My.Derived();
+         *
+         *      alert(obj.x);  // now alerts 42
+         *
+         * This also works with static methods.
+         *
+         *      Ext.define('My.Derived2', {
+         *          extend: 'My.Base',
+         *
+         *          statics: {
+         *              method: function (x) {
+         *                  return this.callParent([x*2]); // calls My.Base.method
+         *              }
+         *          }
+         *      });
+         *
+         *      alert(My.Base.method(10);     // alerts 10
+         *      alert(My.Derived2.method(10); // alerts 20
+         *
+         * Lastly, it also works with overridden static methods.
+         *
+         *      Ext.define('My.Derived2Override', {
+         *          override: 'My.Derived2',
+         *
+         *          statics: {
+         *              method: function (x) {
+         *                  return this.callParent([x*2]); // calls My.Derived2.method
+         *              }
+         *          }
+         *      });
+         *
+         *      alert(My.Derived2.method(10); // now alerts 40
+         *
+         * @protected
+         * @param {Array/Arguments} args The arguments, either an array or the `arguments` object
+         * from the current method, for example: `this.callParent(arguments)`
+         * @return {Object} Returns the result of calling the parent method
+         */
+        callParent: function(args) {
+            // NOTE: this code is deliberately as few expressions (and no function calls)
+            // as possible so that a debugger can skip over this noise with the minimum number
+            // of steps. Basically, just hit Step Into until you are where you really wanted
+            // to be.
+            var method,
+                superMethod = (method = this.callParent.caller) && (method.$previous ||
+                        ((method = method.$owner ? method : method.caller) &&
+                                method.$owner.superclass[method.$name]));
+
+            //<debug error>
+            if (!superMethod) {
+                method = this.callParent.caller;
+                var parentClass, methodName;
+
+                if (!method.$owner) {
+                    if (!method.caller) {
+                        throw new Error("Attempting to call a protected method from the public scope, which is not allowed");
+                    }
+
+                    method = method.caller;
+                }
+
+                parentClass = method.$owner.superclass;
+                methodName = method.$name;
+
+                if (!(methodName in parentClass)) {
+                    throw new Error("this.callParent() was called but there's no such method (" + methodName +
+                                ") found in the parent class (" + (Ext.getClassName(parentClass) || 'Object') + ")");
+                }
+            }
+            //</debug>
+
+            return superMethod.apply(this, args || noArgs);
+        },
+
+        /**
+         * @property {Ext.Class} self
+         *
+         * Get the reference to the current class from which this object was instantiated. Unlike {@link Ext.Base#statics},
+         * `this.self` is scope-dependent and it's meant to be used for dynamic inheritance. See {@link Ext.Base#statics}
+         * for a detailed comparison
+         *
+         *     Ext.define('My.Cat', {
+         *         statics: {
+         *             speciesName: 'Cat' // My.Cat.speciesName = 'Cat'
+         *         },
+         *
+         *         constructor: function() {
+         *             alert(this.self.speciesName); // dependent on 'this'
+         *         },
+         *
+         *         clone: function() {
+         *             return new this.self();
+         *         }
+         *     });
+         *
+         *
+         *     Ext.define('My.SnowLeopard', {
+         *         extend: 'My.Cat',
+         *         statics: {
+         *             speciesName: 'Snow Leopard'         // My.SnowLeopard.speciesName = 'Snow Leopard'
+         *         }
+         *     });
+         *
+         *     var cat = new My.Cat();                     // alerts 'Cat'
+         *     var snowLeopard = new My.SnowLeopard();     // alerts 'Snow Leopard'
+         *
+         *     var clone = snowLeopard.clone();
+         *     alert(Ext.getClassName(clone));             // alerts 'My.SnowLeopard'
+         *
+         * @protected
+         */
+        self: Base,
+
+        // Default constructor, simply returns `this`
+        constructor: function() {
+            return this;
+        },
+
+        //<feature classSystem.config>
+        /**
+         * Initialize configuration for this class. a typical example:
+         *
+         *     Ext.define('My.awesome.Class', {
+         *         // The default config
+         *         config: {
+         *             name: 'Awesome',
+         *             isAwesome: true
+         *         },
+         *
+         *         constructor: function(config) {
+         *             this.initConfig(config);
+         *         }
+         *     });
+         *
+         *     var awesome = new My.awesome.Class({
+         *         name: 'Super Awesome'
+         *     });
+         *
+         *     alert(awesome.getName()); // 'Super Awesome'
+         *
+         * @protected
+         * @param {Object} config
+         * @return {Ext.Base} this
+         */
+        initConfig: function(config) {
+            var instanceConfig = config,
+                configNameCache = Ext.Class.configNameCache,
+                defaultConfig = new this.configClass(),
+                defaultConfigList = this.initConfigList,
+                hasConfig = this.configMap,
+                nameMap, i, ln, name, initializedName;
+
+            this.initConfig = Ext.emptyFn;
+
+            this.initialConfig = instanceConfig || {};
+
+            this.config = config = (instanceConfig) ? Ext.merge(defaultConfig, config) : defaultConfig;
+
+            if (instanceConfig) {
+                defaultConfigList = defaultConfigList.slice();
+
+                for (name in instanceConfig) {
+                    if (hasConfig[name]) {
+                        if (instanceConfig[name] !== null) {
+                            defaultConfigList.push(name);
+                            this[configNameCache[name].initialized] = false;
+                        }
+                    }
+                }
+            }
+
+            for (i = 0,ln = defaultConfigList.length; i < ln; i++) {
+                name = defaultConfigList[i];
+                nameMap = configNameCache[name];
+                initializedName = nameMap.initialized;
+
+                if (!this[initializedName]) {
+                    this[initializedName] = true;
+                    this[nameMap.set].call(this, config[name]);
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * @private
+         * @param config
+         */
+        hasConfig: function(name) {
+            return Boolean(this.configMap[name]);
+        },
+
+        /**
+         * @private
+         */
+        setConfig: function(config, applyIfNotSet) {
+            if (!config) {
+                return this;
+            }
+
+            var configNameCache = Ext.Class.configNameCache,
+                currentConfig = this.config,
+                hasConfig = this.configMap,
+                initialConfig = this.initialConfig,
+                name, value;
+
+            applyIfNotSet = Boolean(applyIfNotSet);
+
+            for (name in config) {
+                if (applyIfNotSet && initialConfig.hasOwnProperty(name)) {
+                    continue;
+                }
+
+                value = config[name];
+                currentConfig[name] = value;
+
+                if (hasConfig[name]) {
+                    this[configNameCache[name].set](value);
+                }
+            }
+
+            return this;
+        },
+
+        /**
+         * @private
+         * @param name
+         */
+        getConfig: function(name) {
+            var configNameCache = Ext.Class.configNameCache;
+
+            return this[configNameCache[name].get]();
+        },
+
+        /**
+         * Returns the initial configuration passed to constructor when instantiating
+         * this class.
+         * @param {String} [name] Name of the config option to return.
+         * @return {Object/Mixed} The full config object or a single config value
+         * when `name` parameter specified.
+         */
+        getInitialConfig: function(name) {
+            var config = this.config;
+
+            if (!name) {
+                return config;
+            }
+            else {
+                return config[name];
+            }
+        },
+
+        /**
+         * @private
+         * @param names
+         * @param callback
+         * @param scope
+         */
+        onConfigUpdate: function(names, callback, scope) {
+            var self = this.self,
+                //<debug>
+                className = self.$className,
+                //</debug>
+                i, ln, name,
+                updaterName, updater, newUpdater;
+
+            names = Ext.Array.from(names);
+
+            scope = scope || this;
+
+            for (i = 0,ln = names.length; i < ln; i++) {
+                name = names[i];
+                updaterName = 'update' + Ext.String.capitalize(name);
+                updater = this[updaterName] || Ext.emptyFn;
+                newUpdater = function() {
+                    updater.apply(this, arguments);
+                    scope[callback].apply(scope, arguments);
+                };
+                newUpdater.$name = updaterName;
+                newUpdater.$owner = self;
+                //<debug>
+                newUpdater.displayName = className + '#' + updaterName;
+                //</debug>
+
+                this[updaterName] = newUpdater;
+            }
+        },
+        //</feature>
+
+        /**
+         * @private
+         */
+        destroy: function() {
+            this.destroy = Ext.emptyFn;
+        }
+    });
+
+    /**
+     * Call the original method that was previously overridden with {@link Ext.Base#override}
+     *
+     *     Ext.define('My.Cat', {
+     *         constructor: function() {
+     *             alert("I'm a cat!");
+     *         }
+     *     });
+     *
+     *     My.Cat.override({
+     *         constructor: function() {
+     *             alert("I'm going to be a cat!");
+     *
+     *             this.callOverridden();
+     *
+     *             alert("Meeeeoooowwww");
+     *         }
+     *     });
+     *
+     *     var kitty = new My.Cat(); // alerts "I'm going to be a cat!"
+     *                               // alerts "I'm a cat!"
+     *                               // alerts "Meeeeoooowwww"
+     *
+     * @param {Array/Arguments} args The arguments, either an array or the `arguments` object
+     * from the current method, for example: `this.callOverridden(arguments)`
+     * @return {Object} Returns the result of calling the overridden method
+     * @protected
+     * @deprecated as of 4.1. Use {@link #callParent} instead.
+     */
+    Base.prototype.callOverridden = Base.prototype.callParent;
+
+    Ext.Base = Base;
+
+}(Ext.Function.flexSetter));

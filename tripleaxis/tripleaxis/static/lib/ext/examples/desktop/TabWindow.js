@@ -17,9 +17,7 @@ Ext.define('MyDesktop.TabWindow', {
     init : function(){
         this.launcher = {
             text: 'Tab Window',
-            iconCls:'tabs',
-            handler : this.createWindow,
-            scope: this
+            iconCls:'tabs'
         }
     },
 
@@ -69,7 +67,6 @@ Ext.define('MyDesktop.TabWindow', {
                 ]
             });
         }
-        win.show();
         return win;
     }
 });

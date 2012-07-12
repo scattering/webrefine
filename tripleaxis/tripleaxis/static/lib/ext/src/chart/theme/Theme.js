@@ -1,6 +1,9 @@
 /**
  * @class Ext.chart.theme.Theme
- * @ignore
+ * 
+ * Provides chart theming.
+ * 
+ * Used as mixins by Ext.chart.Chart.
  */
 Ext.define('Ext.chart.theme.Theme', {
 
@@ -154,7 +157,7 @@ function() {
 (function() {
     Ext.chart.theme = function(config, base) {
         config = config || {};
-        var i = 0, l, colors, color,
+        var i = 0, d = +new Date(), l, colors, color,
             seriesThemes, markerThemes,
             seriesTheme, markerTheme, 
             key, gradients = [],
@@ -214,13 +217,13 @@ function() {
                     ans.push(seriesThemes[i].fill || seriesThemes[i].stroke);
                 }
                 return ans;
-            })();
+            }());
             for (i = 0, l = colors.length; i < l; i++) {
                 midColor = Ext.draw.Color.fromString(colors[i]);
                 if (midColor) {
                     color = midColor.getDarker(0.1).toString();
                     midColor = midColor.toString();
-                    key = 'theme-' + midColor.substr(1) + '-' + color.substr(1);
+                    key = 'theme-' + midColor.substr(1) + '-' + color.substr(1) + '-' + d;
                     gradients.push({
                         id: key,
                         angle: 45,
@@ -246,5 +249,5 @@ function() {
         */
         Ext.apply(this, base);
     };
-})();
+}());
 });

@@ -1,6 +1,5 @@
 /**
  * @class Ext.data.writer.Json
- * @extends Ext.data.writer.Writer
 
 This class is used to write {@link Ext.data.Model} data to the server in a JSON format.
 The {@link #allowSingle} configuration can be set to false to force the records to always be

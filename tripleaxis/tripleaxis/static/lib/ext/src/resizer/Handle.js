@@ -1,7 +1,4 @@
 /**
- * @class Ext.resizer.Handle
- * @extends Ext.Component
- *
  * Provides a handle for 9-point resizing of Elements or Components.
  */
 Ext.define('Ext.resizer.Handle', {
@@ -12,13 +9,21 @@ Ext.define('Ext.resizer.Handle', {
     // which will be passed in as a region configuration.
     region: '',
 
-    onRender: function() {
-        this.addCls(
-            this.baseHandleCls,
-            this.baseHandleCls + '-' + this.region,
-            this.handleCls
+    beforeRender: function() {
+        var me = this;
+
+        me.callParent();
+
+        me.addCls(
+            me.baseHandleCls,
+            me.baseHandleCls + '-' + me.region,
+            me.handleCls
         );
+    },
+
+    onRender: function() {
         this.callParent(arguments);
+
         this.el.unselectable();
     }
 });

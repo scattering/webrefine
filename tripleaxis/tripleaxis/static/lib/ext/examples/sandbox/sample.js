@@ -101,7 +101,7 @@ MyDesktop.GridWindow = Ext.extend(Ext.app.Module, {
                             iconCls:'add'
                         }, '-', {
                             text:'Options',
-                            tooltip:'Blah blah blah blaht',
+                            tooltip:'Modify options',
                             iconCls:'option'
                         },'-',{
                             text:'Remove Something',
@@ -224,7 +224,6 @@ MyDesktop.AccordionWindow = Ext.extend(Ext.app.Module, {
                     new Ext.tree.TreePanel({
                         id:'im-tree',
                         title: 'Online Users',
-                        loader: new Ext.tree.TreeLoader(),
                         rootVisible:false,
                         lines:false,
                         autoScroll:true,
@@ -234,71 +233,18 @@ MyDesktop.AccordionWindow = Ext.extend(Ext.app.Module, {
                                 click: function(){
                                     var tree = Ext.getCmp('im-tree');
                                     tree.body.mask('Loading', 'x-mask-loading');
-                                    tree.root.reload();
-                                    tree.root.collapse(true, false);
-                                    setTimeout(function(){ // mimic a server call
+                                    tree.root.reload(function() {
                                         tree.body.unmask();
-                                        tree.root.expand(true, true);
-                                    }, 1000);
+                                    });
                                 }
                             }
                         }],
-                        root: new Ext.tree.AsyncTreeNode({
-                            text:'Online',
-                            children:[{
-                                text:'Friends',
-                                expanded:true,
-                                children:[{
-                                    text:'Jack',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Brian',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Jon',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Tim',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Nige',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Fred',
-                                    iconCls:'user',
-                                    leaf:true
-                                },{
-                                    text:'Bob',
-                                    iconCls:'user',
-                                    leaf:true
-                                }]
-                            },{
-                                text:'Family',
-                                expanded:true,
-                                children:[{
-                                    text:'Kelly',
-                                    iconCls:'user-girl',
-                                    leaf:true
-                                },{
-                                    text:'Sara',
-                                    iconCls:'user-girl',
-                                    leaf:true
-                                },{
-                                    text:'Zack',
-                                    iconCls:'user-kid',
-                                    leaf:true
-                                },{
-                                    text:'John',
-                                    iconCls:'user-kid',
-                                    leaf:true
-                                }]
-                            }]
-                        })
+                        dataUrl: 'get-users.json',
+                        root: {
+                            nodeType: 'async',
+                            text: 'Online',
+                            expanded: true
+                        }
                     }), {
                         title: 'Settings',
                         html:'<p>Something useful would be in here.</p>',

@@ -1,30 +1,34 @@
+Ext.Loader.setConfig({ enabled: true });
+
 Ext.require([
     'Ext.grid.*',
     'Ext.data.*'
 ]);
 
+Ext.define('Task', {
+    extend: 'Ext.data.Model',
+    idProperty: 'taskId',
+    fields: [
+        {name: 'projectId', type: 'int'},
+        {name: 'project', type: 'string'},
+        {name: 'taskId', type: 'int'},
+        {name: 'description', type: 'string'},
+        {name: 'estHours', type: 'float'},
+        {name: 'rate', type: 'float'},
+        {name: 'cost', type: 'float'},
+        {name: 'due', type: 'date', dateFormat:'m/d/Y'}
+    ]
+});
+
 Ext.onReady(function(){
-    Ext.define('Task', {
-        extend: 'Ext.data.Model',
-        idProperty: 'taskId',
-        fields: [
-            {name: 'projectId', type: 'int'},
-            {name: 'project', type: 'string'},
-            {name: 'taskId', type: 'int'},
-            {name: 'description', type: 'string'},
-            {name: 'estimate', type: 'float'},
-            {name: 'rate', type: 'float'},
-            {name: 'cost', type: 'float'},
-            {name: 'due', type: 'date', dateFormat:'m/d/Y'}
-        ]    
-    });
-    
     var store = Ext.create('Ext.data.Store', {
         model: 'Task',
         autoLoad: true,
+        remoteSort: true,
+        remoteGroup: true,
         proxy: {
             type: 'ajax',
-            url: 'remote-group-summary-grid.json',
+            url: 'remote-group-summary-grid.php',
             reader: {
                 type: 'json',
                 root: 'data'
@@ -62,7 +66,8 @@ Ext.onReady(function(){
             ftype: 'groupingsummary',
             groupHeaderTpl: '{name}',
             hideGroupedHeader: true,
-            remoteRoot: 'summaryData'
+            remoteRoot: 'summaryData',
+            enableGroupingMenu: false
         }],
         columns: [{
             text: 'Task',
@@ -75,6 +80,7 @@ Ext.onReady(function(){
                 return ((value === 0 || value > 1) ? '(' + value + ' Tasks)' : '(1 Task)');
             }
         }, {
+            hideable: false,
             header: 'Project',
             width: 20,
             sortable: true,
@@ -89,7 +95,7 @@ Ext.onReady(function(){
             header: 'Estimate',
             width: 75,
             sortable: true,
-            dataIndex: 'estimate',
+            dataIndex: 'estHours',
             renderer: function(value, metaData, record, rowIdx, colIdx, store, view){
                 return value + ' hours';
             },
@@ -111,7 +117,7 @@ Ext.onReady(function(){
             sortable: false,
             groupable: false,
             renderer: function(value, metaData, record, rowIdx, colIdx, store, view) {
-                return Ext.util.Format.usMoney(record.get('estimate') * record.get('rate'));
+                return Ext.util.Format.usMoney(record.get('estHours') * record.get('rate'));
             },
             dataIndex: 'cost',
             summaryRenderer: Ext.util.Format.usMoney

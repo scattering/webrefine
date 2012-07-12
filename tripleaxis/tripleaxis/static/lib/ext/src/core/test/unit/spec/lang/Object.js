@@ -274,32 +274,6 @@ describe("Ext.Object", function(){
     describe("merge", function(){
         var merge = Ext.Object.merge;
 
-        describe("simple values", function(){
-            it("should copy over numeric values", function(){
-                expect(merge({}, 'prop1', 1)).toEqual({
-                    prop1: 1
-                });
-            });
-
-            it("should copy over string values", function(){
-                expect(merge({}, 'prop1', 'val')).toEqual({
-                    prop1: 'val'
-                });
-            });
-
-            it("should copy over boolean values", function(){
-                expect(merge({}, 'prop1', true)).toEqual({
-                    prop1: true
-                });
-            });
-
-            it("should copy over null values", function(){
-                expect(merge({}, 'prop1', null)).toEqual({
-                    prop1: null
-                });
-            });
-        });
-
         describe("complex values", function(){
             it("should copy a simple object but not have the same reference", function(){
                 var o = {
@@ -307,22 +281,26 @@ describe("Ext.Object", function(){
                     tada: {
                         blah: 'bleh'
                     }
-                }, result = merge({}, 'prop', o);
+                },
+                result = merge({}, o);
 
-                expect(result.prop).toEqual({
+                expect(result).toEqual({
                     foo: 'prop',
                     tada: {
                         blah: 'bleh'
                     }
                 });
-                expect(result.prop).not.toBe(o);
+                expect(result).not.toBe(o);
             });
 
             it("should NOT merge an instance (the constructor of which is not Object)", function(){
-                var o = new Ext.Base(),
-                    result = merge({}, 'prop1', o);
+                var instance = new Ext.Base(),
+                    o = {
+                        foo: instance
+                    },
+                    result = merge({}, o);
 
-                expect(result.prop1).toBe(o);
+                expect(result.foo).toBe(instance);
             });
         });
 
@@ -332,8 +310,10 @@ describe("Ext.Object", function(){
                     prop: {
                         foo: 1
                     }
-                }, 'prop', {
-                    bar: 2
+                }, {
+                    prop: {
+                        bar: 2
+                    }
                 })).toEqual({
                     prop: {
                         foo: 1,
@@ -342,23 +322,13 @@ describe("Ext.Object", function(){
                 });
             });
 
-            it("should copy an object reference if an object exists on the source and the passed value is some kind of class", function(){
-                var o = new Ext.Base(),
-                    result = merge({
-                        prop: {}
-                    }, 'prop', o);
-
-                expect(result).toEqual({
-                    prop: o
-                });
-                expect(result.prop).toBe(o);
-            });
-
             it("should replace the value of the target object if it is not an object", function(){
                 var o = new Ext.Base(),
                     result = merge({
                         prop: 1
-                    }, 'prop', o);
+                    }, {
+                        prop: o
+                    });
 
                 expect(result.prop).toEqual(o);
                 expect(result.prop).toBe(o);
@@ -367,7 +337,9 @@ describe("Ext.Object", function(){
             it("should overwrite simple values", function(){
                 expect(merge({
                     prop: 1
-                }, 'prop', 2)).toEqual({
+                }, {
+                    prop: 2
+                })).toEqual({
                     prop: 2
                 });
             });
@@ -382,7 +354,7 @@ describe("Ext.Object", function(){
                 });
             });
 
-            it("should merge left to right", function(){
+            it("should merge right to left", function(){
                 expect(merge({}, {
                     foo: 1
                 }, {
@@ -397,7 +369,9 @@ describe("Ext.Object", function(){
 
         it("should modify and return the source", function(){
             var o = {},
-                result = merge(o, 'foo', 'bar');
+                result = merge(o, {
+                    foo: 'bar'
+                });
 
             expect(result.foo).toEqual('bar');
             expect(result).toBe(o);

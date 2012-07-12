@@ -96,7 +96,7 @@ Ext.onReady(function(){
             align: 'stretch',
             padding: 5
         },
-        renderTo     : 'gridtest',
+        renderTo     : 'panel',
         defaults     : { flex : 1 }, //auto stretch
         items        : [
             firstGrid,

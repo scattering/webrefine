@@ -1,6 +1,4 @@
 /**
- * @class Ext.chart.Mask
- *
  * Defines a mask for a chart's series.
  * The 'chart' member must be set prior to rendering.
  *
@@ -13,40 +11,59 @@
  * `true`, `vertical` or `horizontal`. Then a possible configuration for the
  * listener could be:
  *
-        items: {
-            xtype: 'chart',
-            animate: true,
-            store: store1,
-            mask: 'horizontal',
-            listeners: {
-                select: {
-                    fn: function(me, selection) {
-                        me.setZoom(selection);
-                        me.mask.hide();
-                    }
-                }
-            },
-
+ *     items: {
+ *         xtype: 'chart',
+ *         animate: true,
+ *         store: store1,
+ *         mask: 'horizontal',
+ *         listeners: {
+ *             select: {
+ *                 fn: function(me, selection) {
+ *                     me.setZoom(selection);
+ *                     me.mask.hide();
+ *                 }
+ *             }
+ *         }
+ *     }
+ *
  * In this example we zoom the chart to that particular region. You can also get
  * a handle to a mask instance from the chart object. The `chart.mask` element is a
  * `Ext.Panel`.
  * 
- * @constructor
  */
 Ext.define('Ext.chart.Mask', {
+    requires: [
+        'Ext.chart.MaskLayer'
+    ],
+    
+    /**
+     * @cfg {Boolean/String} mask
+     * Enables selecting a region on chart. True to enable any selection,
+     * 'horizontal' or 'vertical' to restrict the selection to X or Y axis.
+     *
+     * The mask in itself will do nothing but fire 'select' event.
+     * See {@link Ext.chart.Mask} for example.
+     */
+
+    /**
+     * Creates new Mask.
+     * @param {Object} [config] Config object.
+     */
     constructor: function(config) {
-        var me = this;
+        var me = this,
+            resizeHandler;
 
         me.addEvents('select');
 
         if (config) {
             Ext.apply(me, config);
         }
-        if (me.mask) {
+        if (me.enableMask) {
             me.on('afterrender', function() {
                 //create a mask layer component
-                var comp = Ext.create('Ext.chart.MaskLayer', {
-                    renderTo: me.el
+                var comp = new Ext.chart.MaskLayer({
+                    renderTo: me.el,
+                    hidden: true
                 });
                 comp.el.on({
                     'mousemove': function(e) {
@@ -57,7 +74,7 @@ Ext.define('Ext.chart.Mask', {
                     }
                 });
                 //create a resize handler for the component
-                var resizeHandler = Ext.create('Ext.resizer.Resizer', {
+                resizeHandler = new Ext.resizer.Resizer({
                     el: comp.el,
                     handles: 'all',
                     pinned: true
@@ -176,12 +193,7 @@ Ext.define('Ext.chart.Mask', {
                 width: abs(width),
                 height: abs(height)
             };
-            me.mask.updateBox({
-                x: posX - abs(width),
-                y: posY - abs(height),
-                width: abs(width),
-                height: abs(height)
-            });
+            me.mask.updateBox(me.maskSelection);
             me.mask.show();
             me.maskSprite.setAttributes({
                 hidden: true    

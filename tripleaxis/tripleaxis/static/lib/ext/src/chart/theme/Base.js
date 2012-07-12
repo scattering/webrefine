@@ -1,7 +1,6 @@
 /**
- * @class Ext.chart.theme.Base
  * Provides default colors for non-specified things. Should be sub-classed when creating new themes.
- * @ignore
+ * @private
  */
 Ext.define('Ext.chart.theme.Base', {
 
@@ -79,12 +78,27 @@ Ext.define('Ext.chart.theme.Base', {
             },
             marker: {
                 stroke: '#555',
-                fill: '#000',
                 radius: 3,
                 size: 3
             },
             colors: [ "#94ae0a", "#115fa6","#a61120", "#ff8809", "#ffd13e", "#a61187", "#24ad9a", "#7c7474", "#a66111"],
             seriesThemes: [{
+                fill: "#115fa6"
+            }, {
+                fill: "#94ae0a"
+            }, {
+                fill: "#a61120"
+            }, {
+                fill: "#ff8809"
+            }, {
+                fill: "#ffd13e"
+            }, {
+                fill: "#a61187"
+            }, {
+                fill: "#24ad9a"
+            }, {
+                fill: "#7c7474"
+            }, {
                 fill: "#115fa6"
             }, {
                 fill: "#94ae0a"
@@ -110,8 +124,14 @@ Ext.define('Ext.chart.theme.Base', {
                 fill: "#94ae0a",
                 type: 'cross'
             }, {
+                fill: "#115fa6",
+                type: 'plus' 
+            }, {
+                fill: "#94ae0a",
+                type: 'circle'
+            }, {
                 fill: "#a61120",
-                type: 'plus'
+                type: 'cross'
             }]
         });
     }
@@ -137,7 +157,7 @@ Ext.define('Ext.chart.theme.Base', {
                     }, config));
                 }
             });
-        })(palette[i]);
+        }(palette[i]));
     }
     
     //Create theme from color array
@@ -150,6 +170,6 @@ Ext.define('Ext.chart.theme.Base', {
                     }, config));
                 }
             });
-        })(categories[i]);
+        }(categories[i]));
     }
 });

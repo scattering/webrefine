@@ -1,6 +1,4 @@
 /**
- * @class Ext.view.BoundListKeyNav
- * @extends Ext.util.KeyNav
  * A specialized {@link Ext.util.KeyNav} implementation for navigating a {@link Ext.view.BoundList} using
  * the keyboard. The up, down, pageup, pagedown, home, and end keys move the active highlight
  * through the list. The enter key invokes the selection model's select action using the highlighted item.
@@ -10,9 +8,8 @@ Ext.define('Ext.view.BoundListKeyNav', {
     requires: 'Ext.view.BoundList',
 
     /**
-     * @cfg {Ext.view.BoundList} boundList
-     * @required
-     * The {@link Ext.view.BoundList} instance for which key navigation will be managed. This is required.
+     * @cfg {Ext.view.BoundList} boundList (required)
+     * The {@link Ext.view.BoundList} instance for which key navigation will be managed.
      */
 
     constructor: function(el, config) {

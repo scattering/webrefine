@@ -1,5 +1,6 @@
 Ext.require([
-    'Ext.form.*'
+    'Ext.form.*',
+    'Ext.tip.QuickTipManager'
 ]);
 
 Ext.onReady(function() {
@@ -43,16 +44,18 @@ Ext.onReady(function() {
 
         passwordText: 'Passwords do not match'
     });
+    
+    Ext.tip.QuickTipManager.init();
 
     /*
      * ================  Date Range  =======================
      */
 
-    var dr = Ext.create('Ext.FormPanel', {
+    var dr = Ext.create('Ext.form.Panel', {
         renderTo: 'dr',
         frame: true,
         title: 'Date Range',
-        bodyPadding: '5px 5px 0',
+        bodyPadding: '5 5 0',
         width: 350,
         fieldDefaults: {
             labelWidth: 125,
@@ -63,22 +66,19 @@ Ext.onReady(function() {
             width: 300
         },
         defaultType: 'datefield',
-        items: [
-            {
-                fieldLabel: 'Start Date',
-                name: 'startdt',
-                id: 'startdt',
-                vtype: 'daterange',
-                endDateField: 'enddt' // id of the end date field
-            },
-            {
-                fieldLabel: 'End Date',
-                name: 'enddt',
-                id: 'enddt',
-                vtype: 'daterange',
-                startDateField: 'startdt' // id of the start date field
-            }
-        ]
+        items: [{
+            fieldLabel: 'Start Date',
+            name: 'startdt',
+            itemId: 'startdt',
+            vtype: 'daterange',
+            endDateField: 'enddt' // id of the end date field
+        }, {
+            fieldLabel: 'End Date',
+            name: 'enddt',
+            itemId: 'enddt',
+            vtype: 'daterange',
+            startDateField: 'startdt' // id of the start date field
+        }]
     });
 
 
@@ -86,11 +86,11 @@ Ext.onReady(function() {
      * ================  Password Verification =======================
      */
 
-    var pwd = Ext.create('Ext.FormPanel', {
+    var pwd = Ext.create('Ext.form.Panel', {
         renderTo: 'pw',
         frame: true,
         title: 'Password Verification',
-        bodyPadding: '5px 5px 0',
+        bodyPadding: '5 5 0',
         width: 350,
         fieldDefaults: {
             labelWidth: 125,
@@ -102,19 +102,16 @@ Ext.onReady(function() {
             inputType: 'password'
         },
         defaultType: 'textfield',
-        items: [
-            {
-                fieldLabel: 'Password',
-                name: 'pass',
-                id: 'pass'
-            },
-            {
-                fieldLabel: 'Confirm Password',
-                name: 'pass-cfrm',
-                vtype: 'password',
-                initialPassField: 'pass' // id of the initial password field
-            }
-        ]
+        items: [{
+            fieldLabel: 'Password',
+            name: 'pass',
+            itemId: 'pass'
+        }, {
+            fieldLabel: 'Confirm Password',
+            name: 'pass-cfrm',
+            vtype: 'password',
+            initialPassField: 'pass' // id of the initial password field
+        }]
     });
 
 });

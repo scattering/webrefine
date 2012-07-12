@@ -1,6 +1,4 @@
 /**
- * @class Ext.draw.engine.Svg
- * @extends Ext.draw.Surface
  * Provides specific methods to draw with SVG.
  */
 Ext.define('Ext.draw.engine.Svg', {
@@ -9,7 +7,7 @@ Ext.define('Ext.draw.engine.Svg', {
 
     extend: 'Ext.draw.Surface',
 
-    requires: ['Ext.draw.Draw', 'Ext.draw.Sprite', 'Ext.draw.Matrix', 'Ext.core.Element'],
+    requires: ['Ext.draw.Draw', 'Ext.draw.Sprite', 'Ext.draw.Matrix', 'Ext.Element'],
 
     /* End Definitions */
 
@@ -29,6 +27,8 @@ Ext.define('Ext.draw.engine.Svg', {
         strokeOpacity: "stroke-opacity",
         strokeLinejoin: "stroke-linejoin"
     },
+
+    parsers: {},
 
     minDefaults: {
         circle: {
@@ -122,23 +122,15 @@ Ext.define('Ext.draw.engine.Svg', {
         }
         sprite.el = Ext.get(el);
         this.applyZIndex(sprite); //performs the insertion
-        sprite.matrix = Ext.create('Ext.draw.Matrix');
+        sprite.matrix = new Ext.draw.Matrix();
         sprite.bbox = {
             plain: 0,
             transform: 0
         };
+        this.applyAttrs(sprite);
+        this.applyTransformations(sprite);
         sprite.fireEvent("render", sprite);
         return el;
-    },
-
-    getBBox: function (sprite, isWithoutTransform) {
-        var realPath = this["getPath" + sprite.type](sprite);
-        if (isWithoutTransform) {
-            sprite.bbox.plain = sprite.bbox.plain || Ext.draw.Draw.pathDimensions(realPath);
-            return sprite.bbox.plain;
-        }
-        sprite.bbox.transform = sprite.bbox.transform || Ext.draw.Draw.pathDimensions(Ext.draw.Draw.mapPath(realPath, sprite.matrix));
-        return sprite.bbox.transform;
     },
     
     getBBoxText: function (sprite) {
@@ -187,9 +179,9 @@ Ext.define('Ext.draw.engine.Svg', {
         return this._defs || (this._defs = this.createSvgElement("defs"));
     },
 
-    transform: function(sprite) {
+    transform: function(sprite, matrixOnly) {
         var me = this,
-            matrix = Ext.create('Ext.draw.Matrix'),
+            matrix = new Ext.draw.Matrix(),
             transforms = sprite.transformations,
             transformsLength = transforms.length,
             i = 0,
@@ -209,24 +201,26 @@ Ext.define('Ext.draw.engine.Svg', {
             }
         }
         sprite.matrix = matrix;
-        sprite.el.set({transform: matrix.toSvg()});
+        if (!matrixOnly) {
+            sprite.el.set({transform: matrix.toSvg()});
+        }
     },
 
-    setSize: function(w, h) {
+    setSize: function(width, height) {
         var me = this,
             el = me.el;
         
-        w = +w || me.width;
-        h = +h || me.height;
-        me.width = w;
-        me.height = h;
+        width = +width || me.width;
+        height = +height || me.height;
+        me.width = width;
+        me.height = height;
 
-        el.setSize(w, h);
+        el.setSize(width, height);
         el.set({
-            width: w,
-            height: h
+            width: width,
+            height: height
         });
-        me.callParent([w, h]);
+        me.callParent([width, height]);
     },
 
     /**
@@ -251,7 +245,7 @@ Ext.define('Ext.draw.engine.Svg', {
 
     onRemove: function(sprite) {
         if (sprite.el) {
-            sprite.el.remove();
+            sprite.el.destroy();
             delete sprite.el;
         }
         this.callParent(arguments);
@@ -265,42 +259,47 @@ Ext.define('Ext.draw.engine.Svg', {
     },
 
     render: function (container) {
-        var me = this;
+        var me = this,
+            width,
+            height,
+            el,
+            defs,
+            bgRect,
+            webkitRect;
         if (!me.el) {
-            var width = me.width || 10,
-                height = me.height || 10,
-                el = me.createSvgElement('svg', {
-                    xmlns: "http:/" + "/www.w3.org/2000/svg",
-                    version: 1.1,
-                    width: width,
-                    height: height
-                }),
-                defs = me.getDefs(),
+            width = me.width || 0;
+            height = me.height || 0;
+            el = me.createSvgElement('svg', {
+                xmlns: "http:/" + "/www.w3.org/2000/svg",
+                version: 1.1,
+                width: width,
+                height: height
+            });
+            defs = me.getDefs();
 
-                // Create a rect that is always the same size as the svg root; this serves 2 purposes:
-                // (1) It allows mouse events to be fired over empty areas in Webkit, and (2) we can
-                // use it rather than the svg element for retrieving the correct client rect of the
-                // surface in Mozilla (see https://bugzilla.mozilla.org/show_bug.cgi?id=530985)
-                bgRect = me.createSvgElement("rect", {
-                    width: "100%",
-                    height: "100%",
-                    fill: "#000",
-                    stroke: "none",
-                    opacity: 0
-                }),
-                webkitRect;
+            // Create a rect that is always the same size as the svg root; this serves 2 purposes:
+            // (1) It allows mouse events to be fired over empty areas in Webkit, and (2) we can
+            // use it rather than the svg element for retrieving the correct client rect of the
+            // surface in Mozilla (see https://bugzilla.mozilla.org/show_bug.cgi?id=530985)
+            bgRect = me.createSvgElement("rect", {
+                width: "100%",
+                height: "100%",
+                fill: "#000",
+                stroke: "none",
+                opacity: 0
+            });
             
-                if (Ext.isSafari3) {
-                    // Rect that we will show/hide to fix old WebKit bug with rendering issues.
-                    webkitRect = me.createSvgElement("rect", {
-                        x: -10,
-                        y: -10,
-                        width: "110%",
-                        height: "110%",
-                        fill: "none",
-                        stroke: "#000"
-                    });
-                }
+            if (Ext.isSafari3) {
+                // Rect that we will show/hide to fix old WebKit bug with rendering issues.
+                webkitRect = me.createSvgElement("rect", {
+                    x: -10,
+                    y: -10,
+                    width: "110%",
+                    height: "110%",
+                    fill: "none",
+                    stroke: "#000"
+                });
+            }
             el.appendChild(defs);
             if (Ext.isSafari3) {
                 el.appendChild(webkitRect);
@@ -322,7 +321,8 @@ Ext.define('Ext.draw.engine.Svg', {
                 mousemove: me.onMouseMove,
                 mouseenter: me.onMouseEnter,
                 mouseleave: me.onMouseLeave,
-                click: me.onClick
+                click: me.onClick,
+                dblclick: me.onDblClick
             });
         }
         me.renderAll();
@@ -364,18 +364,33 @@ Ext.define('Ext.draw.engine.Svg', {
     tuneText: function (sprite, attrs) {
         var el = sprite.el.dom,
             tspans = [],
-            height, tspan, text, i, ln, texts, factor;
+            height, tspan, text, i, ln, texts, factor, x;
 
         if (attrs.hasOwnProperty("text")) {
-           tspans = this.setText(sprite, attrs.text);
+            //only create new tspans for text lines if the text has been 
+            //updated or if it's the first time we're setting the text
+            //into the sprite.
+
+            //get the actual rendered text.
+            text = sprite.tspans && Ext.Array.map(sprite.tspans, function(t) { return t.textContent; }).join('');
+
+            if (!sprite.tspans || attrs.text != text) {
+                tspans = this.setText(sprite, attrs.text);
+                sprite.tspans = tspans;
+            //for all other cases reuse the tspans previously created.
+            } else {
+                tspans = sprite.tspans || [];
+            }
         }
         // Normalize baseline via a DY shift of first tspan. Shift other rows by height * line height (1.2)
         if (tspans.length) {
             height = this.getBBoxText(sprite).height;
+            x = sprite.el.dom.getAttribute("x");
             for (i = 0, ln = tspans.length; i < ln; i++) {
                 // The text baseline for FireFox 3.0 and 3.5 is different than other SVG implementations
                 // so we are going to normalize that here
                 factor = (Ext.isFF3_0 || Ext.isFF3_5) ? 2 : 4;
+                tspans[i].setAttribute("x", x);
                 tspans[i].setAttribute("dy", i ? height * 1.2 : height / factor);
             }
             sprite.dirty = true;
@@ -385,7 +400,6 @@ Ext.define('Ext.draw.engine.Svg', {
     setText: function(sprite, textString) {
          var me = this,
              el = sprite.el.dom,
-             x = el.getAttribute("x"),
              tspans = [],
              height, tspan, text, i, ln, texts;
         
@@ -399,7 +413,6 @@ Ext.define('Ext.draw.engine.Svg', {
             if (text) {
                 tspan = me.createSvgElement("tspan");
                 tspan.appendChild(document.createTextNode(Ext.htmlDecode(text)));
-                tspan.setAttribute("x", x);
                 el.appendChild(tspan);
                 tspans[i] = tspan;
             }
@@ -423,7 +436,9 @@ Ext.define('Ext.draw.engine.Svg', {
         }
         if (sprite.dirty) {
             this.applyAttrs(sprite);
-            this.applyTransformations(sprite);
+            if (sprite.dirtyTransform) {
+                this.applyTransformations(sprite);
+            }
         }
     },
 
@@ -437,6 +452,12 @@ Ext.define('Ext.draw.engine.Svg', {
             el = sprite.el,
             group = sprite.group,
             sattr = sprite.attr,
+            parsers = me.parsers,
+            //Safari does not handle linear gradients correctly in quirksmode
+            //ref: https://bugs.webkit.org/show_bug.cgi?id=41952
+            //ref: EXTJSIV-1472
+            gradientsMap = me.gradientsMap || {},
+            safariFix = Ext.isSafari && !Ext.isStrict,
             groups, i, ln, attrs, font, key, style, name, rect;
 
         if (group) {
@@ -462,7 +483,6 @@ Ext.define('Ext.draw.engine.Svg', {
             }
             else if (sprite.type == "path" && attrs.d) {
                 attrs.d = Ext.draw.Draw.pathToString(Ext.draw.Draw.pathToAbsolute(attrs.d));
-                
             }
             sprite.dirtyPath = false;
         // }
@@ -476,7 +496,6 @@ Ext.define('Ext.draw.engine.Svg', {
         }
         if (sprite.type == 'text' && attrs.font && sprite.dirtyFont) {
             el.set({ style: "font: " + attrs.font});
-            sprite.dirtyFont = false;
         }
         if (sprite.type == "image") {
             el.dom.setAttributeNS(me.xlink, "href", attrs.src);
@@ -489,12 +508,30 @@ Ext.define('Ext.draw.engine.Svg', {
         }
         for (key in attrs) {
             if (attrs.hasOwnProperty(key) && attrs[key] != null) {
-                el.dom.setAttribute(key, attrs[key]);
+                //Safari does not handle linear gradients correctly in quirksmode
+                //ref: https://bugs.webkit.org/show_bug.cgi?id=41952
+                //ref: EXTJSIV-1472
+                //if we're Safari in QuirksMode and we're applying some color attribute and the value of that
+                //attribute is a reference to a gradient then assign a plain color to that value instead of the gradient.
+                if (safariFix && ('color|stroke|fill'.indexOf(key) > -1) && (attrs[key] in gradientsMap)) {
+                    attrs[key] = gradientsMap[attrs[key]];
+                }
+                //hidden is not a proper SVG attribute.
+                if (key == 'hidden' && sprite.type == 'text') {
+                    continue;
+                }
+                if (key in parsers) {
+                    el.dom.setAttribute(key, parsers[key](attrs[key], sprite, me));
+                } else {
+                    el.dom.setAttribute(key, attrs[key]);
+                }
             }
         }
+        
         if (sprite.type == 'text') {
             me.tuneText(sprite, attrs);
         }
+        sprite.dirtyFont = false;
 
         //set styles
         style = sattr.style;
@@ -532,7 +569,7 @@ Ext.define('Ext.draw.engine.Svg', {
             me.getDefs().appendChild(clipEl);
             sprite.el.dom.setAttribute("clip-path", "url(#" + clipEl.id + ")");
             sprite.clip = clipPath;
-        }
+        } 
         // if (!attrs[key]) {
         //     var clip = Ext.getDoc().dom.getElementById(sprite.el.getAttribute("clip-path").replace(/(^url\(#|\)$)/g, ""));
         //     clip && clip.parentNode.removeChild(clip);
@@ -546,67 +583,79 @@ Ext.define('Ext.draw.engine.Svg', {
      * @param {Ext.draw.Sprite} sprite
      */
     applyZIndex: function(sprite) {
-        var idx = this.normalizeSpriteCollection(sprite),
+        var me = this,
+            items = me.items,
+            idx = items.indexOf(sprite),
             el = sprite.el,
             prevEl;
-        if (this.el.dom.childNodes[idx + 2] !== el.dom) { //shift by 2 to account for defs and bg rect 
+        if (me.el.dom.childNodes[idx + 2] !== el.dom) { //shift by 2 to account for defs and bg rect
             if (idx > 0) {
                 // Find the first previous sprite which has its DOM element created already
                 do {
-                    prevEl = this.items.getAt(--idx).el;
+                    prevEl = items.getAt(--idx).el;
                 } while (!prevEl && idx > 0);
             }
-            el.insertAfter(prevEl || this.bgRect);
+            el.insertAfter(prevEl || me.bgRect);
         }
         sprite.zIndexDirty = false;
     },
 
     createItem: function (config) {
-        var sprite = Ext.create('Ext.draw.Sprite', config);
+        var sprite = new Ext.draw.Sprite(config);
         sprite.surface = this;
         return sprite;
     },
 
     addGradient: function(gradient) {
         gradient = Ext.draw.Draw.parseGradient(gradient);
-        var ln = gradient.stops.length,
+        var me = this,
+            ln = gradient.stops.length,
             vector = gradient.vector,
-            gradientEl,
-            stop,
-            stopEl,
-            i;
-        if (gradient.type == "linear") {
-            gradientEl = this.createSvgElement("linearGradient");
-            gradientEl.setAttribute("x1", vector[0]);
-            gradientEl.setAttribute("y1", vector[1]);
-            gradientEl.setAttribute("x2", vector[2]);
-            gradientEl.setAttribute("y2", vector[3]);
-        }
-        else {
-            gradientEl = this.createSvgElement("radialGradient");
-            gradientEl.setAttribute("cx", gradient.centerX);
-            gradientEl.setAttribute("cy", gradient.centerY);
-            gradientEl.setAttribute("r", gradient.radius);
-            if (Ext.isNumber(gradient.focalX) && Ext.isNumber(gradient.focalY)) {
-                gradientEl.setAttribute("fx", gradient.focalX);
-                gradientEl.setAttribute("fy", gradient.focalY);
+            //Safari does not handle linear gradients correctly in quirksmode
+            //ref: https://bugs.webkit.org/show_bug.cgi?id=41952
+            //ref: EXTJSIV-1472
+            usePlain = Ext.isSafari && !Ext.isStrict,
+            gradientEl, stop, stopEl, i, gradientsMap;
+            
+        gradientsMap = me.gradientsMap || {};
+        
+        if (!usePlain) {
+            if (gradient.type == "linear") {
+                gradientEl = me.createSvgElement("linearGradient");
+                gradientEl.setAttribute("x1", vector[0]);
+                gradientEl.setAttribute("y1", vector[1]);
+                gradientEl.setAttribute("x2", vector[2]);
+                gradientEl.setAttribute("y2", vector[3]);
             }
-        }    
-        gradientEl.id = gradient.id;
-        this.getDefs().appendChild(gradientEl);
-
-        for (i = 0; i < ln; i++) {
-            stop = gradient.stops[i];
-            stopEl = this.createSvgElement("stop");
-            stopEl.setAttribute("offset", stop.offset + "%");
-            stopEl.setAttribute("stop-color", stop.color);
-            stopEl.setAttribute("stop-opacity",stop.opacity);
-            gradientEl.appendChild(stopEl);
+            else {
+                gradientEl = me.createSvgElement("radialGradient");
+                gradientEl.setAttribute("cx", gradient.centerX);
+                gradientEl.setAttribute("cy", gradient.centerY);
+                gradientEl.setAttribute("r", gradient.radius);
+                if (Ext.isNumber(gradient.focalX) && Ext.isNumber(gradient.focalY)) {
+                    gradientEl.setAttribute("fx", gradient.focalX);
+                    gradientEl.setAttribute("fy", gradient.focalY);
+                }
+            }
+            gradientEl.id = gradient.id;
+            me.getDefs().appendChild(gradientEl);
+            for (i = 0; i < ln; i++) {
+                stop = gradient.stops[i];
+                stopEl = me.createSvgElement("stop");
+                stopEl.setAttribute("offset", stop.offset + "%");
+                stopEl.setAttribute("stop-color", stop.color);
+                stopEl.setAttribute("stop-opacity",stop.opacity);
+                gradientEl.appendChild(stopEl);
+            }
+        } else {
+            gradientsMap['url(#' + gradient.id + ')'] = gradient.stops[0].color;
         }
+        me.gradientsMap = gradientsMap;
     },
 
     /**
      * Checks if the specified CSS class exists on this element's DOM node.
+     * @param {Ext.draw.Sprite} sprite The sprite to look into.
      * @param {String} className The CSS class to check for
      * @return {Boolean} True if the class exists, else false
      */
@@ -656,7 +705,7 @@ Ext.define('Ext.draw.engine.Svg', {
                     cls = cls.replace(me.trimRe, '');
                     idx = Ext.Array.indexOf(elClasses, cls);
                     if (idx != -1) {
-                        elClasses.splice(idx, 1);
+                        Ext.Array.erase(elClasses, idx, 1);
                     }
                 }
             }
@@ -670,6 +719,15 @@ Ext.define('Ext.draw.engine.Svg', {
         me.callParent();
         if (me.el) {
             me.el.remove();
+        }
+        if (me._defs) {
+            Ext.get(me._defs).destroy();
+        }
+        if (me.bgRect) {
+            Ext.get(me.bgRect).destroy();
+        }
+        if (me.webkitRect) {
+            Ext.get(me.webkitRect).destroy();
         }
         delete me.el;
     }

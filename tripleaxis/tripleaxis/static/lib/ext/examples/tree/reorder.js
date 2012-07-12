@@ -41,12 +41,24 @@ Ext.onReady(function() {
             items: [{
                 text: 'Expand All',
                 handler: function(){
-                    tree.expandAll();
+                    tree.getEl().mask('Expanding tree...');
+                    var toolbar = this.up('toolbar');
+                    toolbar.disable();
+                    
+                    tree.expandAll(function() {
+                        tree.getEl().unmask();
+                        toolbar.enable();
+                    });
                 }
             }, {
                 text: 'Collapse All',
                 handler: function(){
-                    tree.collapseAll();
+                    var toolbar = this.up('toolbar');
+                    toolbar.disable();
+                    
+                    tree.collapseAll(function() {
+                        toolbar.enable();
+                    });
                 }
             }]
         }]

@@ -216,9 +216,10 @@ Ext.onReady(function(){
     var radioGroup = {
         xtype: 'fieldset',
         title: 'Radio Groups',
-        layout: 'anchor',
+        // in this section we use the form layout that will aggregate all of the fields
+        // into a single table, rather than one table per field.
+        layout: 'form',
         defaults: {
-            anchor: '100%',
             labelStyle: 'padding-left:4px;'
         },
         collapsible: true,

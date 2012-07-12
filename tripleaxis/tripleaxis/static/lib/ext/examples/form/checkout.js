@@ -262,10 +262,13 @@ Ext.onReady(function() {
                 },
                 items: [{
                     xtype: 'radiogroup',
-                    layout: 'hbox',
+                    anchor: 'none',
+                    layout: {
+                        autoFlex: false
+                    },
                     defaults: {
                         name: 'ccType',
-                        margins: '0 15 0 0'
+                        style: 'margin-right:15px'
                     },
                     items: [{
                         inputValue: 'visa',

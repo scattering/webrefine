@@ -1,8 +1,8 @@
-/*
+/**
  * @class Ext.draw.Draw
  * Base Drawing class.  Provides base drawing functions.
+ * @private
  */
-
 Ext.define('Ext.draw.Draw', {
     /* Begin Definitions */
 
@@ -64,7 +64,7 @@ Ext.define('Ext.draw.Draw', {
             return Ext.String.format("M{0},{1}l{2},0a{3},{3},0,0,1,{3},{3}l0,{5}a{3},{3},0,0,1,{4},{3}l{6},0a{3},{3},0,0,1,{4},{4}l0,{7}a{3},{3},0,0,1,{3},{4}z", attr.x + attr.radius, attr.y, attr.width - attr.radius * 2, attr.radius, -attr.radius, attr.height - attr.radius * 2, attr.radius * 2 - attr.width, attr.radius * 2 - attr.height);
         }
         else {
-            return Ext.String.format("M{0},{1}l{2},0,0,{3},{4},0z", attr.x, attr.y, attr.width, attr.height, -attr.width);
+            return Ext.String.format("M{0},{1}L{2},{1},{2},{3},{0},{3}z", attr.x, attr.y, attr.width + attr.x, attr.height + attr.y);
         }
     },
 
@@ -96,12 +96,12 @@ Ext.define('Ext.draw.Draw', {
                     b && params.push(+b);
                 });
                 if (name == "m" && params.length > 2) {
-                    data.push([b].concat(params.splice(0, 2)));
+                    data.push([b].concat(Ext.Array.splice(params, 0, 2)));
                     name = "l";
                     b = (b == "m") ? "l" : "L";
                 }
                 while (params.length >= paramCounts[name]) {
-                    data.push([b].concat(params.splice(0, paramCounts[name])));
+                    data.push([b].concat(Ext.Array.splice(params, 0, paramCounts[name])));
                     if (!paramCounts[name]) {
                         break;
                     }
@@ -251,7 +251,17 @@ Ext.define('Ext.draw.Draw', {
             y = 0,
             mx = 0,
             my = 0,
-            start = 0;
+            start = 0,
+            r,
+            pa,
+            i,
+            j,
+            k,
+            len,
+            ii,
+            jj,
+            kk;
+        
         if (pathArray[0][0] == "M") {
             x = pathArray[0][1];
             y = pathArray[0][2];
@@ -260,9 +270,9 @@ Ext.define('Ext.draw.Draw', {
             start++;
             res.push(["M", x, y]);
         }
-        for (var i = start, ii = pathArray.length; i < ii; i++) {
-            var r = res[i] = [],
-                pa = pathArray[i];
+        for (i = start, ii = pathArray.length; i < ii; i++) {
+            r = res[i] = [];
+            pa = pathArray[i];
             if (pa[0] != pa[0].toLowerCase()) {
                 r[0] = pa[0].toLowerCase();
                 switch (r[0]) {
@@ -282,7 +292,7 @@ Ext.define('Ext.draw.Draw', {
                         mx = pa[1];
                         my = pa[2];
                     default:
-                        for (var j = 1, jj = pa.length; j < jj; j++) {
+                        for (j = 1, jj = pa.length; j < jj; j++) {
                             r[j] = +(pa[j] - ((j % 2) ? x : y)).toFixed(3);
                         }
                 }
@@ -292,11 +302,11 @@ Ext.define('Ext.draw.Draw', {
                     mx = pa[1] + x;
                     my = pa[2] + y;
                 }
-                for (var k = 0, kk = pa.length; k < kk; k++) {
+                for (k = 0, kk = pa.length; k < kk; k++) {
                     res[i][k] = pa[k];
                 }
             }
-            var len = res[i].length;
+            len = res[i].length;
             switch (res[i][0]) {
                 case "z":
                     x = mx;
@@ -331,10 +341,11 @@ Ext.define('Ext.draw.Draw', {
                     points[i].shift();
                     point = points[i];
                     while (point.length) {
-                        points.splice(i++, 0, ["C"].concat(point.splice(0, 6)));
+                        Ext.Array.splice(points, i++, 0, ["C"].concat(Ext.Array.splice(point, 0, 6)));
                     }
-                    points.splice(i, 1);
+                    Ext.Array.erase(points, i, 1);
                     ln = points.length;
+                    i--;
                 }
             seg = points[i];
             segLn = seg.length;
@@ -357,33 +368,35 @@ Ext.define('Ext.draw.Draw', {
                     pp[i].shift();
                     var pi = pp[i];
                     while (pi.length) {
-                        pp.splice(i++, 0, ["C"].concat(pi.splice(0, 6)));
+                        Ext.Array.splice(pp, i++, 0, ["C"].concat(Ext.Array.splice(pi, 0, 6)));
                     }
-                    pp.splice(i, 1);
+                    Ext.Array.erase(pp, i, 1);
                     ii = Math.max(p.length, p2.length || 0);
                 }
             },
             fixM = function (path1, path2, a1, a2, i) {
                 if (path1 && path2 && path1[i][0] == "M" && path2[i][0] != "M") {
-                    path2.splice(i, 0, ["M", a2.x, a2.y]);
+                    Ext.Array.splice(path2, i, 0, ["M", a2.x, a2.y]);
                     a1.bx = 0;
                     a1.by = 0;
                     a1.x = path1[i][1];
                     a1.y = path1[i][2];
                     ii = Math.max(p.length, p2.length || 0);
                 }
-            };
-        for (var i = 0, ii = Math.max(p.length, p2.length || 0); i < ii; i++) {
+            },
+            i, ii,
+            seg, seg2, seglen, seg2len;
+        for (i = 0, ii = Math.max(p.length, p2.length || 0); i < ii; i++) {
             p[i] = me.command2curve(p[i], attrs);
             fixArc(p, i);
             (p2[i] = me.command2curve(p2[i], attrs2));
             fixArc(p2, i);
             fixM(p, p2, attrs, attrs2, i);
             fixM(p2, p, attrs2, attrs, i);
-            var seg = p[i],
-                seg2 = p2[i],
-                seglen = seg.length,
-                seg2len = seg2.length;
+            seg = p[i];
+            seg2 = p2[i];
+            seglen = seg.length;
+            seg2len = seg2.length;
             attrs.x = seg[seglen - 2];
             attrs.y = seg[seglen - 1];
             attrs.bx = parseFloat(seg[seglen - 4]) || attrs.x;
@@ -713,80 +726,172 @@ Ext.define('Ext.draw.Draw', {
         }
         return outputList;
     },
-
+    
+    bezier : function (a, b, c, d, x) {
+        if (x === 0) {
+            return a;
+        } 
+        else if (x === 1) {
+            return d;
+        }
+        var du = 1 - x,
+            d3 = du * du * du,
+            r = x / du;
+        return d3 * (a + r * (3 * b + r * (3 * c + d * r)));
+    },
+    
+    bezierDim : function (a, b, c, d) {
+        var points = [], r,
+            A, top, C, delta, bottom, s,
+            min, max, i;
+        // The min and max happens on boundary or b' == 0
+        if (a + 3 * c == d + 3 * b) {   
+            r = a - b;
+            r /= 2 * (a - b - b + c);
+            if ( r < 1 && r > 0) {
+                points.push(r);
+            }
+        } else {
+            // b'(x) / -3 = (a-3b+3c-d)x^2+ (-2a+4b-2c)x + (a-b)
+            // delta = -4 (-b^2+a c+b c-c^2-a d+b d)
+            A = a - 3 * b + 3 * c - d;
+            top = 2 * (a - b - b + c);
+            C = a - b;
+            delta = top * top - 4 * A * C;
+            bottom = A + A;
+            if (delta === 0) {
+                r = top / bottom;
+                if (r < 1 && r > 0) {
+                    points.push(r);
+                }
+            } else if (delta > 0) {
+                s = Math.sqrt(delta);
+                r = (s + top) / bottom;
+                
+                if (r < 1 && r > 0) {
+                    points.push(r);
+                }
+                
+                r = (top - s) / bottom;
+                
+                if (r < 1 && r > 0) {
+                    points.push(r);
+                }
+            }
+        }
+        min = Math.min(a, d);
+        max = Math.max(a, d);
+        for (i = 0; i < points.length; i++) {
+            min = Math.min(min, this.bezier(a, b, c, d, points[i]));
+            max = Math.max(max, this.bezier(a, b, c, d, points[i]));
+        }
+        return [min, max];
+    },
+    
     curveDim: function (p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y) {
-        var a = (c2x - 2 * c1x + p1x) - (p2x - 2 * c2x + c1x),
-            b = 2 * (c1x - p1x) - 2 * (c2x - c1x),
-            c = p1x - c1x,
-            t1 = (-b + Math.sqrt(b * b - 4 * a * c)) / 2 / a,
-            t2 = (-b - Math.sqrt(b * b - 4 * a * c)) / 2 / a,
-            y = [p1y, p2y],
-            x = [p1x, p2x],
-            dot;
-        if (Math.abs(t1) > 1e12) {
-            t1 = 0.5;
-        }
-        if (Math.abs(t2) > 1e12) {
-            t2 = 0.5;
-        }
-        if (t1 > 0 && t1 < 1) {
-            dot = this.findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t1);
-            x.push(dot.x);
-            y.push(dot.y);
-        }
-        if (t2 > 0 && t2 < 1) {
-            dot = this.findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t2);
-            x.push(dot.x);
-            y.push(dot.y);
-        }
-        a = (c2y - 2 * c1y + p1y) - (p2y - 2 * c2y + c1y);
-        b = 2 * (c1y - p1y) - 2 * (c2y - c1y);
-        c = p1y - c1y;
-        t1 = (-b + Math.sqrt(b * b - 4 * a * c)) / 2 / a;
-        t2 = (-b - Math.sqrt(b * b - 4 * a * c)) / 2 / a;
-        if (Math.abs(t1) > 1e12) {
-            t1 = 0.5;
-        }
-        if (Math.abs(t2) > 1e12) {
-            t2 = 0.5;
-        }
-        if (t1 > 0 && t1 < 1) {
-            dot = this.findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t1);
-            x.push(dot.x);
-            y.push(dot.y);
-        }
-        if (t2 > 0 && t2 < 1) {
-            dot = this.findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t2);
-            x.push(dot.x);
-            y.push(dot.y);
-        }
+        var x = this.bezierDim(p1x, c1x, c2x, p2x),
+            y = this.bezierDim(p1y, c1y, c2y, p2y);
         return {
-            min: {x: Math.min.apply(0, x), y: Math.min.apply(0, y)},
-            max: {x: Math.max.apply(0, x), y: Math.max.apply(0, y)}
+            min: {
+                x: x[0],
+                y: y[0]
+            },
+            max: {
+                x: x[1],
+                y: y[1]
+            }
         };
     },
 
-    getAnchors: function (p1x, p1y, p2x, p2y, p3x, p3y, value) {
+    /**
+     * @private
+     *
+     * Calculates bezier curve control anchor points for a particular point in a path, with a
+     * smoothing curve applied. The smoothness of the curve is controlled by the 'value' parameter.
+     * Note that this algorithm assumes that the line being smoothed is normalized going from left
+     * to right; it makes special adjustments assuming this orientation.
+     *
+     * @param {Number} prevX X coordinate of the previous point in the path
+     * @param {Number} prevY Y coordinate of the previous point in the path
+     * @param {Number} curX X coordinate of the current point in the path
+     * @param {Number} curY Y coordinate of the current point in the path
+     * @param {Number} nextX X coordinate of the next point in the path
+     * @param {Number} nextY Y coordinate of the next point in the path
+     * @param {Number} value A value to control the smoothness of the curve; this is used to
+     *                 divide the distance between points, so a value of 2 corresponds to
+     *                 half the distance between points (a very smooth line) while higher values
+     *                 result in less smooth curves. Defaults to 4.
+     * @return {Object} Object containing x1, y1, x2, y2 bezier control anchor points; x1 and y1
+     *                  are the control point for the curve toward the previous path point, and
+     *                  x2 and y2 are the control point for the curve toward the next path point.
+     */
+    getAnchors: function (prevX, prevY, curX, curY, nextX, nextY, value) {
         value = value || 4;
-        var l = Math.min(Math.sqrt(Math.pow(p1x - p2x, 2) + Math.pow(p1y - p2y, 2)) / value, Math.sqrt(Math.pow(p3x - p2x, 2) + Math.pow(p3y - p2y, 2)) / value),
-            a = Math.atan((p2x - p1x) / Math.abs(p2y - p1y)),
-            b = Math.atan((p3x - p2x) / Math.abs(p2y - p3y)),
-            pi = Math.PI;
-        a = p1y < p2y ? pi - a : a;
-        b = p3y < p2y ? pi - b : b;
-        var alpha = pi / 2 - ((a + b) % (pi * 2)) / 2;
-        alpha > pi / 2 && (alpha -= pi);
-        var dx1 = l * Math.sin(alpha + a),
-            dy1 = l * Math.cos(alpha + a),
-            dx2 = l * Math.sin(alpha + b),
-            dy2 = l * Math.cos(alpha + b),
-            out = {
-                x1: p2x - dx1,
-                y1: p2y + dy1,
-                x2: p2x + dx2,
-                y2: p2y + dy2
-            };
-        return out;
+        var M = Math,
+            PI = M.PI,
+            halfPI = PI / 2,
+            abs = M.abs,
+            sin = M.sin,
+            cos = M.cos,
+            atan = M.atan,
+            control1Length, control2Length, control1Angle, control2Angle,
+            control1X, control1Y, control2X, control2Y, alpha;
+
+        // Find the length of each control anchor line, by dividing the horizontal distance
+        // between points by the value parameter.
+        control1Length = (curX - prevX) / value;
+        control2Length = (nextX - curX) / value;
+
+        // Determine the angle of each control anchor line. If the middle point is a vertical
+        // turnaround then we force it to a flat horizontal angle to prevent the curve from
+        // dipping above or below the middle point. Otherwise we use an angle that points
+        // toward the previous/next target point.
+        if ((curY >= prevY && curY >= nextY) || (curY <= prevY && curY <= nextY)) {
+            control1Angle = control2Angle = halfPI;
+        } else {
+            control1Angle = atan((curX - prevX) / abs(curY - prevY));
+            if (prevY < curY) {
+                control1Angle = PI - control1Angle;
+            }
+            control2Angle = atan((nextX - curX) / abs(curY - nextY));
+            if (nextY < curY) {
+                control2Angle = PI - control2Angle;
+            }
+        }
+
+        // Adjust the calculated angles so they point away from each other on the same line
+        alpha = halfPI - ((control1Angle + control2Angle) % (PI * 2)) / 2;
+        if (alpha > halfPI) {
+            alpha -= PI;
+        }
+        control1Angle += alpha;
+        control2Angle += alpha;
+
+        // Find the control anchor points from the angles and length
+        control1X = curX - control1Length * sin(control1Angle);
+        control1Y = curY + control1Length * cos(control1Angle);
+        control2X = curX + control2Length * sin(control2Angle);
+        control2Y = curY + control2Length * cos(control2Angle);
+
+        // One last adjustment, make sure that no control anchor point extends vertically past
+        // its target prev/next point, as that results in curves dipping above or below and
+        // bending back strangely. If we find this happening we keep the control angle but
+        // reduce the length of the control line so it stays within bounds.
+        if ((curY > prevY && control1Y < prevY) || (curY < prevY && control1Y > prevY)) {
+            control1X += abs(prevY - control1Y) * (control1X - curX) / (control1Y - curY);
+            control1Y = prevY;
+        }
+        if ((curY > nextY && control2Y < nextY) || (curY < nextY && control2Y > nextY)) {
+            control2X -= abs(nextY - control2Y) * (control2X - curX) / (control2Y - curY);
+            control2Y = nextY;
+        }
+        
+        return {
+            x1: control1X,
+            y1: control1Y,
+            x2: control2X,
+            y2: control2Y
+        };
     },
 
     /* Smoothing function for a path.  Converts a path into cubic beziers.  Value defines the divider of the distance between points.
@@ -805,14 +910,22 @@ Ext.define('Ext.draw.Draw', {
             mx = x,
             my = y,
             cx = 0,
-            cy = 0;
+            cy = 0,
+            pathi,
+            pathil,
+            pathim,
+            pathiml,
+            pathip,
+            pathipl,
+            begl;
+        
         for (; i < ii; i++) {
-            var pathi = path[i],
-                pathil = pathi.length,
-                pathim = path[i - 1],
-                pathiml = pathim.length,
-                pathip = path[i + 1],
-                pathipl = pathip && pathip.length;
+            pathi = path[i];
+            pathil = pathi.length;
+            pathim = path[i - 1];
+            pathiml = pathim.length;
+            pathip = path[i + 1];
+            pathipl = pathip && pathip.length;
             if (pathi[0] == "M") {
                 mx = pathi[1];
                 my = pathi[2];
@@ -829,7 +942,7 @@ Ext.define('Ext.draw.Draw', {
                 continue;
             }
             if (pathi[pathil - 2] == mx && pathi[pathil - 1] == my && (!pathip || pathip[0] == "M")) {
-                var begl = newp[beg].length;
+                begl = newp[beg].length;
                 points = this.getAnchors(pathim[pathiml - 2], pathim[pathiml - 1], mx, my, newp[beg][begl - 2], newp[beg][begl - 1], value);
                 newp[beg][1] = points.x2;
                 newp[beg][2] = points.y2;
@@ -857,7 +970,13 @@ Ext.define('Ext.draw.Draw', {
         };
     },
 
-    snapEnds: function (from, to, stepsMax) {
+    /**
+     * @private
+     */
+    snapEnds: function (from, to, stepsMax, prettyNumbers) {
+        if (Ext.isDate(from)) {
+            return this.snapEndsByDate(from, to, stepsMax);
+        }
         var step = (to - from) / stepsMax,
             level = Math.floor(Math.log(step) / Math.LN10) + 1,
             m = Math.pow(10, level),
@@ -872,26 +991,151 @@ Ext.define('Ext.draw.Draw', {
             topWeight = 1e9,
             ln = interval.length;
         cur = from = Math.floor(from / m) * m;
-        for (i = 0; i < ln; i++) {
-            value = interval[i][0];
-            weight = (value - modulo) < 0 ? 1e6 : (value - modulo) / interval[i][1];
-            if (weight < topWeight) {
-                topValue = value;
-                topWeight = weight;
+        
+        if(prettyNumbers){
+            for (i = 0; i < ln; i++) {
+                value = interval[i][0];
+                weight = (value - modulo) < 0 ? 1e6 : (value - modulo) / interval[i][1];
+                if (weight < topWeight) {
+                    topValue = value;
+                    topWeight = weight;
+                }
             }
+            step = Math.floor(step * Math.pow(10, -level)) * Math.pow(10, level) + topValue * Math.pow(10, level - 2);
+            while (cur < to) {
+                cur += step;
+                stepCount++;
+            }
+            to = +cur.toFixed(10);
+        }else{
+            stepCount = stepsMax;
         }
-        step = Math.floor(step * Math.pow(10, -level)) * Math.pow(10, level) + topValue * Math.pow(10, level - 2);
-        while (cur < to) {
-            cur += step;
-            stepCount++;
-        }
-        to = +cur.toFixed(10);
+        
         return {
             from: from,
             to: to,
             power: level,
             step: step,
             steps: stepCount
+        };
+    },
+
+    /**
+     * snapEndsByDate is a utility method to deduce an appropriate tick configuration for the data set of given
+     * feature. Refer to {@link #snapEnds}.
+     *
+     * @param {Date} from The minimum value in the data
+     * @param {Date} to The maximum value in the data
+     * @param {Number} stepsMax The maximum number of ticks
+     * @param {Boolean} lockEnds If true, the 'from' and 'to' parameters will be used as fixed end values
+     *        and will not be adjusted
+     * @return {Object} The calculated step and ends info; properties are:
+     *     - from: The result start value, which may be lower than the original start value
+     *     - to: The result end value, which may be higher than the original end value
+     *     - step: The value size of each step
+     *     - steps: The number of steps. NOTE: the steps may not divide the from/to range perfectly evenly;
+     *              there may be a smaller distance between the last step and the end value than between prior
+     *              steps, particularly when the `endsLocked` param is true. Therefore it is best to not use
+     *              the `steps` result when finding the axis tick points, instead use the `step`, `to`, and
+     *              `from` to find the correct point for each tick.
+     */
+    snapEndsByDate: function (from, to, stepsMax, lockEnds) {
+        var selectedStep = false,
+            scales       = [
+                [Ext.Date.MILLI, [1, 2, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500]],
+                [Ext.Date.SECOND, [1, 2, 3, 5, 10, 15, 30]],
+                [Ext.Date.MINUTE, [1, 2, 3, 5, 10, 20, 30]],
+                [Ext.Date.HOUR, [1, 2, 3, 4, 6, 12]],
+                [Ext.Date.DAY, [1, 2, 3, 7, 14]],
+                [Ext.Date.MONTH, [1, 2, 3, 4, 6]]
+            ],
+            sLen         = scales.length,
+            stop         = false,
+            scale, j, yearDiff, s;
+
+        // Find the most desirable scale
+        for (s = 0; s < sLen; s++) {
+            scale = scales[s];
+            if (!stop) {
+                for (j = 0; j < scale[1].length; j++) {
+                    if (to < Ext.Date.add(from, scale[0], scale[1][j] * stepsMax)) {
+                        selectedStep = [scale[0], scale[1][j]];
+                        stop         = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!selectedStep) {
+            yearDiff = this.snapEnds(from.getFullYear(), to.getFullYear() + 1, stepsMax, lockEnds);
+            selectedStep = [Date.YEAR, Math.round(yearDiff.step)];
+        }
+        return this.snapEndsByDateAndStep(from, to, selectedStep, lockEnds);
+    },
+
+
+    /**
+     * snapEndsByDateAndStep is a utility method to deduce an appropriate tick configuration for the data set of given
+     * feature and specific step size.
+     * @param {Date} from The minimum value in the data
+     * @param {Date} to The maximum value in the data
+     * @param {Array} step An array with two components: The first is the unit of the step (day, month, year, etc). The second one is the number of units for the step (1, 2, etc.).
+     * @param {Boolean} lockEnds If true, the 'from' and 'to' parameters will be used as fixed end values
+     *        and will not be adjusted
+     */
+    snapEndsByDateAndStep: function(from, to, step, lockEnds) {
+        var fromStat = [from.getFullYear(), from.getMonth(), from.getDate(),
+                from.getHours(), from.getMinutes(), from.getSeconds(), from.getMilliseconds()],
+            steps = 0, testFrom, testTo;
+        if (lockEnds) {
+            testFrom = from;
+        } else {
+            switch (step[0]) {
+                case Ext.Date.MILLI:
+                    testFrom = new Date(fromStat[0], fromStat[1], fromStat[2], fromStat[3],
+                            fromStat[4], fromStat[5], Math.floor(fromStat[6] / step[1]) * step[1]);
+                    break;
+                case Ext.Date.SECOND:
+                    testFrom = new Date(fromStat[0], fromStat[1], fromStat[2], fromStat[3],
+                            fromStat[4], Math.floor(fromStat[5] / step[1]) * step[1], 0);
+                    break;
+                case Ext.Date.MINUTE:
+                    testFrom = new Date(fromStat[0], fromStat[1], fromStat[2], fromStat[3],
+                            Math.floor(fromStat[4] / step[1]) * step[1], 0, 0);
+                    break;
+                case Ext.Date.HOUR:
+                    testFrom = new Date(fromStat[0], fromStat[1], fromStat[2],
+                            Math.floor(fromStat[3] / step[1]) * step[1], 0, 0, 0);
+                    break;
+                case Ext.Date.DAY:
+                    testFrom = new Date(fromStat[0], fromStat[1],
+                            Math.floor(fromStat[2] - 1 / step[1]) * step[1] + 1, 0, 0, 0, 0);
+                    break;
+                case Ext.Date.MONTH:
+                    testFrom = new Date(fromStat[0], Math.floor(fromStat[1] / step[1]) * step[1], 1, 0, 0, 0, 0);
+                    break;
+                default: // Ext.Date.YEAR
+                    testFrom = new Date(Math.floor(fromStat[0] / step[1]) * step[1], 0, 1, 0, 0, 0, 0);
+                    break;
+            }
+        }
+
+        testTo = testFrom;
+        // TODO(zhangbei) : We can do it better somehow...
+        while (testTo < to) {
+            testTo = Ext.Date.add(testTo, step[0], step[1]);
+            steps++;
+        }
+
+        if (lockEnds) {
+            testTo = to;
+        }
+        return {
+            from : +testFrom,
+            to : +testTo,
+            step : (testTo - testFrom) / steps,
+            steps : steps
         };
     },
 

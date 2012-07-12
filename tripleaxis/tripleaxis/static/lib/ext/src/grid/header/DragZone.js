@@ -1,6 +1,4 @@
 /**
- * @class Ext.grid.header.DragZone
- * @extends Ext.dd.DragZone
  * @private
  */
 Ext.define('Ext.grid.header.DragZone', {
@@ -21,12 +19,13 @@ Ext.define('Ext.grid.header.DragZone', {
 
     getDragData: function(e) {
         var header = e.getTarget('.'+this.colHeaderCls),
-            headerCmp;
+            headerCmp,
+            ddel;
 
         if (header) {
             headerCmp = Ext.getCmp(header.id);
             if (!this.headerCt.dragging && headerCmp.draggable && !(headerCmp.isOnLeftEdge(e) || headerCmp.isOnRightEdge(e))) {
-                var ddel = document.createElement('div');
+                ddel = document.createElement('div');
                 ddel.innerHTML = Ext.getCmp(header.id).text;
                 return {
                     ddel: ddel,

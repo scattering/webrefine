@@ -1,30 +1,32 @@
 /**
- * @private
  * @class Ext.slider.Thumb
- * @extends Ext.Base
  * @private
  * Represents a single thumb element on a Slider. This would not usually be created manually and would instead
- * be created internally by an {@link Ext.slider.Multi Ext.Slider}.
+ * be created internally by an {@link Ext.slider.Multi Multi slider}.
  */
 Ext.define('Ext.slider.Thumb', {
     requires: ['Ext.dd.DragTracker', 'Ext.util.Format'],
     /**
      * @private
-     * @property topThumbZIndex
-     * @type Number
+     * @property {Number} topThumbZIndex
      * The number used internally to set the z index of the top thumb (see promoteThumb for details)
      */
     topZIndex: 10000,
+
     /**
-     * @constructor
-     * @cfg {Ext.slider.MultiSlider} slider The Slider to render to (required)
+     * @cfg {Ext.slider.MultiSlider} slider (required)
+     * The Slider to render to.
+     */
+
+    /**
+     * Creates new slider thumb.
+     * @param {Object} [config] Config object.
      */
     constructor: function(config) {
         var me = this;
-        
+
         /**
-         * @property slider
-         * @type Ext.slider.MultiSlider
+         * @property {Ext.slider.MultiSlider} slider
          * The slider this thumb is contained within
          */
         Ext.apply(me, config || {}, {
@@ -36,10 +38,6 @@ Ext.define('Ext.slider.Thumb', {
             constrain: false
         });
         me.callParent([config]);
-
-        if (me.slider.vertical) {
-            Ext.apply(me, Ext.slider.Thumb.Vertical);
-        }
     },
 
     /**
@@ -47,28 +45,58 @@ Ext.define('Ext.slider.Thumb', {
      */
     render: function() {
         var me = this;
-        
-        me.el = me.slider.innerEl.insertFirst({cls: me.cls});
-        if (me.disabled) {
-            me.disable();
-        }
-        me.initEvents();
+        me.el = me.slider.innerEl.insertFirst(me.getElConfig());
+        me.onRender();
     },
     
+    onRender: function() {
+        if (this.disabled) {
+            this.disable();
+        }
+        this.initEvents();
+    },
+
+    getElConfig: function() {
+        var me = this,
+            slider = me.slider,
+            style = {};
+
+        style[slider.vertical ? 'bottom' : 'left'] = slider.calculateThumbPosition(slider.normalizeValue(me.value)) + '%';
+        return {
+            style: style,
+            id  : this.id,
+            cls : this.cls
+        };
+    },
+
     /**
      * @private
      * move the thumb
      */
-    move: function(v, animate){
-        if(!animate){
-            this.el.setLeft(v);
-        }else{
-            Ext.create('Ext.fx.Anim', {
-                target: this.el,
+    move: function(v, animate) {
+        var el = this.el,
+            styleProp = this.slider.vertical ? 'bottom' : 'left',
+            to,
+            from;
+
+        v += '%';
+        
+        if (!animate) {
+            el.dom.style[styleProp] = v;
+        } else {
+            to = {};
+            to[styleProp] = v;
+            
+            if (!Ext.supports.GetPositionPercentage) {
+                from = {};
+                from[styleProp] = el.dom.style[styleProp];
+            }
+            
+            new Ext.fx.Anim({
+                target: el,
                 duration: 350,
-                to: {
-                    left: v
-                }
+                from: from,
+                to: to
             });
         }
     },
@@ -80,7 +108,7 @@ Ext.define('Ext.slider.Thumb', {
     bringToFront: function() {
         this.el.setStyle('zIndex', this.topZIndex);
     },
-    
+
     /**
      * @private
      * Send thumb dom element to back.
@@ -88,13 +116,13 @@ Ext.define('Ext.slider.Thumb', {
     sendToBack: function() {
         this.el.setStyle('zIndex', '');
     },
-    
+
     /**
      * Enables the thumb if it is currently disabled
      */
     enable: function() {
         var me = this;
-        
+
         me.disabled = false;
         if (me.el) {
             me.el.removeCls(me.slider.disabledCls);
@@ -106,7 +134,7 @@ Ext.define('Ext.slider.Thumb', {
      */
     disable: function() {
         var me = this;
-        
+
         me.disabled = true;
         if (me.el) {
             me.el.addCls(me.slider.disabledCls);
@@ -120,7 +148,7 @@ Ext.define('Ext.slider.Thumb', {
         var me = this,
             el = me.el;
 
-        me.tracker = Ext.create('Ext.dd.DragTracker', {
+        me.tracker = new Ext.dd.DragTracker({
             onBeforeStart: Ext.Function.bind(me.onBeforeDragStart, me),
             onStart      : Ext.Function.bind(me.onDragStart, me),
             onDrag       : Ext.Function.bind(me.onDrag, me),
@@ -155,9 +183,9 @@ Ext.define('Ext.slider.Thumb', {
      */
     onDragStart: function(e){
         var me = this;
-        
+
         me.el.addCls(Ext.baseCSSPrefix + 'slider-thumb-drag');
-        me.dragging = true;
+        me.dragging = me.slider.dragging = true;
         me.dragStartValue = me.value;
 
         me.slider.fireEvent('dragstart', me.slider, e, me);
@@ -172,32 +200,37 @@ Ext.define('Ext.slider.Thumb', {
         var me       = this,
             slider   = me.slider,
             index    = me.index,
-            newValue = me.getNewValue(),
+            newValue = me.getValueFromTracker(),
             above,
             below;
 
-        if (me.constrain) {
-            above = slider.thumbs[index + 1];
-            below = slider.thumbs[index - 1];
+        // If dragged out of range, value will be undefined
+        if (newValue !== undefined) {
+            if (me.constrain) {
+                above = slider.thumbs[index + 1];
+                below = slider.thumbs[index - 1];
 
-            if (below !== undefined && newValue <= below.value) {
-                newValue = below.value;
+                if (below !== undefined && newValue <= below.value) {
+                    newValue = below.value;
+                }
+
+                if (above !== undefined && newValue >= above.value) {
+                    newValue = above.value;
+                }
             }
-            
-            if (above !== undefined && newValue >= above.value) {
-                newValue = above.value;
-            }
+            slider.setValue(index, newValue, false);
+            slider.fireEvent('drag', slider, e, me);
         }
-
-        slider.setValue(index, newValue, false);
-        slider.fireEvent('drag', slider, e, me);
     },
 
-    getNewValue: function() {
+    getValueFromTracker: function() {
         var slider = this.slider,
-            pos = slider.innerEl.translatePoints(this.tracker.getXY());
+            trackPoint = slider.getTrackpoint(this.tracker.getXY());
 
-        return Ext.util.Format.round(slider.reverseValue(pos.left), slider.decimalPrecision);
+        // If dragged out of range, value will be undefined
+        if (trackPoint !== undefined) {
+            return slider.reversePixelValue(trackPoint);
+        }
     },
 
     /**
@@ -212,7 +245,7 @@ Ext.define('Ext.slider.Thumb', {
 
         me.el.removeCls(Ext.baseCSSPrefix + 'slider-thumb-drag');
 
-        me.dragging = false;
+        me.dragging = slider.dragging = false;
         slider.fireEvent('dragend', slider, e);
 
         if (me.dragStartValue != value) {
@@ -222,31 +255,5 @@ Ext.define('Ext.slider.Thumb', {
 
     destroy: function() {
         Ext.destroy(this.tracker);
-    },
-    statics: {
-        // Method overrides to support vertical dragging of thumb within slider
-        Vertical: {
-            getNewValue: function() {
-                var slider   = this.slider,
-                    innerEl  = slider.innerEl,
-                    pos      = innerEl.translatePoints(this.tracker.getXY()),
-                    bottom   = innerEl.getHeight() - pos.top;
-
-                return Ext.util.Format.round(slider.reverseValue(bottom), slider.decimalPrecision);
-            },
-            move: function(v, animate) {
-                if (!animate) {
-                    this.el.setBottom(v);
-                } else {
-                    Ext.create('Ext.fx.Anim', {
-                        target: this.el,
-                        duration: 350,
-                        to: {
-                            bottom: v
-                        }
-                    });
-                }
-            }
-        }
     }
 });

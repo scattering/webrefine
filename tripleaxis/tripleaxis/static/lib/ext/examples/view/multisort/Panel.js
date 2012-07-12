@@ -20,9 +20,7 @@ Ext.define('Ext.multisort.Panel', {
             plugins : Ext.create('Ext.ux.BoxReorderer', {
                 listeners: {
                     scope: this,
-                    drop: function() {
-                        this.down('dataview').store.sort(this.getSorters());
-                    }
+                    drop: this.updateStoreSorters
                 }
             }),
             defaults: {
@@ -40,7 +38,7 @@ Ext.define('Ext.multisort.Panel', {
                 text : 'Type',
                 dataIndex: 'type'
             }, {
-               xtype: 'sortbutton',
+                xtype: 'sortbutton',
                 text : 'Name',
                 dataIndex: 'name'
             }]
@@ -101,8 +99,9 @@ Ext.define('Ext.multisort.Panel', {
      * Updates the DataView's Store's sorters based on the current Toolbar button configuration
      */
     updateStoreSorters: function() {
-        //FIXME: shouldn't have to make the first call
-        this.down('dataview').store.sort();
-        this.down('dataview').store.sort(this.getSorters());
+        var sorters = this.getSorters(),
+            view = this.down('dataview');
+
+        view.store.sort(sorters);
     }
 });

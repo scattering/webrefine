@@ -1,6 +1,5 @@
 /**
  * @class Ext.direct.RemotingEvent
- * @extends Ext.direct.Event
  * An event that is fired when data is received from a 
  * {@link Ext.direct.RemotingProvider}. Contains a method to the
  * related transaction for the direct request, see {@link #getTransaction}

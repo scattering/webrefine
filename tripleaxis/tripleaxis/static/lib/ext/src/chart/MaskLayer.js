@@ -1,3 +1,6 @@
+/**
+ * @private
+ */
 Ext.define('Ext.chart.MaskLayer', {
     extend: 'Ext.Component',
     

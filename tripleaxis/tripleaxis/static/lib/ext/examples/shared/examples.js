@@ -1,3 +1,5 @@
+
+
 Ext.example = function(){
     var msgCt;
 
@@ -12,15 +14,20 @@ Ext.example = function(){
     return {
         msg : function(title, format){
             if(!msgCt){
-                msgCt = Ext.core.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
+                msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
             }
             var s = Ext.String.format.apply(String, Array.prototype.slice.call(arguments, 1));
-            var m = Ext.core.DomHelper.append(msgCt, createBox(title, s), true);
+            var m = Ext.DomHelper.append(msgCt, createBox(title, s), true);
             m.hide();
             m.slideIn('t').ghost("t", { delay: 1000, remove: true});
         },
 
         init : function(){
+            if(!msgCt){
+                // It's better to create the msg-div here in order to avoid re-layouts 
+                // later that could interfere with the HtmlEditor and reset its iFrame.
+                msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
+            }
 //            var t = Ext.get('exttheme');
 //            if(!t){ // run locally?
 //                return;
@@ -45,6 +52,10 @@ Ext.example = function(){
     };
 }();
 
+
+Ext.onReady(Ext.example.init, Ext.example);
+
+
 Ext.example.shortBogusMarkup = '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, '+
     'sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales '+
     'non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet '+
@@ -57,8 +68,6 @@ Ext.example.bogusMarkup = '<p>Lorem ipsum dolor sit amet, consectetuer adipiscin
     'Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing '+
     'eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt '+
     'diam nec urna. Curabitur velit. Lorem ipsum dolor sit amet.</p>';
-
-//Ext.onReady(Ext.example.init, Ext.example);
 
 
 // old school cookie functions

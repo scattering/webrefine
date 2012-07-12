@@ -18,9 +18,7 @@ Ext.define('MyDesktop.Notepad', {
     init : function(){
         this.launcher = {
             text: 'Notepad',
-            iconCls:'notepad',
-            handler : this.createWindow,
-            scope: this
+            iconCls:'notepad'
         }
     },
 
@@ -57,7 +55,6 @@ Ext.define('MyDesktop.Notepad', {
                 ]
             });
         }
-        win.show();
         return win;
     }
 });

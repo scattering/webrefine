@@ -1,6 +1,6 @@
 /**
  * @class Ext.chart.Highlight
- * @ignore
+ * A mixin providing highlight functionality for Ext.chart.series.Series.
  */
 Ext.define('Ext.chart.Highlight', {
 
@@ -12,25 +12,21 @@ Ext.define('Ext.chart.Highlight', {
 
     /**
      * Highlight the given series item.
-     * @param {Boolean|Object} Default's false. Can also be an object width style properties (i.e fill, stroke, radius) 
+     * @param {Boolean/Object} Default's false. Can also be an object width style properties (i.e fill, stroke, radius) 
      * or just use default styles per series by setting highlight = true.
      */
     highlight: false,
 
-    highlightCfg : null,
+    highlightCfg : {
+        fill: '#fdd',
+        "stroke-width": 5,
+        stroke: '#f55'
+    },
 
     constructor: function(config) {
         if (config.highlight) {
             if (config.highlight !== true) { //is an object
-                this.highlightCfg = Ext.apply({}, config.highlight);
-            }
-            else {
-                this.highlightCfg = {
-                    fill: '#fdd',
-                    radius: 20,
-                    lineWidth: 5,
-                    stroke: '#f55'
-                };
+                this.highlightCfg = Ext.merge(this.highlightCfg, config.highlight);
             }
         }
     },
@@ -46,13 +42,10 @@ Ext.define('Ext.chart.Highlight', {
         
         var me = this,
             sprite = item.sprite,
-            opts = me.highlightCfg,
+            opts = Ext.merge({}, me.highlightCfg, me.highlight),
             surface = me.chart.surface,
             animate = me.chart.animate,
-            p,
-            from,
-            to,
-            pi;
+            p, from, to, pi;
 
         if (!me.highlight || !sprite || sprite._highlighted) {
             return;
@@ -62,8 +55,7 @@ Ext.define('Ext.chart.Highlight', {
         }
         sprite._highlighted = true;
         if (!sprite._defaults) {
-            sprite._defaults = Ext.apply(sprite._defaults || {},
-            sprite.attr);
+            sprite._defaults = Ext.apply({}, sprite.attr);
             from = {};
             to = {};
             for (p in opts) {
@@ -93,9 +85,10 @@ Ext.define('Ext.chart.Highlight', {
             }
             sprite._from = from;
             sprite._to = to;
+            sprite._endStyle = to;
         }
         if (animate) {
-            sprite._anim = Ext.create('Ext.fx.Anim', {
+            sprite._anim = new Ext.fx.Anim({
                 target: sprite,
                 from: sprite._from,
                 to: sprite._to,
@@ -117,13 +110,10 @@ Ext.define('Ext.chart.Highlight', {
         var me = this,
             items = me.items,
             len = items.length,
-            opts = me.highlightCfg,
+            opts = Ext.merge({}, me.highlightCfg, me.highlight),
             animate = me.chart.animate,
             i = 0,
-            obj,
-            p,
-            sprite;
-
+            obj, p, sprite;
         for (; i < len; i++) {
             if (!items[i]) {
                 continue;
@@ -144,7 +134,9 @@ Ext.define('Ext.chart.Highlight', {
                     }
                 }
                 if (animate) {
-                    sprite._anim = Ext.create('Ext.fx.Anim', {
+                    //sprite._to = obj;
+                    sprite._endStyle = obj;
+                    sprite._anim = new Ext.fx.Anim({
                         target: sprite,
                         to: obj,
                         duration: 150

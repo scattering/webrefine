@@ -21,12 +21,12 @@ Ext.define('Books.view.book.SideBar', {
             
             store: '',
             itemSelector: '.product',
-            tpl: new Ext.XTemplate(
+            tpl: [
                 '<div class="sidebar-title">Books</div>',
                 '<tpl for=".">',
                     '<div class="product">{name}</div>',
                 '</tpl>'
-            )
+            ]
         });
                 
         this.callParent(arguments);

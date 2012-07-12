@@ -1,97 +1,91 @@
 /**
- * @class Ext.form.field.Number
- * @extends Ext.form.field.Spinner
-
-A numeric text field that provides automatic keystroke filtering to disallow non-numeric characters,
-and numeric validation to limit the value to a range of valid numbers. The range of acceptable number
-values can be controlled by setting the {@link #minValue} and {@link #maxValue} configs, and fractional
-decimals can be disallowed by setting {@link #allowDecimals} to `false`.
-
-By default, the number field is also rendered with a set of up/down spinner buttons and has
-up/down arrow key and mouse wheel event listeners attached for incrementing/decrementing the value by the
-{@link #step} value. To hide the spinner buttons set `{@link #hideTrigger hideTrigger}:true`; to disable the arrow key
-and mouse wheel handlers set `{@link #keyNavEnabled keyNavEnabled}:false` and
-`{@link #mouseWheelEnabled mouseWheelEnabled}:false`. See the example below.
-
-#Example usage:#
-{@img Ext.form.Number/Ext.form.Number1.png Ext.form.Number component}
-    Ext.create('Ext.form.Panel', {
-        title: 'On The Wall',
-        width: 300,
-        bodyPadding: 10,
-        renderTo: Ext.getBody(),
-        items: [{
-            xtype: 'numberfield',
-            anchor: '100%',
-            name: 'bottles',
-            fieldLabel: 'Bottles of Beer',
-            value: 99,
-            maxValue: 99,
-            minValue: 0
-        }],
-        buttons: [{
-            text: 'Take one down, pass it around',
-            handler: function() {
-                this.up('form').down('[name=bottles]').spinDown();
-            }
-        }]
-    });
-
-#Removing UI Enhancements#
-{@img Ext.form.Number/Ext.form.Number2.png Ext.form.Number component}
-    Ext.create('Ext.form.Panel', {
-        title: 'Personal Info',
-        width: 300,
-        bodyPadding: 10,
-        renderTo: Ext.getBody(),        
-        items: [{
-            xtype: 'numberfield',
-            anchor: '100%',
-            name: 'age',
-            fieldLabel: 'Age',
-            minValue: 0, //prevents negative numbers
-    
-            // Remove spinner buttons, and arrow key and mouse wheel listeners
-            hideTrigger: true,
-            keyNavEnabled: false,
-            mouseWheelEnabled: false
-        }]
-    });
-
-#Using Step#
-    Ext.create('Ext.form.Panel', {
-        renderTo: Ext.getBody(),
-        title: 'Step',
-        width: 300,
-        bodyPadding: 10,
-        items: [{
-            xtype: 'numberfield',
-            anchor: '100%',
-            name: 'evens',
-            fieldLabel: 'Even Numbers',
-
-            // Set step so it skips every other number
-            step: 2,
-            value: 0,
-
-            // Add change handler to force user-entered numbers to evens
-            listeners: {
-                change: function(field, value) {
-                    value = parseInt(value, 10);
-                    field.setValue(value + value % 2);
-                }
-            }
-        }]
-    });
-
-
- * @constructor
- * Creates a new Number field
- * @param {Object} config Configuration options
- *
- * @xtype numberfield
- * @markdown
  * @docauthor Jason Johnston <jason@sencha.com>
+ *
+ * A numeric text field that provides automatic keystroke filtering to disallow non-numeric characters,
+ * and numeric validation to limit the value to a range of valid numbers. The range of acceptable number
+ * values can be controlled by setting the {@link #minValue} and {@link #maxValue} configs, and fractional
+ * decimals can be disallowed by setting {@link #allowDecimals} to `false`.
+ *
+ * By default, the number field is also rendered with a set of up/down spinner buttons and has
+ * up/down arrow key and mouse wheel event listeners attached for incrementing/decrementing the value by the
+ * {@link #step} value. To hide the spinner buttons set `{@link #hideTrigger hideTrigger}:true`; to disable
+ * the arrow key and mouse wheel handlers set `{@link #keyNavEnabled keyNavEnabled}:false` and
+ * `{@link #mouseWheelEnabled mouseWheelEnabled}:false`. See the example below.
+ *
+ * # Example usage
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         title: 'On The Wall',
+ *         width: 300,
+ *         bodyPadding: 10,
+ *         renderTo: Ext.getBody(),
+ *         items: [{
+ *             xtype: 'numberfield',
+ *             anchor: '100%',
+ *             name: 'bottles',
+ *             fieldLabel: 'Bottles of Beer',
+ *             value: 99,
+ *             maxValue: 99,
+ *             minValue: 0
+ *         }],
+ *         buttons: [{
+ *             text: 'Take one down, pass it around',
+ *             handler: function() {
+ *                 this.up('form').down('[name=bottles]').spinDown();
+ *             }
+ *         }]
+ *     });
+ *
+ * # Removing UI Enhancements
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         title: 'Personal Info',
+ *         width: 300,
+ *         bodyPadding: 10,
+ *         renderTo: Ext.getBody(),
+ *         items: [{
+ *             xtype: 'numberfield',
+ *             anchor: '100%',
+ *             name: 'age',
+ *             fieldLabel: 'Age',
+ *             minValue: 0, //prevents negative numbers
+ *
+ *             // Remove spinner buttons, and arrow key and mouse wheel listeners
+ *             hideTrigger: true,
+ *             keyNavEnabled: false,
+ *             mouseWheelEnabled: false
+ *         }]
+ *     });
+ *
+ * # Using Step
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         renderTo: Ext.getBody(),
+ *         title: 'Step',
+ *         width: 300,
+ *         bodyPadding: 10,
+ *         items: [{
+ *             xtype: 'numberfield',
+ *             anchor: '100%',
+ *             name: 'evens',
+ *             fieldLabel: 'Even Numbers',
+ *
+ *             // Set step so it skips every other number
+ *             step: 2,
+ *             value: 0,
+ *
+ *             // Add change handler to force user-entered numbers to evens
+ *             listeners: {
+ *                 change: function(field, value) {
+ *                     value = parseInt(value, 10);
+ *                     field.setValue(value + value % 2);
+ *                 }
+ *             }
+ *         }]
+ *     });
  */
 Ext.define('Ext.form.field.Number', {
     extend:'Ext.form.field.Spinner',
@@ -99,78 +93,114 @@ Ext.define('Ext.form.field.Number', {
     alternateClassName: ['Ext.form.NumberField', 'Ext.form.Number'],
 
     /**
-     * @cfg {RegExp} stripCharsRe @hide
+     * @cfg {RegExp} stripCharsRe
+     * @private
      */
     /**
-     * @cfg {RegExp} maskRe @hide
+     * @cfg {RegExp} maskRe
+     * @private
      */
 
     /**
-     * @cfg {Boolean} allowDecimals False to disallow decimal values (defaults to true)
+     * @cfg {Boolean} allowDecimals
+     * False to disallow decimal values
      */
     allowDecimals : true,
 
+    //<locale>
     /**
-     * @cfg {String} decimalSeparator Character(s) to allow as the decimal separator (defaults to '.')
+     * @cfg {String} decimalSeparator
+     * Character(s) to allow as the decimal separator
      */
     decimalSeparator : '.',
-
+    //</locale>
+    
+    //<locale>
     /**
-     * @cfg {Number} decimalPrecision The maximum precision to display after the decimal separator (defaults to 2)
+     * @cfg {Boolean} [submitLocaleSeparator=true]
+     * False to ensure that the {@link #getSubmitValue} method strips
+     * always uses `.` as the separator, regardless of the {@link #decimalSeparator}
+     * configuration.
+     */
+    submitLocaleSeparator: true,
+    //</locale>
+
+    //<locale>
+    /**
+     * @cfg {Number} decimalPrecision
+     * The maximum precision to display after the decimal separator
      */
     decimalPrecision : 2,
+    //</locale>
 
     /**
-     * @cfg {Number} minValue The minimum allowed value (defaults to Number.NEGATIVE_INFINITY). Will be used by
-     * the field's validation logic, and for
-     * {@link Ext.form.field.Spinner#setSpinUpEnabled enabling/disabling the down spinner button}.
+     * @cfg {Number} minValue
+     * The minimum allowed value. Will be used by the field's validation logic,
+     * and for {@link Ext.form.field.Spinner#setSpinUpEnabled enabling/disabling the down spinner button}.
+     *
+     * Defaults to Number.NEGATIVE_INFINITY.
      */
     minValue: Number.NEGATIVE_INFINITY,
 
     /**
-     * @cfg {Number} maxValue The maximum allowed value (defaults to Number.MAX_VALUE). Will be used by
-     * the field's validation logic, and for
+     * @cfg {Number} maxValue
+     * The maximum allowed value. Will be used by the field's validation logic, and for
      * {@link Ext.form.field.Spinner#setSpinUpEnabled enabling/disabling the up spinner button}.
+     *
+     * Defaults to Number.MAX_VALUE.
      */
     maxValue: Number.MAX_VALUE,
 
     /**
-     * @cfg {Number} step Specifies a numeric interval by which the field's value will be incremented or
-     * decremented when the user invokes the spinner. Defaults to <tt>1</tt>.
+     * @cfg {Number} step
+     * Specifies a numeric interval by which the field's value will be incremented or decremented when the user invokes
+     * the spinner.
      */
     step: 1,
 
+    //<locale>
     /**
-     * @cfg {String} minText Error text to display if the minimum value validation fails (defaults to 'The minimum
-     * value for this field is {minValue}')
+     * @cfg {String} minText
+     * Error text to display if the minimum value validation fails.
      */
     minText : 'The minimum value for this field is {0}',
+    //</locale>
 
+    //<locale>
     /**
-     * @cfg {String} maxText Error text to display if the maximum value validation fails (defaults to 'The maximum
-     * value for this field is {maxValue}')
+     * @cfg {String} maxText
+     * Error text to display if the maximum value validation fails.
      */
     maxText : 'The maximum value for this field is {0}',
+    //</locale>
 
+    //<locale>
     /**
-     * @cfg {String} nanText Error text to display if the value is not a valid number.  For example, this can happen
-     * if a valid character like '.' or '-' is left in the field with no number (defaults to '{value} is not a valid number')
+     * @cfg {String} nanText
+     * Error text to display if the value is not a valid number. For example, this can happen if a valid character like
+     * '.' or '-' is left in the field with no number.
      */
     nanText : '{0} is not a valid number',
+    //</locale>
 
+    //<locale>
     /**
-     * @cfg {String} negativeText Error text to display if the value is negative and {@link #minValue} is set to
-     * <tt>0</tt>. This is used instead of the {@link #minText} in that circumstance only.
+     * @cfg {String} negativeText
+     * Error text to display if the value is negative and {@link #minValue} is set to 0. This is used instead of the
+     * {@link #minText} in that circumstance only.
      */
     negativeText : 'The value cannot be negative',
+    //</locale>
 
     /**
-     * @cfg {String} baseChars The base set of characters to evaluate as valid numbers (defaults to '0123456789').
+     * @cfg {String} baseChars
+     * The base set of characters to evaluate as valid numbers.
      */
     baseChars : '0123456789',
 
     /**
-     * @cfg {Boolean} autoStripChars True to automatically strip not allowed characters from the field. Defaults to <tt>false</tt>
+     * @cfg {Boolean} autoStripChars
+     * True to automatically strip not allowed characters from the field.
      */
     autoStripChars: false,
 
@@ -201,12 +231,11 @@ Ext.define('Ext.form.field.Number', {
     },
 
     /**
-     * Runs all of Number's validations and returns an array of any errors. Note that this first
-     * runs Text's validations, so the returned array is an amalgamation of all field errors.
-     * The additional validations run test that the value is a number, and that it is within the
-     * configured min and max values.
-     * @param {Mixed} value The value to get errors for (defaults to the current field value)
-     * @return {Array} All validation errors for this field
+     * Runs all of Number's validations and returns an array of any errors. Note that this first runs Text's
+     * validations, so the returned array is an amalgamation of all field errors. The additional validations run test
+     * that the value is a number, and that it is within the configured min and max values.
+     * @param {Object} [value] The value to get errors for (defaults to the current field value)
+     * @return {String[]} All validation errors for this field
      */
     getErrors: function(value) {
         var me = this,
@@ -244,7 +273,11 @@ Ext.define('Ext.form.field.Number', {
     },
 
     rawToValue: function(rawValue) {
-        return this.fixPrecision(this.parseValue(rawValue)) || rawValue || null;
+        var value = this.fixPrecision(this.parseValue(rawValue));
+        if (value === null) {
+            value = rawValue || null;
+        }
+        return  value;
     },
 
     valueToRaw: function(value) {
@@ -256,15 +289,27 @@ Ext.define('Ext.form.field.Number', {
         value = isNaN(value) ? '' : String(value).replace('.', decimalSeparator);
         return value;
     },
+    
+    getSubmitValue: function() {
+        var me = this,
+            value = me.callParent();
+            
+        if (!me.submitLocaleSeparator) {
+            value = value.replace(me.decimalSeparator, '.');
+        }  
+        return value;
+    },
 
     onChange: function() {
+        this.toggleSpinners();
+        this.callParent(arguments);
+    },
+    
+    toggleSpinners: function(){
         var me = this,
             value = me.getValue(),
             valueIsNull = value === null;
-
-        me.callParent(arguments);
-
-        // Update the spinner buttons
+            
         me.setSpinUpEnabled(valueIsNull || value < me.maxValue);
         me.setSpinDownEnabled(valueIsNull || value > me.minValue);
     },
@@ -275,6 +320,7 @@ Ext.define('Ext.form.field.Number', {
      */
     setMinValue : function(value) {
         this.minValue = Ext.Number.from(value, Number.NEGATIVE_INFINITY);
+        this.toggleSpinners();
     },
 
     /**
@@ -283,6 +329,7 @@ Ext.define('Ext.form.field.Number', {
      */
     setMaxValue: function(value) {
         this.maxValue = Ext.Number.from(value, Number.MAX_VALUE);
+        this.toggleSpinners();
     },
 
     // private
@@ -293,7 +340,6 @@ Ext.define('Ext.form.field.Number', {
 
     /**
      * @private
-     *
      */
     fixPrecision : function(value) {
         var me = this,

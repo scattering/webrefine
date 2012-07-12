@@ -1,5 +1,4 @@
 /**
- * @class Ext.menu.KeyNav
  * @private
  */
 Ext.define('Ext.menu.KeyNav', {
@@ -34,10 +33,14 @@ Ext.define('Ext.menu.KeyNav', {
     },
 
     enter: function(e) {
-        var menu = this.menu;
-
+        var menu = this.menu,
+            focused = menu.focusedItem;
+ 
         if (menu.activeItem) {
             menu.onClick(e);
+        } else if (focused && focused.isFormField) {
+            // prevent stopEvent being called
+            return true;
         }
     },
 
@@ -50,7 +53,8 @@ Ext.define('Ext.menu.KeyNav', {
             items = menu.items,
             focusedItem = menu.focusedItem,
             startIdx = focusedItem ? items.indexOf(focusedItem) : -1,
-            idx = startIdx + step;
+            idx = startIdx + step,
+            item;
 
         while (idx != startIdx) {
             if (idx < 0) {
@@ -59,7 +63,7 @@ Ext.define('Ext.menu.KeyNav', {
                 idx = 0;
             }
 
-            var item = items.getAt(idx);
+            item = items.getAt(idx);
             if (menu.canActivateItem(item)) {
                 menu.setActiveItem(item);
                 break;

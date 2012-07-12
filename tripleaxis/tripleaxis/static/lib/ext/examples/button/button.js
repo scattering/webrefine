@@ -46,19 +46,19 @@ Ext.onReady(function() {
             var generateButtons = function(config) {
                 //Ext.each(['gray', 'darkgray', 'blue', 'darkblue', 'red', 'green'], function(color) {
                 Ext.each(['default'], function(color) {
-                    Ext.createWidget(defaultConfig.defaultType || 'button', Ext.apply({
+                    Ext.widget(defaultConfig.defaultType || 'button', Ext.apply({
                         text : 'Small',
                         scale: 'small',
-                        color: color,
+                        color: color
                     }, config, defaultConfig));
 
-                    Ext.createWidget(defaultConfig.defaultType || 'button', Ext.apply({
+                    Ext.widget(defaultConfig.defaultType || 'button', Ext.apply({
                         text : 'Medium',
                         scale: 'medium',
                         color: color
                     }, config, defaultConfig));
 
-                    Ext.createWidget(defaultConfig.defaultType || 'button', Ext.apply({
+                    Ext.widget(defaultConfig.defaultType || 'button', Ext.apply({
                         text : 'Large',
                         scale: 'large',
                         color: color
@@ -117,11 +117,28 @@ Ext.onReady(function() {
         menu : menu,
         arrowAlign: 'bottom'
     });
-    
+
     renderButtons('Split Buttons (Arrow on bottom)', genericConfig, {
         cls: 'floater',
         defaultType: 'splitbutton',
         menu : menu,
         arrowAlign: 'bottom'
+    });
+
+    renderButtons('Text align: left', genericConfig, {
+        cls: 'floater',
+        textAlign: 'left',
+        width: 200
+    });
+
+    renderButtons('Text align: right', genericConfig, {
+        cls: 'floater',
+        textAlign: 'right',
+        width: 200
+    });
+
+    renderButtons('Link Buttons', genericConfig, {
+        cls: 'floater',
+        href: 'http://www.sencha.com/'
     });
 });

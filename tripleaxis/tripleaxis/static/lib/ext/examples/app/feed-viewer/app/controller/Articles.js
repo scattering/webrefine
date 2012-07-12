@@ -71,26 +71,38 @@ Ext.define('FV.controller.Articles', {
     },
     
     openAllArticles: function() {
-        var articles = [],
-            viewer = this.getViewer();
-            
-        this.getArticlesStore().each(function(article) {
-            articles.push(this.loadArticle(null, article, true));
-        }, this);
-        
-        viewer.add(articles);
-        viewer.setActiveTab(articles[articles.length-1]);
+        this.loadArticles(this.getArticlesStore().getRange());
     },
 
     viewArticle: function(btn) {
         this.loadArticle(null, btn.up('articlepreview').article);
+    },
+    
+    loadArticles: function(articles){
+        var viewer = this.getViewer(),
+            toAdd = [],
+            id;
+            
+        Ext.Array.forEach(articles, function(article){
+            id = article.id;
+            if (!viewer.down('[articleId=' + id + ']')) {
+                tab = this.getArticleTab();
+                tab.down('button[action=viewintab]').destroy();
+                tab.setTitle(article.get('title'));
+                tab.article = article;
+                tab.articleId = id;
+                tab.update(article.data);
+                toAdd.push(tab);
+            }
+        }, this);
+        viewer.add(toAdd);
     },
 
     /**
      * Loads the given article into a new tab
      * @param {FV.model.Article} article The article to load into a new tab
      */
-    loadArticle: function(view, article, preventAdd) {
+    loadArticle: function(view, article) {
         var viewer = this.getViewer(),
             title = article.get('title'),
             articleId = article.id;
@@ -106,10 +118,8 @@ Ext.define('FV.controller.Articles', {
         tab.articleId = articleId;
         tab.update(article.data);
 
-        if (preventAdd !== true) {
-            viewer.add(tab);
-            viewer.setActiveTab(tab);            
-        }
+        viewer.add(tab);
+        viewer.setActiveTab(tab);            
         
         return tab;
     }

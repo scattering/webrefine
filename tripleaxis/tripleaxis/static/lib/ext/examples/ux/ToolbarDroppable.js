@@ -71,32 +71,30 @@
      * drag event
      * @param {Ext.EventObject} e The event object
      * @return {Number} The index at which to insert the new button
-     */
+     */    
     calculateEntryIndex: function(e) {
         var entryIndex = 0,
-            toolbar    = this.toolbar,
-            items      = toolbar.items.items,
-            count      = items.length,
-            xTotal     = toolbar.getEl().getXY()[0],
-            xHover     = e.getXY()[0] - xTotal;
-
-        for (var index = 0; index < count; index++) {
-            var item     = items[index],
-                width    = item.getEl().getWidth(),
-                midpoint = xTotal + width / 2;
-
-            xTotal += width;
-
+            toolbar = this.toolbar,
+            items = toolbar.items.items,
+            count = items.length,
+            xHover = e.getXY()[0],
+            index = 0,
+            el, xTotal, width, midpoint;
+ 
+        for (; index < count; index++) {
+            el = items[index].getEl();
+            xTotal = el.getXY()[0];
+            width = el.getWidth();
+            midpoint = xTotal + width / 2;
+ 
             if (xHover < midpoint) {
-                entryIndex = index;
-
+                entryIndex = index; 
                 break;
             } else {
                 entryIndex = index + 1;
             }
-        }
-
-        return entryIndex;
+       }
+       return entryIndex;
     },
 
     /**

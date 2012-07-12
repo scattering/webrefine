@@ -1,3 +1,10 @@
+/**
+ * @class Ext.state.LocalStorageProvider
+ * A Provider implementation which saves and retrieves state via the HTML5 localStorage object.
+ * If the browser does not support local storage, an exception will be thrown upon instantiating
+ * this class.
+ */
+
 Ext.define('Ext.state.LocalStorageProvider', {
     /* Begin Definitions */
     

@@ -35,10 +35,7 @@ Ext.onReady(function(){
             data = [],
             s = new Date(2007, 0, 1),
             now = new Date(),
-
-            getRandomInt = function(min, max) {
-                return Math.floor(Math.random() * (max - min + 1)) + min;
-            },
+            getRandomInt = Ext.Number.randomInt,
 
             generateName = function() {
                 var name = firsts[getRandomInt(0, firstLen - 1)] + ' ' + lasts[getRandomInt(0, lastLen - 1)];
@@ -112,7 +109,7 @@ Ext.onReady(function(){
             header: 'Start Date',
             dataIndex: 'start',
             width: 90,
-            field: {
+            editor: {
                 xtype: 'datefield',
                 allowBlank: false,
                 format: 'm/d/Y',
@@ -153,14 +150,14 @@ Ext.onReady(function(){
             handler : function() {
                 rowEditing.cancelEdit();
 
-                // Create a record instance through the ModelManager
-                var r = Ext.ModelManager.create({
+                // Create a model instance
+                var r = Ext.create('Employee', {
                     name: 'New Guy',
                     email: 'new@sencha-test.com',
                     start: new Date(),
                     salary: 50000,
                     active: true
-                }, 'Employee');
+                });
 
                 store.insert(0, r);
                 rowEditing.startEdit(0, 0);
@@ -173,7 +170,9 @@ Ext.onReady(function(){
                 var sm = grid.getSelectionModel();
                 rowEditing.cancelEdit();
                 store.remove(sm.getSelection());
-                sm.select(0);
+                if (store.getCount() > 0) {
+                    sm.select(0);
+                }
             },
             disabled: true
         }],

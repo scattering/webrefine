@@ -1,7 +1,6 @@
 /**
  * @author Ed Spencer
  * @class Ext.data.writer.Xml
- * @extends Ext.data.writer.Writer
 
 This class is used to write {@link Ext.data.Model} data to the server in an XML format.
 The {@link #documentRoot} property is used to specify the root element in the XML document.

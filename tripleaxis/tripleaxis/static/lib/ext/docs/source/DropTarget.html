@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -15,19 +15,19 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='Ext-dd-DropTarget-method-constructor'><span id='Ext-dd-DropTarget'>/**
-</span></span> * @class Ext.dd.DropTarget
- * @extends Ext.dd.DDTarget
- * A simple class that provides the basic implementation needed to make any element a drop target that can have
+  <pre class="prettyprint lang-js"><span id='Ext-dd-DropTarget'>/**
+</span> * A simple class that provides the basic implementation needed to make any element a drop target that can have
  * draggable items dropped onto it.  The drop has no effect until an implementation of notifyDrop is provided.
- * @constructor
- * @param {Mixed} el The container element
- * @param {Object} config
  */
 Ext.define('Ext.dd.DropTarget', {
     extend: 'Ext.dd.DDTarget',
     requires: ['Ext.dd.ScrollManager'],
 
+<span id='Ext-dd-DropTarget-method-constructor'>    /**
+</span>     * Creates new DropTarget.
+     * @param {String/HTMLElement/Ext.Element} el The container element or ID of it.
+     * @param {Object} config
+     */
     constructor : function(el, config){
         this.el = Ext.get(el);
 
@@ -44,20 +44,20 @@ Ext.define('Ext.dd.DropTarget', {
 <span id='Ext-dd-DropTarget-cfg-ddGroup'>    /**
 </span>     * @cfg {String} ddGroup
      * A named drag drop group to which this object belongs.  If a group is specified, then this object will only
-     * interact with other drag drop objects in the same group (defaults to undefined).
+     * interact with other drag drop objects in the same group.
      */
 <span id='Ext-dd-DropTarget-cfg-overClass'>    /**
-</span>     * @cfg {String} overClass
-     * The CSS class applied to the drop target element while the drag source is over it (defaults to &quot;&quot;).
+</span>     * @cfg {String} [overClass=&quot;&quot;]
+     * The CSS class applied to the drop target element while the drag source is over it.
      */
 <span id='Ext-dd-DropTarget-cfg-dropAllowed'>    /**
 </span>     * @cfg {String} dropAllowed
-     * The CSS class returned to the drag source when drop is allowed (defaults to &quot;x-dd-drop-ok&quot;).
+     * The CSS class returned to the drag source when drop is allowed.
      */
     dropAllowed : Ext.baseCSSPrefix + 'dd-drop-ok',
 <span id='Ext-dd-DropTarget-cfg-dropNotAllowed'>    /**
 </span>     * @cfg {String} dropNotAllowed
-     * The CSS class returned to the drag source when drop is not allowed (defaults to &quot;x-dd-drop-nodrop&quot;).
+     * The CSS class returned to the drag source when drop is not allowed.
      */
     dropNotAllowed : Ext.baseCSSPrefix + 'dd-drop-nodrop',
 
@@ -76,6 +76,7 @@ Ext.define('Ext.dd.DropTarget', {
      * @param {Object} data An object containing arbitrary data supplied by the drag source
      * @return {String} status The CSS class that communicates the drop status back to the source so that the
      * underlying {@link Ext.dd.StatusProxy} can be updated
+     * @template
      */
     notifyEnter : function(dd, e, data){
         if(this.overClass){
@@ -93,6 +94,7 @@ Ext.define('Ext.dd.DropTarget', {
      * @param {Object} data An object containing arbitrary data supplied by the drag source
      * @return {String} status The CSS class that communicates the drop status back to the source so that the
      * underlying {@link Ext.dd.StatusProxy} can be updated
+     * @template
      */
     notifyOver : function(dd, e, data){
         return this.dropAllowed;
@@ -105,6 +107,7 @@ Ext.define('Ext.dd.DropTarget', {
      * @param {Ext.dd.DragSource} source The drag source that was dragged over this drop target
      * @param {Event} e The event
      * @param {Object} data An object containing arbitrary data supplied by the drag source
+     * @template
      */
     notifyOut : function(dd, e, data){
         if(this.overClass){
@@ -121,6 +124,7 @@ Ext.define('Ext.dd.DropTarget', {
      * @param {Event} e The event
      * @param {Object} data An object containing arbitrary data supplied by the drag source
      * @return {Boolean} False if the drop was invalid.
+     * @template
      */
     notifyDrop : function(dd, e, data){
         return false;

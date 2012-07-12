@@ -63,6 +63,8 @@ Ext.onReady(function () {
     Ext.create('Ext.Window', {
         width: 800,
         height: 600,
+        minHeight: 400,
+        minWidth: 550,
         hidden: false,
         maximizable: true,
         title: 'Live Animated Chart',
@@ -73,6 +75,7 @@ Ext.onReady(function () {
             style: 'background:#fff',
             id: 'chartCmp',
             store: store,
+            shadow: false,
             animate: true,
             axes: [{
                 type: 'Numeric',
@@ -105,7 +108,8 @@ Ext.onReady(function () {
             }],
             series: [{
                 type: 'line',
-                axis: 'left',
+                smooth: false,
+                axis: ['left', 'bottom'],
                 xField: 'date',
                 yField: 'visits',
                 label: {
@@ -120,7 +124,8 @@ Ext.onReady(function () {
                 }
             },{
                 type: 'line',
-                axis: 'left',
+                axis: ['left', 'bottom'],
+                smooth: false,
                 xField: 'date',
                 yField: 'views',
                 label: {
@@ -135,7 +140,8 @@ Ext.onReady(function () {
                 }
             },{
                 type: 'line',
-                axis: 'left',
+                axis: ['left', 'bottom'],
+                smooth: false,
                 xField: 'date',
                 yField: 'users',
                 label: {

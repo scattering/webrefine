@@ -34,22 +34,18 @@ Ext.define('Ext.multisort.SortButton', {
     },
     
     /**
-     * Sets the new direction of this button
+     * Updates the new direction of this button
      * @param {String} direction The new direction
      */
-    applyDirection: function(direction) {
-        this._direction = direction;
+    updateDirection: function(direction) {
         this.setIconCls('direction-' + direction.toLowerCase());
-        
         this.fireEvent('changeDirection', direction);
-        
-        return direction;
     },
     
     /**
      * Toggles between ASC and DESC directions
      */
     toggleDirection: function() {
-        this.setDirection(Ext.String.toggle(this.getDirection(), "ASC", "DESC"));
+        this.setDirection(Ext.String.toggle(this.direction, "ASC", "DESC"));
     }
 });

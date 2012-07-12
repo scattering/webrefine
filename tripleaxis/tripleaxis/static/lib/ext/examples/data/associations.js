@@ -280,6 +280,7 @@ Ext.define('ItemLoader', {
     initComponent: function(){
         Ext.apply(this, {
             border: false,
+            autoScroll: true,
             dockedItems: [{
                 xtype: 'toolbar',
                 items: [{

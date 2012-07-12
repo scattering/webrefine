@@ -1,34 +1,42 @@
-Ext.require(['Ext.panel.Panel', 'Ext.layout.container.Table']);
+Ext.Loader.setConfig({
+    enabled: true
+});
+Ext.Loader.setPath('Ext.ux', '../ux');
+
+Ext.require([
+    'Ext.layout.container.Table',
+    'Ext.ux.Spotlight'
+]);
+
+//Create a DemoPanel which is the base for each panel in the example
+Ext.define('DemoPanel', {
+    extend: 'Ext.panel.Panel',
+
+    title: 'Demo Panel',
+    frame: true,
+    width: 200,
+    height: 150,
+    html: 'Some panel content goes here!',
+    bodyPadding: 5,
+
+    /**
+     * Custom method which toggles a Ext.Button for the current panel on/off depending on the only argument
+     */
+    toggle: function(on) {
+        var btns = this.dockedItems.last(),
+            btn = btns.items.first();
+
+        if (btn) {
+            btn.setDisabled(!on);
+        }
+    }
+});
 
 Ext.onReady(function() {
     //Create the spotlight component
     var spot = Ext.create('Ext.ux.Spotlight', {
         easing: 'easeOut',
         duration: 300
-    });
-
-    //Create a DemoPanel which is the base for each panel in the example
-    Ext.define('DemoPanel', {
-        extend: 'Ext.panel.Panel',
-
-        title: 'Demo Panel',
-        frame: true,
-        width: 200,
-        height: 150,
-        html: 'Some panel content goes here!',
-        bodyStyle: 'padding:5px;',
-
-        /**
-         * Custom method which toggles a Ext.Button for the current panel on/off depending on the only argument
-         */
-        toggle: function(on) {
-            var btns = this.dockedItems.items[1],
-                btn = btns.items.items[1];
-
-            if (btn) {
-                btn.setDisabled(!on);
-            }
-        }
     });
 
     var p1, p2, p3;
@@ -48,14 +56,13 @@ Ext.onReady(function() {
         p3.toggle(id == p3.id);
     };
 
-    Ext.createWidget('panel', {
+    Ext.widget('panel', {
         renderTo: Ext.getBody(),
-
-        layout: 'table',
         id: 'demo-ct',
         border: false,
 
-        layoutConfig: {
+        layout: {
+            type: 'table',
             columns: 3
         },
 

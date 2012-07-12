@@ -1,16 +1,18 @@
 /**
- * @class Ext.grid.plugin.HeaderReorderer
- * @extends Ext.util.Observable
  * @private
  */
 Ext.define('Ext.grid.plugin.HeaderReorderer', {
-    extend: 'Ext.util.Observable',
+    extend: 'Ext.AbstractPlugin',
     requires: ['Ext.grid.header.DragZone', 'Ext.grid.header.DropZone'],
     alias: 'plugin.gridheaderreorderer',
 
     init: function(headerCt) {
         this.headerCt = headerCt;
-        headerCt.on('render', this.onHeaderCtRender, this);
+        headerCt.on({
+            render: this.onHeaderCtRender,
+            single: true,
+            scope: this
+        });
     },
 
     /**
@@ -22,10 +24,12 @@ Ext.define('Ext.grid.plugin.HeaderReorderer', {
     },
 
     onHeaderCtRender: function() {
-        this.dragZone = Ext.create('Ext.grid.header.DragZone', this.headerCt);
-        this.dropZone = Ext.create('Ext.grid.header.DropZone', this.headerCt);
-        if (this.disabled) {
-            this.dragZone.disable();
+        var me = this;
+        
+        me.dragZone = new Ext.grid.header.DragZone(me.headerCt);
+        me.dropZone = new Ext.grid.header.DropZone(me.headerCt);
+        if (me.disabled) {
+            me.dragZone.disable();
         }
     },
     

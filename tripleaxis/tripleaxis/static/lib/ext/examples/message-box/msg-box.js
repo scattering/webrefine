@@ -102,6 +102,19 @@ Ext.onReady(function(){
        });
     });
 
+    Ext.get('mb10').on('click', function(){
+        Ext.MessageBox.show({
+            title: 'What, really?',
+            msg: 'Are you sure?',
+            buttons: Ext.MessageBox.YESNO,
+            buttonText:{ 
+                yes: "Definitely!", 
+                no: "No chance!" 
+            },
+            fn: showResult
+        });
+    });
+
     function showResult(btn){
         Ext.example.msg('Button Click', 'You clicked the {0} button', btn);
     };

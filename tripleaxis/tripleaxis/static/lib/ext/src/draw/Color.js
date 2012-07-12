@@ -1,7 +1,4 @@
 /**
- * @class Ext.draw.Color
- * @extends Object
- *
  * Represents an RGB color and provides helper functions get
  * color components in HSL color space.
  */
@@ -23,7 +20,7 @@ Ext.define('Ext.draw.Color', {
     lightnessFactor: 0.2,
 
     /**
-     * @constructor
+     * Creates new Color.
      * @param {Number} red Red component (0..255)
      * @param {Number} green Green component (0..255)
      * @param {Number} blue Blue component (0..255)
@@ -62,7 +59,7 @@ Ext.define('Ext.draw.Color', {
 
     /**
      * Get the RGB values.
-     * @return {Array}
+     * @return {Number[]}
      */
     getRGB: function() {
         var me = this;
@@ -71,7 +68,7 @@ Ext.define('Ext.draw.Color', {
 
     /**
      * Get the equivalent HSL components of the color.
-     * @return {Array}
+     * @return {Number[]}
      */
     getHSL: function() {
         var me = this,
@@ -146,9 +143,12 @@ Ext.define('Ext.draw.Color', {
     /**
      * Convert a color to hexadecimal format.
      *
-     * @param {String|Array} color The color value (i.e 'rgb(255, 255, 255)', 'color: #ffffff').
+     * **Note:** This method is both static and instance.
+     *
+     * @param {String/String[]} color The color value (i.e 'rgb(255, 255, 255)', 'color: #ffffff').
      * Can also be an Array, in this case the function handles the first member.
      * @returns {String} The color in hexadecimal format.
+     * @static
      */
     toHex: function(color) {
         if (Ext.isArray(color)) {
@@ -160,17 +160,21 @@ Ext.define('Ext.draw.Color', {
         if (color.substr(0, 1) === '#') {
             return color;
         }
-        var digits = this.colorToHexRe.exec(color);
+        var digits = this.colorToHexRe.exec(color),
+            red,
+            green,
+            blue,
+            rgb;
 
         if (Ext.isArray(digits)) {
-            var red = parseInt(digits[2], 10),
-                green = parseInt(digits[3], 10),
-                blue = parseInt(digits[4], 10),
-                rgb = blue | (green << 8) | (red << 16);
+            red = parseInt(digits[2], 10);
+            green = parseInt(digits[3], 10);
+            blue = parseInt(digits[4], 10);
+            rgb = blue | (green << 8) | (red << 16);
             return digits[1] + '#' + ("000000" + rgb.toString(16)).slice(-6);
         }
         else {
-            return '';
+            return color;
         }
     },
 
@@ -181,8 +185,11 @@ Ext.define('Ext.draw.Color', {
      *
      * If the string is not recognized, an undefined will be returned instead.
      *
+     * **Note:** This method is both static and instance.
+     *
      * @param {String} str Color in string.
      * @returns Ext.draw.Color
+     * @static
      */
     fromString: function(str) {
         var values, r, g, b,
@@ -210,7 +217,7 @@ Ext.define('Ext.draw.Color', {
             }
         }
 
-        return (typeof r == 'undefined') ? undefined : Ext.create('Ext.draw.Color', r, g, b);
+        return (typeof r == 'undefined') ? undefined : new Ext.draw.Color(r, g, b);
     },
 
     /**
@@ -228,10 +235,13 @@ Ext.define('Ext.draw.Color', {
     /**
      * Create a new color based on the specified HSL values.
      *
+     * **Note:** This method is both static and instance.
+     *
      * @param {Number} h Hue component (0..359)
      * @param {Number} s Saturation component (0..1)
      * @param {Number} l Lightness component (0..1)
      * @returns Ext.draw.Color
+     * @static
      */
     fromHSL: function(h, s, l) {
         var C, X, m, i, rgb = [],
@@ -273,7 +283,7 @@ Ext.define('Ext.draw.Color', {
             }
             rgb = [rgb[0] + m, rgb[1] + m, rgb[2] + m];
         }
-        return Ext.create('Ext.draw.Color', rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
+        return new Ext.draw.Color(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
     }
 }, function() {
     var prototype = this.prototype;

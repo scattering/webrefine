@@ -1,23 +1,40 @@
 /**
- * @class Ext.selection.DataViewModel
- * @ignore
+ * @private
  */
 Ext.define('Ext.selection.DataViewModel', {
     extend: 'Ext.selection.Model',
-    
+
     requires: ['Ext.util.KeyNav'],
 
     deselectOnContainerClick: true,
-    
+
     /**
      * @cfg {Boolean} enableKeyNav
-     * 
-     * Turns on/off keyboard navigation within the DataView. Defaults to true.
+     *
+     * Turns on/off keyboard navigation within the DataView.
      */
     enableKeyNav: true,
-    
+
     constructor: function(cfg){
         this.addEvents(
+            /**
+             * @event beforedeselect
+             * Fired before a record is deselected. If any listener returns false, the
+             * deselection is cancelled.
+             * @param {Ext.selection.DataViewModel} this
+             * @param {Ext.data.Model} record The deselected record
+             */
+            'beforedeselect',
+
+            /**
+             * @event beforeselect
+             * Fired before a record is selected. If any listener returns false, the
+             * selection is cancelled.
+             * @param {Ext.selection.DataViewModel} this
+             * @param {Ext.data.Model} record The selected record
+             */
+            'beforeselect',
+
             /**
              * @event deselect
              * Fired after a record is deselected
@@ -25,7 +42,7 @@ Ext.define('Ext.selection.DataViewModel', {
              * @param  {Ext.data.Model} record The deselected record
              */
             'deselect',
-            
+
             /**
              * @event select
              * Fired after a record is selected
@@ -36,7 +53,7 @@ Ext.define('Ext.selection.DataViewModel', {
         );
         this.callParent(arguments);
     },
-    
+
     bindComponent: function(view) {
         var me = this,
             eventListeners = {
@@ -45,10 +62,10 @@ Ext.define('Ext.selection.DataViewModel', {
             };
 
         me.view = view;
-        me.bind(view.getStore());
+        me.bindStore(view.getStore());
 
-        view.on(view.triggerEvent, me.onItemClick, me);
-        view.on(view.triggerCtEvent, me.onContainerClick, me);
+        eventListeners[view.triggerEvent] = me.onItemClick;
+        eventListeners[view.triggerCtEvent] = me.onContainerClick;
 
         view.on(eventListeners);
 
@@ -66,19 +83,24 @@ Ext.define('Ext.selection.DataViewModel', {
             this.deselectAll();
         }
     },
-    
+
     initKeyNav: function(view) {
         var me = this;
-        
+
         if (!view.rendered) {
-            view.on('render', Ext.Function.bind(me.initKeyNav, me, [view], 0), me, {single: true});
+            view.on({
+                render: Ext.Function.bind(me.initKeyNav, me, [view]),
+                single: true
+            });
             return;
         }
-        
+
         view.el.set({
             tabIndex: -1
         });
-        me.keyNav = Ext.create('Ext.util.KeyNav', view.el, {
+        me.keyNav = new Ext.util.KeyNav({
+            target: view.el,
+            ignoreInputFields: true,
             down: Ext.pass(me.onNavKey, [1], me),
             right: Ext.pass(me.onNavKey, [1], me),
             left: Ext.pass(me.onNavKey, [-1], me),
@@ -86,7 +108,7 @@ Ext.define('Ext.selection.DataViewModel', {
             scope: me
         });
     },
-    
+
     onNavKey: function(step) {
         step = step || 1;
         var me = this,
@@ -94,43 +116,47 @@ Ext.define('Ext.selection.DataViewModel', {
             selected = me.getSelection()[0],
             numRecords = me.view.store.getCount(),
             idx;
-                
+
         if (selected) {
             idx = view.indexOf(view.getNode(selected)) + step;
         } else {
             idx = 0;
         }
-        
+
         if (idx < 0) {
             idx = numRecords - 1;
         } else if (idx >= numRecords) {
             idx = 0;
         }
-        
+
         me.select(idx);
     },
 
     // Allow the DataView to update the ui
-    onSelectChange: function(record, isSelected, suppressEvent) {
+    onSelectChange: function(record, isSelected, suppressEvent, commitFn) {
         var me = this,
             view = me.view,
-            allowSelect = true;
-        
-        if (isSelected) {
-            if (!suppressEvent) {
-                allowSelect = me.fireEvent('beforeselect', me, record) !== false;
-            }
-            if (allowSelect) {
-                view.onItemSelect(record);
-                if (!suppressEvent) {
-                    me.fireEvent('select', me, record);
+            eventName = isSelected ? 'select' : 'deselect';
+
+        if ((suppressEvent || me.fireEvent('before' + eventName, me, record)) !== false &&
+                commitFn() !== false) {
+
+            if (view) {
+                if (isSelected) {
+                    view.onItemSelect(record);
+                } else {
+                    view.onItemDeselect(record);
                 }
             }
-        } else {
-            view.onItemDeselect(record);
+
             if (!suppressEvent) {
-                me.fireEvent('deselect', me, record);
+                me.fireEvent(eventName, me, record);
             }
         }
+    },
+    
+    destroy: function(){
+        Ext.destroy(this.keyNav);
+        this.callParent();
     }
 });

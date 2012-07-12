@@ -1,59 +1,60 @@
 /**
- * @class Ext.view.View
- * @extends Ext.view.AbstractView
+ * A mechanism for displaying data using custom layout templates and formatting.
  *
- * A mechanism for displaying data using custom layout templates and formatting. DataView uses an {@link Ext.XTemplate}
- * as its internal templating mechanism, and is bound to an {@link Ext.data.Store}
- * so that as the data in the store changes the view is automatically updated to reflect the changes.  The view also
- * provides built-in behavior for many common events that can occur for its contained items including click, doubleclick,
- * mouseover, mouseout, etc. as well as a built-in selection model. <b>In order to use these features, an {@link #itemSelector}
- * config must be provided for the DataView to determine what nodes it will be working with.</b>
+ * The View uses an {@link Ext.XTemplate} as its internal templating mechanism, and is bound to an
+ * {@link Ext.data.Store} so that as the data in the store changes the view is automatically updated
+ * to reflect the changes. The view also provides built-in behavior for many common events that can
+ * occur for its contained items including click, doubleclick, mouseover, mouseout, etc. as well as a
+ * built-in selection model. **In order to use these features, an {@link #itemSelector} config must
+ * be provided for the View to determine what nodes it will be working with.**
  *
- * The example below binds a DataView to a {@link Ext.data.Store} and renders it into an {@link Ext.panel.Panel}.
+ * The example below binds a View to a {@link Ext.data.Store} and renders it into an {@link Ext.panel.Panel}.
  *
- * {@img Ext.DataView/Ext.DataView.png Ext.DataView component}
- *
- *     Ext.regModel('Image', {
- *         Fields: [
- *             {name:'src', type:'string'},
- *             {name:'caption', type:'string'}
+ *     @example
+ *     Ext.define('Image', {
+ *         extend: 'Ext.data.Model',
+ *         fields: [
+ *             { name:'src', type:'string' },
+ *             { name:'caption', type:'string' }
  *         ]
  *     });
- *     
+ *
  *     Ext.create('Ext.data.Store', {
  *         id:'imagesStore',
  *         model: 'Image',
  *         data: [
- *             {src:'http://www.sencha.com/img/20110215-feat-drawing.png', caption:'Drawing & Charts'},
- *             {src:'http://www.sencha.com/img/20110215-feat-data.png', caption:'Advanced Data'},
- *             {src:'http://www.sencha.com/img/20110215-feat-html5.png', caption:'Overhauled Theme'},
- *             {src:'http://www.sencha.com/img/20110215-feat-perf.png', caption:'Performance Tuned'}            
+ *             { src:'http://www.sencha.com/img/20110215-feat-drawing.png', caption:'Drawing & Charts' },
+ *             { src:'http://www.sencha.com/img/20110215-feat-data.png', caption:'Advanced Data' },
+ *             { src:'http://www.sencha.com/img/20110215-feat-html5.png', caption:'Overhauled Theme' },
+ *             { src:'http://www.sencha.com/img/20110215-feat-perf.png', caption:'Performance Tuned' }
  *         ]
  *     });
- *     
+ *
  *     var imageTpl = new Ext.XTemplate(
- *         '&lt;tpl for="."&gt;',
- *             '&lt;div style="thumb-wrap"&gt;',
- *               '&lt;img src="{src}" /&gt;',
- *               '&lt;br/&gt;&lt;span&gt;{caption}&lt;/span&gt;',
- *             '&lt;/div&gt;',
- *         '&lt;/tpl&gt;'
+ *         '<tpl for=".">',
+ *             '<div style="margin-bottom: 10px;" class="thumb-wrap">',
+ *               '<img src="{src}" />',
+ *               '<br/><span>{caption}</span>',
+ *             '</div>',
+ *         '</tpl>'
  *     );
- *     
- *     Ext.create('Ext.DataView', {
+ *
+ *     Ext.create('Ext.view.View', {
  *         store: Ext.data.StoreManager.lookup('imagesStore'),
  *         tpl: imageTpl,
  *         itemSelector: 'div.thumb-wrap',
  *         emptyText: 'No images available',
  *         renderTo: Ext.getBody()
  *     });
- *
- * @xtype dataview
  */
 Ext.define('Ext.view.View', {
     extend: 'Ext.view.AbstractView',
-    alternateClassName: 'Ext.view.View',
+    alternateClassName: 'Ext.DataView',
     alias: 'widget.dataview',
+
+    deferHighlight: (Ext.isIE6 || Ext.isIE7) ? 100 : 0,
+
+    inputTagRe: /^textarea$|^input$/i,
 
     inheritableStatics: {
         EventMap: {
@@ -66,7 +67,17 @@ Ext.define('Ext.view.View', {
             mouseout: 'MouseOut',
             mouseenter: 'MouseEnter',
             mouseleave: 'MouseLeave',
-            keydown: 'KeyDown'
+            keydown: 'KeyDown',
+            focus: 'Focus'
+        }
+    },
+
+    initComponent: function() {
+        var me = this;
+        me.callParent();
+        if (me.deferHighlight){
+            me.setHighlightedItem =
+                Ext.Function.createBuffered(me.setHighlightedItem, me.deferHighlight, me);
         }
     },
 
@@ -339,31 +350,71 @@ Ext.define('Ext.view.View', {
             'containerkeydown',
 
             /**
-             * @event selectionchange
-             * Fires when the selected nodes change. Relayed event from the underlying selection model.
-             * @param {Ext.view.View} this
-             * @param {Array} selections Array of the selected nodes
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#selectionchange
              */
             'selectionchange',
             /**
-             * @event beforeselect
-             * Fires before a selection is made. If any handlers return false, the selection is cancelled.
-             * @param {Ext.view.View} this
-             * @param {HTMLElement} node The node to be selected
-             * @param {Array} selections Array of currently selected nodes
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#beforeselect
              */
-            'beforeselect'
+            'beforeselect',
+            /**
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#beforedeselect
+             */
+            'beforedeselect',
+            /**
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#select
+             */
+            'select',
+            /**
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#deselect
+             */
+            'deselect',
+            /**
+             * @event
+             * @inheritdoc Ext.selection.DataViewModel#focuschange
+             */
+            'focuschange',
+            
+            /**
+             * @event highlightitem
+             * Fires when a node is highlighted using keyboard navigation, or mouseover.
+             * @param {Ext.view.View} view This View Component.
+             * @param {Ext.Element} node The highlighted node.
+             */
+            'highlightitem',
+            
+            /**
+             * @event unhighlightitem
+             * Fires when a node is unhighlighted using keyboard navigation, or mouseout.
+             * @param {Ext.view.View} view This View Component.
+             * @param {Ext.Element} node The previously highlighted node.
+             */
+            'unhighlightitem'
         );
     },
+
+    getFocusEl: function() {
+        return this.getTargetEl();
+    },
+
     // private
     afterRender: function(){
-        var me = this,
-            listeners;
-
+        var me = this;
         me.callParent();
-
-        listeners = {
+        me.mon(me.getTargetEl(), {
             scope: me,
+            /*
+             * We need to make copies of this since some of the events fired here will end up triggering
+             * a new event to be called and the shared event object will be mutated. In future we should
+             * investigate if there are any issues with creating a new event object for each event that
+             * is fired.
+             */
+            freezeEvent: true,
             click: me.handleEvent,
             mousedown: me.handleEvent,
             mouseup: me.handleEvent,
@@ -372,18 +423,24 @@ Ext.define('Ext.view.View', {
             mouseover: me.handleEvent,
             mouseout: me.handleEvent,
             keydown: me.handleEvent
-        };
-
-        me.mon(me.getTargetEl(), listeners);
-
-        if (me.store) {
-            me.bindStore(me.store, true);
-        }
+        });
     },
 
     handleEvent: function(e) {
-        if (this.processUIEvent(e) !== false) {
-            this.processSpecialEvent(e);
+        var me = this,
+            key = e.type == 'keydown' && e.getKey();
+
+        if (me.processUIEvent(e) !== false) {
+            me.processSpecialEvent(e);
+        }
+
+        // After all listeners have processed the event, then unless the user is typing into an input field,
+        // prevent browser's default action on SPACE which is to focus the event's target element.
+        // Focusing causes the browser to attempt to scroll the element into view.
+        if (key === e.SPACE) {
+            if (!me.inputTagRe.test(e.getTarget().tagName)) {
+                e.stopEvent();
+            }
         }
     },
 
@@ -443,7 +500,10 @@ Ext.define('Ext.view.View', {
                 record = me.getRecord(item);
             }
 
-            if (me.processItemEvent(record, item, index, e) === false) {
+            // It is possible for an event to arrive for which there is no record... this
+            // can happen with dblclick where the clicks are on removal actions (think a
+            // grid w/"delete row" action column)
+            if (!record || me.processItemEvent(record, item, index, e) === false) {
                 return false;
             }
 
@@ -519,12 +579,14 @@ Ext.define('Ext.view.View', {
     // @private, template methods
     onItemMouseDown: Ext.emptyFn,
     onItemMouseUp: Ext.emptyFn,
+    onItemFocus: Ext.emptyFn,
     onItemClick: Ext.emptyFn,
     onItemDblClick: Ext.emptyFn,
     onItemContextMenu: Ext.emptyFn,
     onItemKeyDown: Ext.emptyFn,
     onBeforeItemMouseDown: Ext.emptyFn,
     onBeforeItemMouseUp: Ext.emptyFn,
+    onBeforeItemFocus: Ext.emptyFn,
     onBeforeItemMouseEnter: Ext.emptyFn,
     onBeforeItemMouseLeave: Ext.emptyFn,
     onBeforeItemClick: Ext.emptyFn,
@@ -550,29 +612,61 @@ Ext.define('Ext.view.View', {
     onBeforeContainerContextMenu: Ext.emptyFn,
     onBeforeContainerKeyDown: Ext.emptyFn,
 
+    //private
+    setHighlightedItem: function(item){
+        var me = this,
+            highlighted = me.highlightedItem;
+
+        if (highlighted != item){
+            if (highlighted) {
+                Ext.fly(highlighted).removeCls(me.overItemCls);
+                me.fireEvent('unhighlightitem', me, highlighted);
+            }
+
+            me.highlightedItem = item;
+
+            if (item) {
+                //console.log(item.viewIndex);
+                Ext.fly(item).addCls(me.overItemCls);
+                me.fireEvent('highlightitem', me, item);
+            }
+        }
+    },
+
     /**
-     * Highlight a given item in the DataView. This is called by the mouseover handler if {@link #overItemCls}
+     * Highlights a given item in the View. This is called by the mouseover handler if {@link #overItemCls}
      * and {@link #trackOver} are configured, but can also be called manually by other code, for instance to
      * handle stepping through the list via keyboard navigation.
      * @param {HTMLElement} item The item to highlight
      */
     highlightItem: function(item) {
-        var me = this;
-        me.clearHighlight();
-        me.highlightedItem = item;
-        Ext.fly(item).addCls(me.overItemCls);
+        this.setHighlightedItem(item);
     },
 
     /**
-     * Un-highlight the currently highlighted item, if any.
+     * Un-highlights the currently highlighted item, if any.
      */
     clearHighlight: function() {
+        this.setHighlightedItem(undefined);
+    },
+    
+    onUpdate: function(store, record){
         var me = this,
+            node,
+            newNode,
+            highlighted;
+        
+        if (me.viewReady) {
+            node = me.getNode(record);
+            newNode = me.callParent(arguments);
             highlighted = me.highlightedItem;
-
-        if (highlighted) {
-            Ext.fly(highlighted).removeCls(me.overItemCls);
-            delete me.highlightedItem;
+            
+            if (highlighted && highlighted === node) {
+                delete me.highlightedItem;
+                if (newNode) {
+                    me.highlightItem(newNode);
+                }
+            }
         }
     },
 

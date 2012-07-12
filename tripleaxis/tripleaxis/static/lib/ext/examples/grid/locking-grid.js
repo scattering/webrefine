@@ -84,7 +84,7 @@ Ext.onReady(function() {
         store: store,
         columnLines: true,
         columns: [{
-            text     : 'Company',
+            text     : 'Company<br>Name', // Two line header! Test header height synchronization!
             locked   : true,
             width    : 200,
             sortable : false,

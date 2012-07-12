@@ -1,7 +1,7 @@
 /**
  * @class Ext.EventObject
 
-Just as {@link Ext.core.Element} wraps around a native DOM node, Ext.EventObject
+Just as {@link Ext.Element} wraps around a native DOM node, Ext.EventObject
 wraps the browser's native event-object normalizing cross-browser differences,
 such as which mouse button is clicked, keys pressed, mechanisms to stop
 event-propagation along with a method to prevent default actions from taking place.
@@ -14,7 +14,7 @@ For example:
         ...
     }
 
-    var myDiv = {@link Ext#get Ext.get}("myDiv");  // get reference to an {@link Ext.core.Element}
+    var myDiv = {@link Ext#get Ext.get}("myDiv");  // get reference to an {@link Ext.Element}
     myDiv.on(         // 'on' is shorthand for addListener
         "click",      // perform an action on click of myDiv
         handleClick   // reference to the action handler
@@ -204,6 +204,54 @@ Ext.define('Ext.EventObjectImpl', {
     F11: 122,
     /** Key constant @type Number */
     F12: 123,
+    /**
+     * The mouse wheel delta scaling factor. This value depends on browser version and OS and
+     * attempts to produce a similar scrolling experience across all platforms and browsers.
+     *
+     * To change this value:
+     *
+     *      Ext.EventObjectImpl.prototype.WHEEL_SCALE = 72;
+     *
+     * @type Number
+     * @markdown
+     */
+    WHEEL_SCALE: (function () {
+        var scale;
+
+        if (Ext.isGecko) {
+            // Firefox uses 3 on all platforms
+            scale = 3;
+        } else if (Ext.isMac) {
+            // Continuous scrolling devices have momentum and produce much more scroll than
+            // discrete devices on the same OS and browser. To make things exciting, Safari
+            // (and not Chrome) changed from small values to 120 (like IE).
+
+            if (Ext.isSafari && Ext.webKitVersion >= 532.0) {
+                // Safari changed the scrolling factor to match IE (for details see
+                // https://bugs.webkit.org/show_bug.cgi?id=24368). The WebKit version where this
+                // change was introduced was 532.0
+                //      Detailed discussion:
+                //      https://bugs.webkit.org/show_bug.cgi?id=29601
+                //      http://trac.webkit.org/browser/trunk/WebKit/chromium/src/mac/WebInputEventFactory.mm#L1063
+                scale = 120;
+            } else {
+                // MS optical wheel mouse produces multiples of 12 which is close enough
+                // to help tame the speed of the continuous mice...
+                scale = 12;
+            }
+
+            // Momentum scrolling produces very fast scrolling, so increase the scale factor
+            // to help produce similar results cross platform. This could be even larger and
+            // it would help those mice, but other mice would become almost unusable as a
+            // result (since we cannot tell which device type is in use).
+            scale *= 3;
+        } else {
+            // IE, Opera and other Windows browsers use 120.
+            scale = 120;
+        }
+
+        return scale;
+    }()),
 
     /**
      * Simple click regex
@@ -233,6 +281,20 @@ Ext.define('Ext.EventObjectImpl', {
         1: 1,
         2: 2
     },
+    
+    /**
+     * @property {Boolean} ctrlKey
+     * True if the control key was down during the event.
+     * In Mac this will also be true when meta key was down.
+     */
+    /**
+     * @property {Boolean} altKey
+     * True if the alt key was down during the event.
+     */
+    /**
+     * @property {Boolean} shiftKey
+     * True if the shift key was down during the event.
+     */
 
     constructor: function(event, freezeEvent){
         if (event) {
@@ -360,15 +422,15 @@ Ext.define('Ext.EventObjectImpl', {
     getPageY: function(){
         return this.getY();
     },
-    
+
     /**
      * Gets the x coordinate of the event.
      * @return {Number}
      */
     getX: function() {
         return this.getXY()[0];
-    },    
-    
+    },
+
     /**
      * Gets the y coordinate of the event.
      * @return {Number}
@@ -376,10 +438,10 @@ Ext.define('Ext.EventObjectImpl', {
     getY: function() {
         return this.getXY()[1];
     },
-        
+
     /**
      * Gets the page coordinates of the event.
-     * @return {Array} The xy values like [x, y]
+     * @return {Number[]} The xy values like [x, y]
      */
     getXY: function() {
         if (!this.xy) {
@@ -392,9 +454,9 @@ Ext.define('Ext.EventObjectImpl', {
     /**
      * Gets the target for the event.
      * @param {String} selector (optional) A simple selector to filter the target or look for an ancestor of the target
-     * @param {Number/Mixed} maxDepth (optional) The max depth to search as a number or element (defaults to 10 || document.body)
-     * @param {Boolean} returnEl (optional) True to return a Ext.core.Element object instead of DOM node
-     * @return {HTMLelement}
+     * @param {Number/HTMLElement} maxDepth (optional) The max depth to search as a number or element (defaults to 10 || document.body)
+     * @param {Boolean} returnEl (optional) True to return a Ext.Element object instead of DOM node
+     * @return {HTMLElement}
      */
     getTarget : function(selector, maxDepth, returnEl){
         if (selector) {
@@ -406,8 +468,8 @@ Ext.define('Ext.EventObjectImpl', {
     /**
      * Gets the related target.
      * @param {String} selector (optional) A simple selector to filter the target or look for an ancestor of the target
-     * @param {Number/Mixed} maxDepth (optional) The max depth to search as a number or element (defaults to 10 || document.body)
-     * @param {Boolean} returnEl (optional) True to return a Ext.core.Element object instead of DOM node
+     * @param {Number/HTMLElement} maxDepth (optional) The max depth to search as a number or element (defaults to 10 || document.body)
+     * @param {Boolean} returnEl (optional) True to return a Ext.Element object instead of DOM node
      * @return {HTMLElement}
      */
     getRelatedTarget : function(selector, maxDepth, returnEl){
@@ -418,24 +480,73 @@ Ext.define('Ext.EventObjectImpl', {
     },
 
     /**
-     * Normalizes mouse wheel delta across browsers
-     * @return {Number} The delta
+     * Correctly scales a given wheel delta.
+     * @param {Number} delta The delta value.
      */
-    getWheelDelta : function(){
-        var event = this.browserEvent,
-            delta = 0;
+    correctWheelDelta : function (delta) {
+        var scale = this.WHEEL_SCALE,
+            ret = Math.round(delta / scale);
 
-        if (event.wheelDelta) { /* IE/Opera. */
-            delta = event.wheelDelta / 120;
-        } else if (event.detail){ /* Mozilla case. */
-            delta = -event.detail / 3;
+        if (!ret && delta) {
+            ret = (delta < 0) ? -1 : 1; // don't allow non-zero deltas to go to zero!
         }
-        return delta;
+
+        return ret;
     },
 
     /**
-    * Returns true if the target of this event is a child of el.  Unless the allowEl parameter is set, it will return false if if the target is el.
-    * Example usage:<pre><code>
+     * Returns the mouse wheel deltas for this event.
+     * @return {Object} An object with "x" and "y" properties holding the mouse wheel deltas.
+     */
+    getWheelDeltas : function () {
+        var me = this,
+            event = me.browserEvent,
+            dx = 0, dy = 0; // the deltas
+
+        if (Ext.isDefined(event.wheelDeltaX)) { // WebKit has both dimensions
+            dx = event.wheelDeltaX;
+            dy = event.wheelDeltaY;
+        } else if (event.wheelDelta) { // old WebKit and IE
+            dy = event.wheelDelta;
+        } else if (event.detail) { // Gecko
+            dy = -event.detail; // gecko is backwards
+
+            // Gecko sometimes returns really big values if the user changes settings to
+            // scroll a whole page per scroll
+            if (dy > 100) {
+                dy = 3;
+            } else if (dy < -100) {
+                dy = -3;
+            }
+
+            // Firefox 3.1 adds an axis field to the event to indicate direction of
+            // scroll.  See https://developer.mozilla.org/en/Gecko-Specific_DOM_Events
+            if (Ext.isDefined(event.axis) && event.axis === event.HORIZONTAL_AXIS) {
+                dx = dy;
+                dy = 0;
+            }
+        }
+
+        return {
+            x: me.correctWheelDelta(dx),
+            y: me.correctWheelDelta(dy)
+        };
+    },
+
+    /**
+     * Normalizes mouse wheel y-delta across browsers. To get x-delta information, use
+     * {@link #getWheelDeltas} instead.
+     * @return {Number} The mouse wheel y-delta
+     */
+    getWheelDelta : function(){
+        var deltas = this.getWheelDeltas();
+
+        return deltas.y;
+    },
+
+    /**
+     * Returns true if the target of this event is a child of el.  Unless the allowEl parameter is set, it will return false if if the target is el.
+     * Example usage:<pre><code>
 // Handle click on any child of an element
 Ext.getBody().on('click', function(e){
     if(e.within('some-el')){
@@ -450,9 +561,9 @@ Ext.getBody().on('click', function(e,t){
     }
 });
 </code></pre>
-     * @param {Mixed} el The id, DOM element or Ext.core.Element to check
+     * @param {String/HTMLElement/Ext.Element} el The id, DOM element or Ext.Element to check
      * @param {Boolean} related (optional) true to test if the related target is within el instead of the target
-     * @param {Boolean} allowEl {optional} true to also check if the passed element is the target or related target
+     * @param {Boolean} allowEl (optional) true to also check if the passed element is the target or related target
      * @return {Boolean}
      */
     within : function(el, related, allowEl){
@@ -504,7 +615,7 @@ Ext.getBody().on('click', function(e,t){
      */
     getPoint : function(){
         var xy = this.getXY();
-        return Ext.create('Ext.util.Point', xy[0], xy[1]);
+        return new Ext.util.Point(xy[0], xy[1]);
     },
 
    /**
@@ -548,13 +659,14 @@ Ext.getBody().on('click', function(e,t){
      * <li>focus</li>
      * <li>blur</li>
      * </ul>
-     * @param {Element/HTMLElement} target If specified, the target for the event. This
+     * @param {Ext.Element/HTMLElement} target (optional) If specified, the target for the event. This
      * is likely to be used when relaying a DOM event. If not specified, {@link #getTarget}
      * is used to determine the target.
      */
-    injectEvent: function () {
+    injectEvent: (function () {
         var API,
-            dispatchers = {}; // keyed by event type (e.g., 'mousedown')
+            dispatchers = {}, // keyed by event type (e.g., 'mousedown')
+            crazyIEButtons;
 
         // Good reference: http://developer.yahoo.com/yui/docs/UserAction.js.html
 
@@ -620,9 +732,9 @@ Ext.getBody().on('click', function(e,t){
 
                     return target;
                 }
-            }
+            };
         } else if (document.createEventObject) { // else if (IE)
-            var crazyIEButtons = { 0: 1, 1: 4, 2: 2 };
+            crazyIEButtons = { 0: 1, 1: 4, 2: 2 };
 
             API = {
                 createHtmlEvent: function (doc, type, bubbles, cancelable) {
@@ -761,7 +873,7 @@ Ext.getBody().on('click', function(e,t){
             t = API.fixTarget(t);
             dispatcher(t, me);
         };
-    }() // call to produce method
+    }()) // call to produce method
 
 }, function() {
 

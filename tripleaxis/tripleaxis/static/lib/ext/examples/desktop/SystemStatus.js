@@ -14,13 +14,13 @@ Ext.define('MyDesktop.SystemStatus', {
 
     id: 'systemstatus',
 
+    refreshRate: 500,
+
     init : function() {
         // No launcher means we don't appear on the Start Menu...
 //        this.launcher = {
 //            text: 'SystemStatus',
-//            iconCls:'cpustats',
-//            handler : this.createWindow,
-//            scope: this
+//            iconCls:'cpustats'
 //        };
 
         Ext.chart.theme.Memory = Ext.extend(Ext.chart.theme.Base, {
@@ -41,7 +41,7 @@ Ext.define('MyDesktop.SystemStatus', {
 
         me.cpuLoadData = [];
         me.cpuLoadStore = Ext.create('store.json', {
-            fields: ['core1', 'core2']
+            fields: ['core1', 'core2', 'time']
         });
 
         me.memoryArray = ['Wired', 'Active', 'Inactive', 'Free'];
@@ -67,7 +67,13 @@ Ext.define('MyDesktop.SystemStatus', {
             animCollapse:false,
             constrainHeader:true,
             border: false,
-            layout: 'fit',
+            layout: {
+                type: 'hbox',
+                align: 'stretch'    
+            },
+            bodyStyle: {
+                'background-color': '#FFF'
+            },
             listeners: {
                 afterrender: {
                     fn: me.updateCharts,
@@ -80,38 +86,27 @@ Ext.define('MyDesktop.SystemStatus', {
                 scope: me
             },
             items: [{
-                xtype: 'panel',
+                flex: 1,
+                xtype: 'container',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'stretch'
                 },
-                items: [{
-                    flex: 1,
-                    height: 600,
-                    width: 400,
-                    xtype: 'container',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    items: [
-                        me.createCpu1LoadChart(),
-                        me.createCpu2LoadChart()
-                    ]
-                }, {
-                    flex: 1,
-                    width: 400,
-                    height: 600,
-                    xtype: 'container',
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    items: [
-                        me.createMemoryPieChart(),
-                        me.createProcessChart()
-                    ]
-                }]
+                items: [
+                    me.createCpu1LoadChart(),
+                    me.createCpu2LoadChart()
+                ]
+            }, {
+                flex: 1,
+                xtype: 'container',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: [
+                    me.createMemoryPieChart(),
+                    me.createProcessChart()
+                ]
             }]
         });
     },
@@ -121,7 +116,6 @@ Ext.define('MyDesktop.SystemStatus', {
         if (!win) {
             win = this.createNewWindow();
         }
-        win.show();
         return win;
     },
 
@@ -156,7 +150,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 lineWidth: 4,
                 showMarkers: false,
                 fill: true,
-                axis: 'right',
+                axis: 'left',
                 xField: 'time',
                 yField: 'core1',
                 style: {
@@ -197,7 +191,7 @@ Ext.define('MyDesktop.SystemStatus', {
                 lineWidth: 4,
                 showMarkers: false,
                 fill: true,
-                axis: 'right',
+                axis: 'left',
                 xField: 'time',
                 yField: 'core2',
                 style: {
@@ -409,6 +403,7 @@ Ext.define('MyDesktop.SystemStatus', {
         var me = this;
         clearTimeout(me.updateTimer);
         me.updateTimer = setTimeout(function() {
+            var start = new Date().getTime();
             if (me.pass % 3 === 0) {
                 me.memoryStore.loadData(me.generateData(me.memoryArray));
             }
@@ -418,8 +413,14 @@ Ext.define('MyDesktop.SystemStatus', {
             }
 
             me.generateCpuLoad();
+
+            var end = new Date().getTime();
+
+            // no more than 25% average CPU load
+            me.refreshRate = Math.max(me.refreshRate, (end - start) * 4);
+
             me.updateCharts();
             me.pass++;
-        }, 500);
+        }, me.refreshRate);
     }
 });

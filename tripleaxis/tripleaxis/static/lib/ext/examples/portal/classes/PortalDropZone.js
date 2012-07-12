@@ -103,11 +103,10 @@ Ext.define('Ext.app.PortalDropZone', {
 
             // make sure proxy width is fluid in different width columns
             proxy.getProxy().setWidth('auto');
-
             if (overPortlet) {
-                proxy.moveProxy(overPortlet.el.dom.parentNode, match ? overPortlet.el.dom : null);
+                dd.panelProxy.moveProxy(overPortlet.el.dom.parentNode, match ? overPortlet.el.dom : null);
             } else {
-                proxy.moveProxy(overColumn.el.dom, null);
+                dd.panelProxy.moveProxy(overColumn.el.dom, null);
             }
 
             this.lastPos = {
@@ -140,10 +139,15 @@ Ext.define('Ext.app.PortalDropZone', {
             panel = dd.panel,
             dropEvent = this.createEvent(dd, e, data, col, c, pos !== false ? pos : c.items.getCount());
 
-        if (this.portal.fireEvent('validatedrop', dropEvent) !== false && this.portal.fireEvent('beforedrop', dropEvent) !== false) {
+        if (this.portal.fireEvent('validatedrop', dropEvent) !== false && 
+            this.portal.fireEvent('beforedrop', dropEvent) !== false) {
 
+            Ext.suspendLayouts();
+            
             // make sure panel is visible prior to inserting so that the layout doesn't ignore it
             panel.el.dom.style.display = '';
+            dd.panelProxy.hide();
+            dd.proxy.hide();
 
             if (pos !== false) {
                 c.insert(pos, panel);
@@ -151,7 +155,8 @@ Ext.define('Ext.app.PortalDropZone', {
                 c.add(panel);
             }
 
-            dd.proxy.hide();
+            Ext.resumeLayouts(true);
+
             this.portal.fireEvent('drop', dropEvent);
 
             // scroll position is lost on drop, fix it
@@ -163,8 +168,8 @@ Ext.define('Ext.app.PortalDropZone', {
                 },
                 10);
             }
-
         }
+        
         delete this.lastPos;
         return true;
     },

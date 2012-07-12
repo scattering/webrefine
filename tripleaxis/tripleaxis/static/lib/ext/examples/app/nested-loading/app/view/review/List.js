@@ -28,20 +28,22 @@ Ext.define('Books.view.review.List', {
                 '</tpl>',
                 {
                     stars: function(values) {
-                        var res = "";
+                        var res = [],
+                            extension = Ext.isIE6 ? 'gif' : 'png',
+                            i = 0;
 
                         //print out the stars for each of the ratings
-                        for (var i = 0; i < values.rating; i++) {
-                            res += '<img src="./resources/images/star.' + ((Ext.isIE6) ? 'gif' : 'png') + '" />';
+                        for (; i < values.rating; i++) {
+                            res.push('<img src="./resources/images/star.', extension, '" />');
                         }
 
                         //print out transparent stars for the rest (up to 5)
                         while (i < 5) {
-                            res += '<img src="./resources/images/star_no.' + ((Ext.isIE6) ? 'gif' : 'png') + '" />';
+                            res.push('<img src="./resources/images/star_no.', extension, '" />');
                             i++;
                         }
 
-                        return res;
+                        return res.join('');
                     }
                 }
             )
@@ -60,13 +62,7 @@ Ext.define('Books.view.review.List', {
                 })
             ],
 
-            items: [
-                this.dataview,
-                Ext.create('widget.panel', {
-                    id: 'test2',
-                    html: 'asdasdsa'
-                })
-            ]
+            items: this.dataview
         });
 
         this.callParent(arguments);
@@ -80,7 +76,6 @@ Ext.define('Books.view.review.List', {
      */
     bind: function(record, store) {
         //put the reviews into the store and bind the store to thie dataview
-        store.loadData(record.data.reviews || []);
-        this.dataview.bindStore(store);
+        this.dataview.bindStore(record.reviews());
     }
 });

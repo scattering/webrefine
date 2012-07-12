@@ -1,6 +1,7 @@
 /**
  * @class Ext.chart.axis.Abstract
- * @ignore
+ * Base class for all axis classes.
+ * @private
  */
 Ext.define('Ext.chart.axis.Abstract', {
 
@@ -9,7 +10,25 @@ Ext.define('Ext.chart.axis.Abstract', {
     requires: ['Ext.chart.Chart'],
 
     /* End Definitions */
+    
+    /**
+     * @cfg {Ext.chart.Label} label
+     * The config for chart label.
+     */
 
+    /**
+     * @cfg {String[]} fields
+     * The fields of model to bind to this axis.
+     * 
+     * For example if you have a data set of lap times per car, each having the fields:
+     * `'carName'`, `'avgSpeed'`, `'maxSpeed'`. Then you might want to show the data on chart
+     * with `['carName']` on Name axis and `['avgSpeed', 'maxSpeed']` on Speed axis.
+     */
+
+    /**
+     * Creates new Axis.
+     * @param {Object} config (optional) Config options.
+     */
     constructor: function(config) {
         config = config || {};
 
@@ -21,7 +40,7 @@ Ext.define('Ext.chart.axis.Abstract', {
         config.label = Ext.apply(config['axisLabel' + pos + 'Style'] || {}, config.label || {});
         config.axisTitleStyle = Ext.apply(config['axisTitle' + pos + 'Style'] || {}, config.labelTitle || {});
         Ext.apply(me, config);
-        me.fields = [].concat(me.fields);
+        me.fields = Ext.Array.from(me.fields);
         this.callParent();
         me.labels = [];
         me.getId();

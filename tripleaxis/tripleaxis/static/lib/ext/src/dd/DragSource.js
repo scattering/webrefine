@@ -1,10 +1,5 @@
 /**
- * @class Ext.dd.DragSource
- * @extends Ext.dd.DDProxy
  * A simple class that provides the basic implementation needed to make any element draggable.
- * @constructor
- * @param {Mixed} el The container element
- * @param {Object} config
  */
 Ext.define('Ext.dd.DragSource', {
     extend: 'Ext.dd.DDProxy',
@@ -16,34 +11,39 @@ Ext.define('Ext.dd.DragSource', {
     /**
      * @cfg {String} ddGroup
      * A named drag drop group to which this object belongs.  If a group is specified, then this object will only
-     * interact with other drag drop objects in the same group (defaults to undefined).
+     * interact with other drag drop objects in the same group.
      */
 
     /**
      * @cfg {String} dropAllowed
-     * The CSS class returned to the drag source when drop is allowed (defaults to "x-dd-drop-ok").
+     * The CSS class returned to the drag source when drop is allowed.
      */
-
     dropAllowed : Ext.baseCSSPrefix + 'dd-drop-ok',
     /**
      * @cfg {String} dropNotAllowed
-     * The CSS class returned to the drag source when drop is not allowed (defaults to "x-dd-drop-nodrop").
+     * The CSS class returned to the drag source when drop is not allowed.
      */
     dropNotAllowed : Ext.baseCSSPrefix + 'dd-drop-nodrop',
 
     /**
      * @cfg {Boolean} animRepair
-     * Defaults to true. If true, animates the proxy element back to the position of the handle element used to trigger the drag.
+     * If true, animates the proxy element back to the position of the handle element used to trigger the drag.
      */
     animRepair: true,
 
     /**
-     * @cfg {String} repairHighlightColor The color to use when visually highlighting the drag source in the afterRepair
-     * method after a failed drop (defaults to 'c3daf9' - light blue). The color must be a 6 digit hex value, without
+     * @cfg {String} repairHighlightColor
+     * The color to use when visually highlighting the drag source in the afterRepair
+     * method after a failed drop (defaults to light blue). The color must be a 6 digit hex value, without
      * a preceding '#'.
      */
     repairHighlightColor: 'c3daf9',
 
+    /**
+     * Creates new drag-source.
+     * @param {String/HTMLElement/Ext.Element} el The container element or ID of it.
+     * @param {Object} config (optional) Config object.
+     */
     constructor: function(el, config) {
         this.el = Ext.get(el);
         if(!this.dragData){
@@ -53,7 +53,8 @@ Ext.define('Ext.dd.DragSource', {
         Ext.apply(this, config);
 
         if(!this.proxy){
-            this.proxy = Ext.create('Ext.dd.StatusProxy', {
+            this.proxy = new Ext.dd.StatusProxy({
+                id: this.el.id + '-drag-status-proxy',
                 animRepair: this.animRepair
             });
         }
@@ -73,11 +74,12 @@ Ext.define('Ext.dd.DragSource', {
 
     // private
     onDragEnter : function(e, id){
-        var target = Ext.dd.DragDropManager.getDDById(id);
+        var target = Ext.dd.DragDropManager.getDDById(id),
+            status;
         this.cachedTarget = target;
         if (this.beforeDragEnter(target, e, id) !== false) {
             if (target.isNotifyTarget) {
-                var status = target.notifyEnter(this, e, this.dragData);
+                status = target.notifyEnter(this, e, this.dragData);
                 this.proxy.setStatus(status);
             } else {
                 this.proxy.setStatus(this.dropAllowed);
@@ -104,23 +106,19 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Event} e The event object
      * @param {String} id The id of the dragged element
      * @return {Boolean} isValid True if the drag event is valid, else false to cancel
+     * @template
      */
     beforeDragEnter: function(target, e, id) {
         return true;
     },
 
     // private
-    alignElWithMouse: function() {
-        this.callParent(arguments);
-        this.proxy.sync();
-    },
-
-    // private
     onDragOver: function(e, id) {
-        var target = this.cachedTarget || Ext.dd.DragDropManager.getDDById(id);
+        var target = this.cachedTarget || Ext.dd.DragDropManager.getDDById(id),
+            status;
         if (this.beforeDragOver(target, e, id) !== false) {
             if(target.isNotifyTarget){
-                var status = target.notifyOver(this, e, this.dragData);
+                status = target.notifyOver(this, e, this.dragData);
                 this.proxy.setStatus(status);
             }
 
@@ -145,6 +143,7 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Event} e The event object
      * @param {String} id The id of the dragged element
      * @return {Boolean} isValid True if the drag event is valid, else false to cancel
+     * @template
      */
     beforeDragOver: function(target, e, id) {
         return true;
@@ -180,6 +179,7 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Event} e The event object
      * @param {String} id The id of the dragged element
      * @return {Boolean} isValid True if the drag event is valid, else false to cancel
+     * @template
      */
     beforeDragOut: function(target, e, id){
         return true;
@@ -221,6 +221,7 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Event} e The event object
      * @param {String} id The id of the dragged element
      * @return {Boolean} isValid True if the drag drop event is valid, else false to cancel
+     * @template
      */
     beforeDragDrop: function(target, e, id){
         return true;
@@ -236,7 +237,7 @@ Ext.define('Ext.dd.DragSource', {
              * @param {Object} target The target DD
              * @param {Event} e The event object
              * @param {String} id The id of the dropped element
-             * @method afterInvalidDrop
+             * @method afterValidDrop
              */
             this.afterValidDrop(target, e, id);
         }
@@ -249,6 +250,14 @@ Ext.define('Ext.dd.DragSource', {
 
     // private
     onInvalidDrop: function(target, e, id) {
+        // This method may be called by the DragDropManager.
+        // To preserve backwards compat, it only passes the event object
+        // Here we correct the arguments.
+        if (!e) {
+            e = target;
+            target = null;
+            id = e.getTarget().id;
+        }
         this.beforeInvalidDrop(target, e, id);
         if (this.cachedTarget) {
             if(this.cachedTarget.isNotifyTarget){
@@ -286,6 +295,7 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Event} e The event object
      * @param {String} id The id of the dragged element
      * @return {Boolean} isValid True if the invalid drop should proceed, else false to cancel
+     * @template
      */
     beforeInvalidDrop: function(target, e, id) {
         return true;
@@ -310,6 +320,7 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Object} data An object containing arbitrary data to be shared with drop targets
      * @param {Event} e The event object
      * @return {Boolean} isValid True if the drag event is valid, else false to cancel
+     * @template
      */
     onBeforeDrag: function(data, e){
         return true;
@@ -321,12 +332,19 @@ Ext.define('Ext.dd.DragSource', {
      * @param {Number} x The x position of the click on the dragged object
      * @param {Number} y The y position of the click on the dragged object
      * @method
+     * @template
      */
     onStartDrag: Ext.emptyFn,
+
+    alignElWithMouse: function() {
+        this.proxy.ensureAttachedToBody(true);
+        return this.callParent(arguments);
+    },
 
     // private override
     startDrag: function(x, y) {
         this.proxy.reset();
+        this.proxy.hidden = false;
         this.dragging = true;
         this.proxy.update("");
         this.onInitDrag(x, y);

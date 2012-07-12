@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -23,21 +23,21 @@ Ext.define('Ext.form.RadioManager', {
     extend: 'Ext.util.MixedCollection',
     singleton: true,
 
-    getByName: function(name) {
+    getByName: function(name, formId) {
         return this.filterBy(function(item) {
-            return item.name == name;
+            return item.name == name &amp;&amp; item.getFormId() == formId;
         });
     },
 
-    getWithValue: function(name, value) {
+    getWithValue: function(name, value, formId) {
         return this.filterBy(function(item) {
-            return item.name == name &amp;&amp; item.inputValue == value;
+            return item.name == name &amp;&amp; item.inputValue == value &amp;&amp; item.getFormId() == formId;
         });
     },
 
-    getChecked: function(name) {
+    getChecked: function(name, formId) {
         return this.findBy(function(item) {
-            return item.name == name &amp;&amp; item.checked;
+            return item.name == name &amp;&amp; item.checked &amp;&amp; item.getFormId() == formId;
         });
     }
 });
