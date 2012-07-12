@@ -118,6 +118,7 @@ Ext.onReady(function() {
                 renderer: pctChange
             },
             {
+                xtype    : 'datecolumn',
                 text     : 'Last Updated', 
                 width    : 85, 
                 sortable : true, 

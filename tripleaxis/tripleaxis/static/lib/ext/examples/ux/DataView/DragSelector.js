@@ -73,7 +73,7 @@ Ext.define('Ext.ux.DataView.DragSelector', {
      * @private
      * Listener attached to the DragTracker's onStart event. Cancel's the DataView's containerclick event from firing
      * and sets the start co-ordinates of the Proxy element. Clears any existing DataView selection
-     * @param {EventObject} e The click event
+     * @param {Ext.EventObject} e The click event
      */
     onStart: function(e) {
         var dragSelector = this.dragSelector,
@@ -104,7 +104,7 @@ Ext.define('Ext.ux.DataView.DragSelector', {
      * Listener attached to the DragTracker's onDrag event. Figures out how large the drag selection area should be and
      * updates the proxy element's size to match. Then iterates over all of the rendered items and marks them selected
      * if the drag region touches them
-     * @param {EventObject} e The drag event
+     * @param {Ext.EventObject} e The drag event
      */
     onDrag: function(e) {
         var dragSelector = this.dragSelector,
@@ -150,7 +150,7 @@ Ext.define('Ext.ux.DataView.DragSelector', {
      * Listener attached to the DragTracker's onEnd event. This is a delayed function which executes 1
      * millisecond after it has been called. This is because the dragging flag must remain active to cancel
      * the containerclick event which the mouseup event will trigger.
-     * @param {EventObject} e The event object
+     * @param {Ext.EventObject} e The event object
      */
     onEnd: Ext.Function.createDelayed(function(e) {
         var dataview = this.dataview,

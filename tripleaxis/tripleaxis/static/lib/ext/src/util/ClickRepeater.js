@@ -1,28 +1,29 @@
 /**
- * @class Ext.util.ClickRepeater
- * @extends Ext.util.Observable
- *
  * A wrapper class which can be applied to any element. Fires a "click" event while the
  * mouse is pressed. The interval between firings may be specified in the config but
  * defaults to 20 milliseconds.
  *
  * Optionally, a CSS class may be applied to the element during the time it is pressed.
- *
- * @constructor
- * @param {Mixed} el The element to listen on
- * @param {Object} config
  */
-
 Ext.define('Ext.util.ClickRepeater', {
     extend: 'Ext.util.Observable',
 
+    /**
+     * Creates new ClickRepeater.
+     * @param {String/HTMLElement/Ext.Element} el The element or its ID to listen on
+     * @param {Object} [config] Config object.
+     */
     constructor : function(el, config){
-        this.el = Ext.get(el);
-        this.el.unselectable();
+        var me = this;
 
-        Ext.apply(this, config);
+        me.el = Ext.get(el);
+        me.el.unselectable();
 
-        this.addEvents(
+        Ext.apply(me, config);
+
+        me.callParent();
+
+        me.addEvents(
         /**
          * @event mousedown
          * Fires when the mouse button is depressed.
@@ -46,49 +47,55 @@ Ext.define('Ext.util.ClickRepeater', {
         "mouseup"
         );
 
-        if(!this.disabled){
-            this.disabled = true;
-            this.enable();
+        if(!me.disabled){
+            me.disabled = true;
+            me.enable();
         }
 
         // allow inline handler
-        if(this.handler){
-            this.on("click", this.handler,  this.scope || this);
+        if(me.handler){
+            me.on("click", me.handler,  me.scope || me);
         }
-
-        this.callParent();
     },
 
     /**
-     * @cfg {Mixed} el The element to act as a button.
+     * @cfg {String/HTMLElement/Ext.Element} el
+     * The element to act as a button.
      */
 
     /**
-     * @cfg {String} pressedCls A CSS class name to be applied to the element while pressed.
+     * @cfg {String} pressedCls
+     * A CSS class name to be applied to the element while pressed.
      */
 
     /**
-     * @cfg {Boolean} accelerate True if autorepeating should start slowly and accelerate.
+     * @cfg {Boolean} accelerate
+     * True if autorepeating should start slowly and accelerate.
      * "interval" and "delay" are ignored.
      */
 
     /**
-     * @cfg {Number} interval The interval between firings of the "click" event. Default 20 ms.
+     * @cfg {Number} interval
+     * The interval between firings of the "click" event (in milliseconds).
      */
     interval : 20,
 
     /**
-     * @cfg {Number} delay The initial delay before the repeating event begins firing.
+     * @cfg {Number} delay
+     * The initial delay before the repeating event begins firing.
      * Similar to an autorepeat key delay.
      */
     delay: 250,
 
     /**
-     * @cfg {Boolean} preventDefault True to prevent the default click event
+     * @cfg {Boolean} preventDefault
+     * True to prevent the default click event
      */
     preventDefault : true,
+
     /**
-     * @cfg {Boolean} stopDefault True to stop the default click event
+     * @cfg {Boolean} stopDefault
+     * True to stop the default click event
      */
     stopDefault : false,
 
@@ -100,7 +107,9 @@ Ext.define('Ext.util.ClickRepeater', {
     enable: function(){
         if(this.disabled){
             this.el.on('mousedown', this.handleMouseDown, this);
-            if (Ext.isIE){
+            // IE versions will detect clicks as in sequence as dblclicks
+            // if they happen in quick succession
+            if (Ext.isIE && !(Ext.isStrict && Ext.isIE9)){
                 this.el.on('dblclick', this.handleDblClick, this);
             }
             if(this.preventDefault || this.stopDefault){

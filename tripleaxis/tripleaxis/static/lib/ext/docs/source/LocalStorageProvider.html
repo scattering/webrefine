@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -15,7 +15,14 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">Ext.define('Ext.state.LocalStorageProvider', {
+  <pre class="prettyprint lang-js"><span id='Ext-state-LocalStorageProvider'>/**
+</span> * @class Ext.state.LocalStorageProvider
+ * A Provider implementation which saves and retrieves state via the HTML5 localStorage object.
+ * If the browser does not support local storage, an exception will be thrown upon instantiating
+ * this class.
+ */
+
+Ext.define('Ext.state.LocalStorageProvider', {
     /* Begin Definitions */
     
     extend: 'Ext.state.Provider',

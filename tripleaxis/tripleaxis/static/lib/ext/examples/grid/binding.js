@@ -44,9 +44,7 @@ Ext.onReady(function(){
             {text: "Manufacturer", width: 115, dataIndex: 'Manufacturer', sortable: true},
             {text: "Product Group", width: 100, dataIndex: 'ProductGroup', sortable: true}
         ],
-        viewConfig: {
-            forceFit: true
-        },
+        forceFit: true,
         height:210,
         split: true,
         region: 'north'

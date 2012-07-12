@@ -30,6 +30,15 @@ Ext.define('Ext.chooser.InfoPanel', {
             '</tpl>',
         '</div>'
     ],
+    
+    afterRender: function(){
+        this.callParent();
+        if (!Ext.isWebKit) {
+            this.el.on('click', function(){
+                alert('The Sencha Touch examples are intended to work on WebKit browsers. They may not display correctly in other browsers.');
+            }, this, {delegate: 'a'});
+        }    
+    },
 
     /**
      * Loads a given image record into the panel. Animates the newly-updated panel in from the left over 250ms.

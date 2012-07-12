@@ -1,28 +1,25 @@
 /**
- * @class Ext.ux.grid.TransformGrid
- * @extends Ext.grid.Panel
  * A Grid which creates itself from an existing HTML table element.
- * @history
- * 2007-03-01 Original version by Nige "Animal" White
- * 2007-03-10 jvs Slightly refactored to reuse existing classes * @constructor
- * @param {String/HTMLElement/Ext.Element} table The table element from which this grid will be created -
- * The table MUST have some type of size defined for the grid to fill. The container will be
- * automatically set to position relative if it isn't already.
- * @param {Object} config A config object that sets properties on this grid and has two additional (optional)
- * properties: fields and columns which allow for customizing data fields and columns for this grid.
  */
 Ext.define('Ext.ux.grid.TransformGrid', {
     extend: 'Ext.grid.Panel',
-    
+
+    /**
+     * Creates the grid from HTML table element.
+     * @param {String/HTMLElement/Ext.Element} table The table element from which this grid will be created -
+     * The table MUST have some type of size defined for the grid to fill. The container will be
+     * automatically set to position relative if it isn't already.
+     * @param {Object} [config] A config object that sets properties on this grid and has two additional (optional)
+     * properties: fields and columns which allow for customizing data fields and columns for this grid.
+     */
     constructor: function(table, config) {
         config = Ext.apply({}, config);
         table = this.table = Ext.get(table);
-    
-        var configFields = config.fields || [], 
+
+        var configFields = config.fields || [],
             configColumns = config.columns || [],
             fields = [],
             cols = [],
-            ct = table.insertSibling(),
             headers = table.query("thead th"),
             i = 0,
             len = headers.length,
@@ -33,18 +30,18 @@ Ext.define('Ext.ux.grid.TransformGrid', {
             col,
             text,
             name;
-    
+
         for (; i < len; ++i) {
             col = headers[i];
-        
+
             text = col.innerHTML;
             name = 'tcol-' + i;
-        
+
             fields.push(Ext.applyIf(configFields[i] || {}, {
                 name: name,
                 mapping: 'td:nth(' + (i + 1) + ')/@innerHTML'
             }));
-        
+
             cols.push(Ext.applyIf(configColumns[i] || {}, {
                 text: text,
                 dataIndex: name,
@@ -53,24 +50,17 @@ Ext.define('Ext.ux.grid.TransformGrid', {
                 sortable: true
             }));
         }
-        
+
         if (config.width) {
-            width = config.width;   
+            width = config.width;
         } else {
-            width = table.getWidth();
+            width = table.getWidth() + 1;
         }
-        
+
         if (config.height) {
             height = config.height;
         }
-    
-        if (config.remove !== false) {
-            // Don't use table.remove() as that destroys the row/cell data in the table in
-            // IE6-7 so it cannot be read by the data reader.
-            data.parentNode.removeChild(data);
-        }
-        
-    
+
         Ext.applyIf(config, {
             store: {
                 data: data,
@@ -81,15 +71,19 @@ Ext.define('Ext.ux.grid.TransformGrid', {
                         record: 'tbody tr',
                         type: 'xml'
                     }
-                }    
+                }
             },
             columns: cols,
             width: width,
-            autoHeight: height ? false : true,
-            height: height,
-            el: ct
+            height: height
         });
-        this.callParent([config]);    
+        this.callParent([config]);
+        
+        if (config.remove !== false) {
+            // Don't use table.remove() as that destroys the row/cell data in the table in
+            // IE6-7 so it cannot be read by the data reader.
+            data.parentNode.removeChild(data);
+        }
     },
 
     onDestroy: function() {

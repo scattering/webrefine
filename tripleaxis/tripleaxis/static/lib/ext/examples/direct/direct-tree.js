@@ -1,8 +1,7 @@
 Ext.require([
     'Ext.direct.*',
     'Ext.data.*',
-    'Ext.tree.*',
-    'Ext.grid.Scroller'
+    'Ext.tree.*'
 ]);
 
 Ext.onReady(function() {

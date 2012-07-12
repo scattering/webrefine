@@ -1,77 +1,92 @@
 /**
  * @private
- * @class Ext.picker.Month
- * @extends Ext.Component
- * <p>A month picker component. This class is used by the {@link Ext.picker.Date DatePicker} class
- * to allow browsing and selection of year/months combinations.</p>
- * @constructor
- * Create a new MonthPicker
- * @param {Object} config The config object
- * @xtype monthpicker
- * @private
+ * A month picker component. This class is used by the {@link Ext.picker.Date Date picker} class
+ * to allow browsing and selection of year/months combinations.
  */
 Ext.define('Ext.picker.Month', {
     extend: 'Ext.Component',
-    requires: ['Ext.XTemplate', 'Ext.util.ClickRepeater', 'Ext.Date', 'Ext.button.Button'],
+    requires: [
+        'Ext.XTemplate', 
+        'Ext.util.ClickRepeater', 
+        'Ext.Date', 
+        'Ext.button.Button'
+    ],
     alias: 'widget.monthpicker',
     alternateClassName: 'Ext.MonthPicker',
 
+    childEls: [
+        'bodyEl', 'prevEl', 'nextEl', 'buttonsEl', 'monthEl', 'yearEl'
+    ],
+
     renderTpl: [
-        '<div class="{baseCls}-body">',
-          '<div class="{baseCls}-months">',
+        '<div id="{id}-bodyEl" class="{baseCls}-body">',
+          '<div id="{id}-monthEl" class="{baseCls}-months">',
               '<tpl for="months">',
-                  '<div class="{parent.baseCls}-item {parent.baseCls}-month"><a href="#" hidefocus="on">{.}</a></div>',
+                  '<div class="{parent.baseCls}-item {parent.baseCls}-month"><a style="{parent.monthStyle}" href="#" hidefocus="on">{.}</a></div>',
               '</tpl>',
           '</div>',
-          '<div class="{baseCls}-years">',
+          '<div id="{id}-yearEl" class="{baseCls}-years">',
               '<div class="{baseCls}-yearnav">',
-                  '<button class="{baseCls}-yearnav-prev"></button>',
-                  '<button class="{baseCls}-yearnav-next"></button>',
+                  '<button id="{id}-prevEl" class="{baseCls}-yearnav-prev"></button>',
+                  '<button id="{id}-nextEl" class="{baseCls}-yearnav-next"></button>',
               '</div>',
               '<tpl for="years">',
                   '<div class="{parent.baseCls}-item {parent.baseCls}-year"><a href="#" hidefocus="on">{.}</a></div>',
               '</tpl>',
           '</div>',
+          '<div class="' + Ext.baseCSSPrefix + 'clear"></div>',
         '</div>',
-        '<div class="' + Ext.baseCSSPrefix + 'clear"></div>',
         '<tpl if="showButtons">',
-          '<div class="{baseCls}-buttons"></div>',
+            '<div id="{id}-buttonsEl" class="{baseCls}-buttons">{%',
+                'var me=values.$comp, okBtn=me.okBtn, cancelBtn=me.cancelBtn;',
+                'okBtn.ownerLayout = cancelBtn.ownerLayout = me.componentLayout;',
+                'okBtn.ownerCt = cancelBtn.ownerCt = me;',
+                'Ext.DomHelper.generateMarkup(okBtn.getRenderTree(), out);',
+                'Ext.DomHelper.generateMarkup(cancelBtn.getRenderTree(), out);',
+            '%}</div>',
         '</tpl>'
     ],
 
+    //<locale>
     /**
-     * @cfg {String} okText The text to display on the ok button. Defaults to <tt>'OK'</tt>
+     * @cfg {String} okText The text to display on the ok button.
      */
     okText: 'OK',
+    //</locale>
 
+    //<locale>
     /**
-     * @cfg {String} cancelText The text to display on the cancel button. Defaults to <tt>'Cancel'</tt>
+     * @cfg {String} cancelText The text to display on the cancel button.
      */
     cancelText: 'Cancel',
+    //</locale>
 
     /**
-     * @cfg {String} baseCls The base CSS class to apply to the picker element. Defaults to <tt>'x-monthpicker'</tt>
+     * @cfg {String} [baseCls='x-monthpicker']
+     *  The base CSS class to apply to the picker element.
      */
     baseCls: Ext.baseCSSPrefix + 'monthpicker',
 
     /**
-     * @cfg {Boolean} showButtons True to show ok and cancel buttons below the picker. Defaults to <tt>true</tt>.
+     * @cfg {Boolean} showButtons True to show ok and cancel buttons below the picker.
      */
     showButtons: true,
 
     /**
-     * @cfg {String} selectedCls The class to be added to selected items in the picker. Defaults to
-     * <tt>'x-monthpicker-selected'</tt>
+     * @cfg {String} [selectedCls='x-monthpicker-selected'] The class to be added to selected items in the picker.
      */
 
     /**
-     * @cfg {Date/Array} value The default value to set. See {#setValue setValue}
+     * @cfg {Date/Number[]} value The default value to set. See {@link #setValue}
      */
+    
+    
+    width: 178,
+    measureWidth: 35,
+    measureMaxHeight: 20,
 
-    width: 175,
-
-    height: 195,
-
+    // used when attached to date picker which isnt showing buttons
+    smallCls: Ext.baseCSSPrefix + 'monthpicker-small',
 
     // private
     totalYears: 10,
@@ -139,37 +154,54 @@ Ext.define('Ext.picker.Month', {
              */
             'yeardblclick'
         );
-
+        if (me.small) {
+            me.addCls(me.smallCls);
+        }
         me.setValue(me.value);
         me.activeYear = me.getYear(new Date().getFullYear() - 4, -4);
+
+        if (me.showButtons) {
+            me.okBtn = new Ext.button.Button({
+                text: me.okText,
+                handler: me.onOkClick,
+                scope: me
+            });
+            me.cancelBtn = new Ext.button.Button({
+                text: me.cancelText,
+                handler: me.onCancelClick,
+                scope: me
+            });
+        }
+
         this.callParent();
     },
 
     // private, inherit docs
-    onRender: function(ct, position){
+    beforeRender: function(){
         var me = this,
             i = 0,
             months = [],
             shortName = Ext.Date.getShortMonthName,
-            monthLen = me.monthOffset;
+            monthLen = me.monthOffset,
+            margin = me.monthMargin,
+            style = '';
+
+        me.callParent();
 
         for (; i < monthLen; ++i) {
             months.push(shortName(i), shortName(i + monthLen));
+        }
+        
+        if (Ext.isDefined(margin)) {
+            style = 'margin: 0 ' + margin + 'px;';
         }
 
         Ext.apply(me.renderData, {
             months: months,
             years: me.getYears(),
-            showButtons: me.showButtons
+            showButtons: me.showButtons,
+            monthStyle: style
         });
-
-        Ext.apply(me.renderSelectors, {
-            bodyEl: '.' + me.baseCls + '-body',
-            prevEl: '.' + me.baseCls + '-yearnav-prev',
-            nextEl: '.' + me.baseCls + '-yearnav-next',
-            buttonsEl: '.' + me.baseCls + '-buttons'
-        });
-        this.callParent([ct, position]);
     },
 
     // private, inherit docs
@@ -187,36 +219,55 @@ Ext.define('Ext.picker.Month', {
         me.years = body.select('.' + me.baseCls + '-year a');
         me.months = body.select('.' + me.baseCls + '-month a');
 
-        if (me.showButtons) {
-            me.okBtn = Ext.create('Ext.button.Button', {
-                text: me.okText,
-                renderTo: buttonsEl,
-                handler: me.onOkClick,
-                scope: me
-            });
-            me.cancelBtn = Ext.create('Ext.button.Button', {
-                text: me.cancelText,
-                renderTo: buttonsEl,
-                handler: me.onCancelClick,
-                scope: me
-            });
-        }
-
-        me.backRepeater = Ext.create('Ext.util.ClickRepeater', me.prevEl, {
+        me.backRepeater = new Ext.util.ClickRepeater(me.prevEl, {
             handler: Ext.Function.bind(me.adjustYear, me, [-me.totalYears])
         });
 
         me.prevEl.addClsOnOver(me.baseCls + '-yearnav-prev-over');
-        me.nextRepeater = Ext.create('Ext.util.ClickRepeater', me.nextEl, {
+        me.nextRepeater = new Ext.util.ClickRepeater(me.nextEl, {
             handler: Ext.Function.bind(me.adjustYear, me, [me.totalYears])
         });
         me.nextEl.addClsOnOver(me.baseCls + '-yearnav-next-over');
         me.updateBody();
+        
+        if (!Ext.isDefined(me.monthMargin)) {
+            Ext.picker.Month.prototype.monthMargin = me.calculateMonthMargin();
+        }
+    },
+    
+    calculateMonthMargin: function(){
+        // We use this method for locales where the short month name
+        // may be longer than we see in English. For example in the 
+        // zh_TW locale the month ends up spanning lines, so we loosen
+        // the margins to get some extra space
+        var me = this,
+            monthEl = me.monthEl,
+            months = me.months,
+            first = months.first(),
+            itemMargin = first.getMargin('l');
+            
+        while (itemMargin && me.getLargest() > me.measureMaxHeight) {
+            --itemMargin;
+            months.setStyle('margin', '0 ' + itemMargin + 'px');
+        }
+        return itemMargin;
+    },
+    
+    getLargest: function(months){
+        var largest = 0;
+        this.months.each(function(item){
+            var h = item.getHeight();
+            if (h > largest) {
+                largest = h;
+            }
+        });
+        return largest;
+        
     },
 
     /**
      * Set the value for the picker.
-     * @param {Date/Array} value The value to set. It can be a Date object, where the month/year will be extracted, or
+     * @param {Date/Number[]} value The value to set. It can be a Date object, where the month/year will be extracted, or
      * it can be an array, with the month as the first index and the year as the second.
      * @return {Ext.picker.Month} this
      */
@@ -252,7 +303,7 @@ Ext.define('Ext.picker.Month', {
      * Gets the selected value. It is returned as an array [month, year]. It may
      * be a partial value, for example [null, 2010]. The month is returned as
      * 0 based.
-     * @return {Array} The selected value
+     * @return {Number[]} The selected value
      */
     getValue: function(){
         return this.value;
@@ -271,7 +322,7 @@ Ext.define('Ext.picker.Month', {
      * Get an array of years to be pushed in the template. It is not in strict
      * numerical order because we want to show them in columns.
      * @private
-     * @return {Array} An array of years
+     * @return {Number[]} An array of years
      */
     getYears: function(){
         var me = this,
@@ -301,18 +352,25 @@ Ext.define('Ext.picker.Month', {
             value = me.getYear(null),
             month = me.value[0],
             monthOffset = me.monthOffset,
-            year;
+            year,
+            yearItems, y, yLen, el;
 
         if (me.rendered) {
             years.removeCls(cls);
             months.removeCls(cls);
-            years.each(function(el, all, index){
-                year = yearNumbers[index];
+
+            yearItems = years.elements;
+            yLen      = yearItems.length;
+
+            for (y = 0; y < yLen; y++) {
+                el = Ext.fly(yearItems[y]);
+
+                year = yearNumbers[y];
                 el.dom.innerHTML = year;
                 if (year == value) {
                     el.dom.className = cls;
                 }
-            });
+            }
             if (month !== null) {
                 if (month < monthOffset) {
                     month = month * 2;
@@ -356,7 +414,7 @@ Ext.define('Ext.picker.Month', {
 
     /**
      * Modify the year display by passing an offset.
-     * @param {Number} offset The offset to move by. If not specified, it defaults to 10.
+     * @param {Number} [offset=10] The offset to move by.
      */
     adjustYear: function(offset){
         if (typeof offset != 'number') {
@@ -431,7 +489,26 @@ Ext.define('Ext.picker.Month', {
     beforeDestroy: function(){
         var me = this;
         me.years = me.months = null;
-        Ext.destroyMembers('backRepeater', 'nextRepeater', 'okBtn', 'cancelBtn');
+        Ext.destroyMembers(me, 'backRepeater', 'nextRepeater', 'okBtn', 'cancelBtn');
+        me.callParent();
+    },
+
+    // Do the job of a container layout at this point even though we are not a Container.
+    // TODO: Refactor as a Container.
+    finishRenderChildren: function () {
+        var me = this;
+
+        this.callParent(arguments);
+
+        if (this.showButtons) {
+            me.okBtn.finishRender();
+            me.cancelBtn.finishRender();
+        }
+    },
+
+    onDestroy: function() {
+        Ext.destroyMembers(this, 'okBtn', 'cancelBtn');
         this.callParent();
     }
+    
 });

@@ -1,12 +1,7 @@
 /**
- * @class Ext.grid.property.Store
- * @extends Ext.data.Store
  * A custom {@link Ext.data.Store} for the {@link Ext.grid.property.Grid}. This class handles the mapping
  * between the custom data source objects supported by the grid and the {@link Ext.grid.property.Property} format
  * used by the {@link Ext.data.Store} base class.
- * @constructor
- * @param {Ext.grid.Grid} grid The grid this store will be bound to
- * @param {Object} source The source data config object
  */
 Ext.define('Ext.grid.property.Store', {
 
@@ -14,8 +9,15 @@ Ext.define('Ext.grid.property.Store', {
 
     alternateClassName: 'Ext.grid.PropertyStore',
 
+    sortOnLoad: false,
+
     uses: ['Ext.data.reader.Reader', 'Ext.data.proxy.Proxy', 'Ext.data.ResultSet', 'Ext.grid.property.Property'],
 
+    /**
+     * Creates new property store.
+     * @param {Ext.grid.Panel} grid The grid this store will be bound to
+     * @param {Object} source The source data config object
+     */
     constructor : function(grid, source){
         var me = this;
         
@@ -31,7 +33,7 @@ Ext.define('Ext.grid.property.Store', {
     // Return a singleton, customized Proxy object which configures itself with a custom Reader
     getProxy: function() {
         if (!this.proxy) {
-            Ext.grid.property.Store.prototype.proxy = Ext.create('Ext.data.proxy.Memory', {
+            Ext.grid.property.Store.prototype.proxy = new Ext.data.proxy.Memory({
                 model: Ext.grid.property.Property,
                 reader: this.getReader()
             });
@@ -42,7 +44,7 @@ Ext.define('Ext.grid.property.Store', {
     // Return a singleton, customized Reader object which reads Ext.grid.property.Property records from an object.
     getReader: function() {
         if (!this.reader) {
-            Ext.grid.property.Store.prototype.reader = Ext.create('Ext.data.reader.Reader', {
+            Ext.grid.property.Store.prototype.reader = new Ext.data.reader.Reader({
                 model: Ext.grid.property.Property,
 
                 buildExtractors: Ext.emptyFn,
@@ -71,7 +73,7 @@ Ext.define('Ext.grid.property.Store', {
                         }
                     }
                     result.total = result.count = result.records.length;
-                    return Ext.create('Ext.data.ResultSet', result);
+                    return new Ext.data.ResultSet(result);
                 },
 
                 // private
@@ -94,6 +96,7 @@ Ext.define('Ext.grid.property.Store', {
         me.load();
         me.resumeEvents();
         me.fireEvent('datachanged', me);
+        me.fireEvent('refresh', me);
     },
 
     // private
@@ -113,7 +116,7 @@ Ext.define('Ext.grid.property.Store', {
             // only create if specified.
             me.source[prop] = value;
             rec = new Ext.grid.property.Property({name: prop, value: value}, prop);
-            me.store.add(rec);
+            me.add(rec);
         }
     },
 
@@ -121,7 +124,7 @@ Ext.define('Ext.grid.property.Store', {
     remove : function(prop) {
         var rec = this.getRec(prop);
         if (rec) {
-            store.remove(rec);
+            this.callParent([rec]);
             delete this.source[prop];
         }
     },

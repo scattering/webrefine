@@ -110,8 +110,10 @@ Ext.onReady(function(){
                     rowEditing.startEdit(0, 0);
                 }
             }, '-', {
+                itemId: 'delete',
                 text: 'Delete',
                 iconCls: 'icon-delete',
+                disabled: true,
                 handler: function(){
                     var selection = grid.getView().getSelectionModel().getSelection()[0];
                     if (selection) {
@@ -120,5 +122,8 @@ Ext.onReady(function(){
                 }
             }]
         }]
+    });
+    grid.getSelectionModel().on('selectionchange', function(selModel, selections){
+        grid.down('#delete').setDisabled(selections.length === 0);
     });
 });

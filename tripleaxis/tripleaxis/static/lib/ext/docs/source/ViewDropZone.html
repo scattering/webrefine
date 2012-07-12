@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -15,11 +15,14 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js">Ext.define('Ext.grid.ViewDropZone', {
+  <pre class="prettyprint lang-js"><span id='Ext-grid-ViewDropZone'>/**
+</span> * @private
+ */
+Ext.define('Ext.grid.ViewDropZone', {
     extend: 'Ext.view.DropZone',
 
-    indicatorHtml: '&lt;div class=&quot;x-grid-drop-indicator-left&quot;&gt;&lt;/div&gt;&lt;div class=&quot;x-grid-drop-indicator-right&quot;&gt;&lt;/div&gt;',
-    indicatorCls: 'x-grid-drop-indicator',
+    indicatorHtml: '&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-drop-indicator-left&quot;&gt;&lt;/div&gt;&lt;div class=&quot;' + Ext.baseCSSPrefix + 'grid-drop-indicator-right&quot;&gt;&lt;/div&gt;',
+    indicatorCls: Ext.baseCSSPrefix + 'grid-drop-indicator',
 
     handleNodeDrop : function(data, record, position) {
         var view = this.view,
@@ -44,7 +47,9 @@
         }
 
         index = store.indexOf(record);
-        if (position == 'after') {
+
+        // 'after', or undefined (meaning a drop at index -1 on an empty View)...
+        if (position !== 'before') {
             index++;
         }
         store.insert(index, data.records);

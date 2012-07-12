@@ -11,8 +11,7 @@ Ext.require([
 ]);
 
 Ext.onReady(function() {
-    var toolbar = Ext.createWidget('toolbar', {
-        renderTo: Ext.getBody(),
+    var toolbar = Ext.widget('toolbar', {
         defaults: {
             reorderable: true
         },
@@ -47,7 +46,7 @@ Ext.onReady(function() {
         ]
     });
     
-    Ext.createWidget('panel', {
+    Ext.widget('panel', {
         renderTo: Ext.getBody(),
         tbar    : toolbar,
         border  : true,

@@ -4,10 +4,58 @@ Ext.require([
     'Ext.grid.*',
     'Ext.data.*',
     'Ext.ux.grid.FiltersFeature',
-    'Ext.toolbar.Paging'
+    'Ext.toolbar.Paging',
+    'Ext.ux.ajax.JsonSimlet',
+    'Ext.ux.ajax.SimManager'
 ]);
 
+Ext.define('Product', {
+    extend: 'Ext.data.Model',
+    fields: [{
+        name: 'id',
+        type: 'int'
+    }, {
+        name: 'company'
+    }, {
+        name: 'price',
+        type: 'float'
+    }, {
+        name: 'date',
+        type: 'date',
+        dateFormat: 'Y-m-d'
+    }, {
+        name: 'visible',
+        type: 'boolean'
+    }, {
+        name: 'size'
+    }]
+});
+
 Ext.onReady(function(){
+
+    Ext.ux.ajax.SimManager.init({
+        delay: 300,
+        defaultSimlet: null
+    }).register({
+        'myData': {
+            data: [
+                ['small', 'small'],
+                ['medium', 'medium'],
+                ['large', 'large'],
+                ['extra large', 'extra large']
+            ],
+            stype: 'json'
+        }
+    });
+
+    var optionsStore = Ext.create('Ext.data.Store', {
+        fields: ['id', 'text'],
+        proxy: {
+            type: 'ajax',
+            url: 'myData',
+            reader: 'array'
+        }
+    });
 
     Ext.QuickTips.init();
 
@@ -26,7 +74,7 @@ Ext.onReady(function(){
     var store = Ext.create('Ext.data.JsonStore', {
         // store configs
         autoDestroy: true,
-
+        model: 'Product',
         proxy: {
             type: 'ajax',
             url: (local ? url.local : url.remote),
@@ -37,23 +85,12 @@ Ext.onReady(function(){
                 totalProperty: 'total'
             }
         },
-
         remoteSort: false,
-        sortInfo: {
-            field: 'company',
+        sorters: [{
+            property: 'company',
             direction: 'ASC'
-        },
-        pageSize: 50,
-        storeId: 'myStore',
-        
-        fields: [
-            { name: 'id' },
-            { name: 'company' }, 
-            { name: 'price', type: 'float' },
-            { name: 'date', type: 'date', dateFormat: 'Y-m-d' },
-            { name: 'visible', type: 'boolean' },
-            { name: 'size' }
-        ]
+        }],
+        pageSize: 50
     });
 
     var filters = {
@@ -61,25 +98,10 @@ Ext.onReady(function(){
         // encode and local configuration options defined previously for easier reuse
         encode: encode, // json encode the filter query
         local: local,   // defaults to false (remote filtering)
+
+        // Filters are most naturally placed in the column definition, but can also be
+        // added here.
         filters: [{
-            type: 'numeric',
-            dataIndex: 'id'
-        }, {
-            type: 'string',
-            dataIndex: 'company',
-            disabled: true
-        }, {
-            type: 'numeric',
-            dataIndex: 'price'
-        }, {
-            type: 'date',
-            dataIndex: 'date'
-        }, {
-            type: 'list',
-            dataIndex: 'size',
-            options: ['small', 'medium', 'large', 'extra large'],
-            phpMode: true
-        }, {
             type: 'boolean',
             dataIndex: 'visible'
         }]
@@ -88,7 +110,7 @@ Ext.onReady(function(){
     // use a factory method to reduce code while demonstrating
     // that the GridFilter plugin may be configured with or without
     // the filter types (the filters may be specified on the column model
-    var createHeaders = function (finish, start) {
+    var createColumns = function (finish, start) {
 
         var columns = [{
             dataIndex: 'id',
@@ -122,22 +144,18 @@ Ext.onReady(function(){
             text: 'Size',
             filter: {
                 type: 'list',
-                options: ['small', 'medium', 'large', 'extra large']
+                store: optionsStore
                 //,phpMode: true
             }
         }, {
             dataIndex: 'date',
             text: 'Date',
-            renderer: Ext.util.Format.dateRenderer('m/d/Y'),
-            filter: {
-                //type: 'date'     // specify type here or in store fields config
-            }            
+            filter: true,
+            renderer: Ext.util.Format.dateRenderer('m/d/Y')
         }, {
             dataIndex: 'visible',
-            text: 'Visible',
-            filter: {
-                //type: 'boolean'  // specify type here or in store fields config
-            }
+            text: 'Visible'
+            // this column's filter is defined in the filters feature config
         }];
 
         return columns.slice(start || 0, finish);
@@ -146,16 +164,18 @@ Ext.onReady(function(){
     var grid = Ext.create('Ext.grid.Panel', {
         border: false,
         store: store,
-        columns: createHeaders(4),
+        columns: createColumns(4),
         loadMask: true,
         features: [filters],
-        bbar: Ext.create('Ext.toolbar.Paging', {
+        dockedItems: [Ext.create('Ext.toolbar.Paging', {
+            dock: 'bottom',
             store: store
-        })
+        })],
+        emptyText: 'No Matching Records'
     });
 
     // add some buttons to bottom toolbar just for demonstration purposes
-    grid.child('[dock=bottom]').add([
+    grid.child('pagingtoolbar').add([
         '->',
         {
             text: 'Encode: ' + (encode ? 'On' : 'Off'),
@@ -206,7 +226,7 @@ Ext.onReady(function(){
             text: 'Add Columns',
             handler: function () {
                 if (grid.headerCt.items.length < 6) {
-                    grid.headerCt.add(createHeaders(6, 4));
+                    grid.headerCt.add(createColumns(6, 4));
                     grid.view.refresh();
                     this.disable();
                 }

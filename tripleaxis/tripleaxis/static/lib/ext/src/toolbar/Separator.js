@@ -1,33 +1,25 @@
 /**
- * @class Ext.toolbar.Separator
- * @extends Ext.toolbar.Item
- * A simple class that adds a vertical separator bar between toolbar items
- * (css class:<tt>'x-toolbar-separator'</tt>). 
+ * A simple class that adds a vertical separator bar between toolbar items (css class: 'x-toolbar-separator').
  *
- * {@img Ext.toolbar.Separator/Ext.toolbar.Separator.png Toolbar Separator}
- *
- * ## Example
- *
+ *     @example
  *     Ext.create('Ext.panel.Panel', {
- *         title: 'Toolbar Seperator Example',
+ *         title: 'Toolbar Separator Example',
  *         width: 300,
  *         height: 200,
  *         tbar : [
  *             'Item 1',
- *             {xtype: 'tbseparator'}, // or '-'
+ *             { xtype: 'tbseparator' },
  *             'Item 2'
  *         ],
  *         renderTo: Ext.getBody()
- *     }); 
- *
- * @constructor
- * Creates a new Separator
- * @xtype tbseparator
+ *     });
  */
 Ext.define('Ext.toolbar.Separator', {
     extend: 'Ext.toolbar.Item',
     alias: 'widget.tbseparator',
     alternateClassName: 'Ext.Toolbar.Separator',
     baseCls: Ext.baseCSSPrefix + 'toolbar-separator',
-    focusable: false
+    focusable: false,
+    // Force border: true so container border is not set on this
+    border: true
 });

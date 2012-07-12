@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -17,7 +17,8 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='Ext-chart-axis-Abstract'>/**
 </span> * @class Ext.chart.axis.Abstract
- * @ignore
+ * Base class for all axis classes.
+ * @private
  */
 Ext.define('Ext.chart.axis.Abstract', {
 
@@ -26,7 +27,25 @@ Ext.define('Ext.chart.axis.Abstract', {
     requires: ['Ext.chart.Chart'],
 
     /* End Definitions */
+    
+<span id='Ext-chart-axis-Abstract-cfg-label'>    /**
+</span>     * @cfg {Ext.chart.Label} label
+     * The config for chart label.
+     */
 
+<span id='Ext-chart-axis-Abstract-cfg-fields'>    /**
+</span>     * @cfg {String[]} fields
+     * The fields of model to bind to this axis.
+     * 
+     * For example if you have a data set of lap times per car, each having the fields:
+     * `'carName'`, `'avgSpeed'`, `'maxSpeed'`. Then you might want to show the data on chart
+     * with `['carName']` on Name axis and `['avgSpeed', 'maxSpeed']` on Speed axis.
+     */
+
+<span id='Ext-chart-axis-Abstract-method-constructor'>    /**
+</span>     * Creates new Axis.
+     * @param {Object} config (optional) Config options.
+     */
     constructor: function(config) {
         config = config || {};
 
@@ -38,7 +57,7 @@ Ext.define('Ext.chart.axis.Abstract', {
         config.label = Ext.apply(config['axisLabel' + pos + 'Style'] || {}, config.label || {});
         config.axisTitleStyle = Ext.apply(config['axisTitle' + pos + 'Style'] || {}, config.labelTitle || {});
         Ext.apply(me, config);
-        me.fields = [].concat(me.fields);
+        me.fields = Ext.Array.from(me.fields);
         this.callParent();
         me.labels = [];
         me.getId();

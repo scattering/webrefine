@@ -187,7 +187,7 @@ Ext.onReady(function() {
             {
                 text   : 'Load test data',
                 handler: function() {
-                    this.up('form').getForm().loadRecord(Ext.ModelManager.create({
+                    this.up('form').getForm().loadRecord(Ext.create('Employee', {
                         'email'    : 'abe@sencha.com',
                         'title'    : 'mr',
                         'firstName': 'Abraham',
@@ -199,7 +199,7 @@ Ext.onReady(function() {
                         'phone-3'  : '4567',
                         'hours'    : 7,
                         'minutes'  : 15
-                    }, 'Employee'));
+                    }));
                 }
             },
             {

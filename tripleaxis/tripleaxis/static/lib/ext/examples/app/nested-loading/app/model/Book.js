@@ -3,7 +3,7 @@
  */
 Ext.define('Books.model.Book', {
     extend: 'Ext.data.Model',
-    requires: ['Books.model.Review', 'Ext.data.HasManyAssociation', 'Ext.data.BelongsToAssociation'],
+    requires: ['Books.model.Review', 'Ext.data.association.HasMany', 'Ext.data.association.BelongsTo'],
 
     fields: [
         'id',

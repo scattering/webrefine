@@ -55,7 +55,9 @@ Ext4.onReady(function() {
         data: generateData(processArray)
     });
 
-    cpuLoadStore = Ext4.create('store.json', { fields: ['core1', 'core2'] });
+    cpuLoadStore = Ext4.create('store.json', { 
+      fields: ['core1', 'core2', 'time'] 
+    });
 
     data = [];
 
@@ -115,7 +117,8 @@ Ext4.onReady(function() {
         shadow: true,
 
         legend: {
-            position: 'right'
+            position: 'right',
+            update: false
         },
         insetPadding: 40,
         theme: 'Memory:gradients',
@@ -242,7 +245,8 @@ Ext4.onReady(function() {
         animate: false,
         store: cpuLoadStore,
         legend: {
-            position: 'bottom'
+            position: 'bottom',
+            update: false
         },
         axes: [{
             type: 'Numeric',
@@ -265,7 +269,7 @@ Ext4.onReady(function() {
             lineWidth: 4,
             showMarkers: false,
             fill: true,
-            axis: 'right',
+            axis: ['left'],
             xField: 'time',
             yField: 'core1',
             style: {
@@ -281,7 +285,8 @@ Ext4.onReady(function() {
         animate: false,
         store: cpuLoadStore,
         legend: {
-            position: 'bottom'
+            position: 'bottom',
+            update: false
         },
         axes: [{
             type: 'Numeric',
@@ -304,7 +309,7 @@ Ext4.onReady(function() {
             lineWidth: 4,
             showMarkers: false,
             fill: true,
-            axis: 'right',
+            axis: ['left'],
             xField: 'time',
             yField: 'core2',
             style: {
@@ -313,7 +318,7 @@ Ext4.onReady(function() {
         }]
     };
 
-    win = Ext4.createWidget('window', {
+    win = Ext4.widget('window', {
         x: 90,
         y: 50,
         width: 800,

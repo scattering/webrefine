@@ -81,7 +81,6 @@ Ext.onReady(function(){
         title      : 'Generic Form Panel',
         bodyStyle  : 'padding: 10px; background-color: #DFE8F6',
         labelWidth : 100,
-        width      : 325,
         margins    : '0 0 0 3',
         items      : [
             textField1,
@@ -96,7 +95,7 @@ Ext.onReady(function(){
         height   : 300,
         layout   : 'border',
         renderTo : 'panel',
-        bodyPadding: '5',
+        bodyPadding: 5,
         items    : [
             grid,
             formPanel

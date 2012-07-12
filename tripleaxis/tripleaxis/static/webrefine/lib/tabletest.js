@@ -8,7 +8,10 @@ Ext.Loader.setPath('Ext.selection', '/static/lib/ext/src/selection');
 Ext.Loader.setPath('Ext.grid', '/static/lib/ext/src/grid');
 
 Ext.require([
+    'Ext.layout.container.*',
+    'Ext.tab.*',
     'Ext.grid.*',
+    'Ext.form.*',
     'Ext.data.*',
     'Ext.util.*',
     'Ext.state.*',
@@ -24,348 +27,376 @@ Ext.onReady(function () {
 
     //The following line is evil and worse, it is impolite.    We should try to replace it!!
       
-    var aField = new Ext.form.NumberField({
+    var aField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'a',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var bField = new Ext.form.NumberField({
+
+    var bField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'b',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var cField = new Ext.form.NumberField({
+
+    var cField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'c',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var alphaField = new Ext.form.NumberField({
+
+    var alphaField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'α',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var betaField = new Ext.form.NumberField({
+
+    var betaField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'β',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var gammaField = new Ext.form.NumberField({
+
+    var gammaField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'γ',
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
         decimalPrecision: 7,
-        anchor: '-10'
+        anchor: '-1',
+        hideTrigger: true
     });
-    var spaceGroupField = new Ext.form.NumberField({
+
+    var spaceGroupField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'Space Group',
-        allowBlank: true,
-        decimalPrecision: 7
-    });
-    /*var symbolField = new Ext.form.NumberField({
-        fieldLabel: 'Symbol',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var elementField = new Ext.form.NumberField({
-        fieldLabel: 'Element',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var wPosField = new Ext.form.NumberField({
-        fieldLabel: 'Weincoff Position',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var xField = new Ext.form.NumberField({
-        fieldLabel: 'X',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var yField = new Ext.form.NumberField({
-        fieldLabel: 'Y',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var zField = new Ext.form.NumberField({
-        fieldLabel: 'Z',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var occupancyField = new Ext.form.NumberField({
-        fieldLabel: 'Occupancy',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10'
-    });
-    var bField = new Ext.form.NumberField({
-        fieldLabel: 'B',
-        allowBlank: true,
-        decimalPrecision: 7,
-        anchor: '-10' 
-    
-    
-       });
-*/
-
-    var numberFieldEditor = new Ext.form.NumberField({
+        labelPad:'2',
+        labelWidth:'2',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
         allowBlank: false,
-        allowDecimals: true,
-        decimalPrecision: 7
+        decimalPrecision: 7,
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    var textFieldEditor = new Ext.form.TextField({
-        maxLength: 11,
+
+    var radiationField = Ext.create('Ext.form.field.Number',{
+        fieldLabel: 'Radiation Type',
+        labelPad:'2',
+        labelWidth:'15',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
     });
-    
-    
 
-//    var cm = new Ext.grid.ColumnModel({
-//        // specify any defaults for each column
-//        defaults: {
-//            sortable: false,
-//            align: 'right',
-//            width: 60,
-//            editor: new Ext.form.NumberField({
-//                allowBlank: false,
-//                allowDecimals: true,
-//                decimalPrecision: 7
-//            })
-//        },
-//        columns: [
-//            {
-//            header: 'Symbol',
-//            dataIndex: 'Symbol'
-//            },
-//        {
-//            header: 'Element',
-//            dataIndex: 'Element'
-//            },
-//        {
-//            header: 'Wycoff Position',
-//            dataIndex: 'Wycoff Position'
-//            },
-//        {
-//            header: 'X',
-//            dataIndex: 'X'
-//            },
-//        {
-//            header: 'Y',
-//            dataIndex: 'Y'
-//            },
-//	{
-//            header: 'Z',
-//            dataIndex: 'Z'
-//            },
-//        ]
-//    });
-//
-//    var cm2 = new Ext.grid.ColumnModel({
-//        defaults: {
-//            sortable: false,
-//            align: 'right',
-//            width: 65
-//        },
-//        columns: [
-//        {
-//            header: "",
-//            dataIndex: 'mycheckbox',
-//            width: 25,
-//            renderer: renderCheckBox
-//        }, {
-//            header: 'Symbol',
-//            dataIndex: 'Symbol',
-//            width: 55,
-//            editor: numberFieldEditor
-//        }, {
-//             header: 'Element',
-//            dataIndex: 'Element',
-//            width: 55,
-//            editor: numberFieldEditor
-//        }, {
-//            header: 'Weincoff Position',
-//            dataIndex: 'Weincoff Position',
-//            width: 55,
-//            editor: numberFieldEditor
-//        }, {
-//            header: 'X',
-//            dataIndex: 'X',
-//            editor: textFieldEditor
-//        }, {
-//            header: 'Y',
-//            dataIndex: 'Y',
-//            editor: textFieldEditor
-//        }, {
-//            header: 'Z',
-//            dataIndex: 'Z',
-//            editor: textFieldEditor
-//        }
-//        ]
-//    });
-//    //Setting the calculated angle values to uneditable
-//    cm2.setEditable(4, false);
-//    cm2.setEditable(5, false);
-//    cm2.setEditable(6, false);
-//    cm2.setEditable(7, false);
-//    cm2.setEditable(8, false);
-    // ********* END - Creating Column Models *********
-    
-    
+    var wavelengthField = Ext.create('Ext.form.field.Number',{
+        fieldLabel: 'Wavelength',
+        labelPad:'2',
+        labelWidth:'15',
+        labelAlign:'left',
+        //padding: '0 5 0 5',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 100
+    });
 
-    function displayLattice (responseObject){
-        lattice = Ext.decode(responseObject.responseText);
-        
-        aField.setValue(lattice['a']);
-        bField.setValue(lattice['b']);
-        cField.setValue(lattice['c']);
-        alphaField.setValue(lattice['alpha']);
-        betaField.setValue(lattice['beta']);
-        gammaField.setValue(lattice['gamma']);
-    }
-    
-    // ****************** END - Defining grid button functions ****************** 
+
     // ********* START - Setting up lattice constants GUI  *********
 
 
-    var tmpFieldset = {
+    var latticeFieldSetTop = {
         xtype       : 'fieldset',
         border      : false,
         defaultType : 'numberfield',
+        defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        padding: '0 5 0 5',
         defaults    : {
-            allowBlank : false,
-            decimalPrecision: 10
-        },
+                        allowBlank : false,
+                        decimalPrecision: 10
+                      },
         items: [
                 {
                 xtype       : 'container',
                 border      : false,
-                layout      : 'column',
-                anchor      : '115%',
+                width: 350,
+                height: 250,
+                layout: {
+                    type: 'hbox',
+                    //align: 'stretch'
+                        },
+                anchor      : '85%',
                 items       : [
                                 {
-                            xtype       : 'container',
-                            layout      : 'form',
-                            width       : 100,
-                            labelWidth  : 10,
-                            items   : [aField]
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    items   : [aField],
+                                    flex:1, 
+				    border: false,
+                                } ,
+				
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [bField], 
+				    border: false,
+                                },
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [cField], 
+				    border: false,
                                 }
-                    ]
-                }
+                                ]
+                  },
+		          
             ]
     }
 
+    var latticeFieldSetMiddle = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'numberfield',
+        defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        padding: '0 5 0 5',
+        defaults    : {
+                        allowBlank : false,
+                        decimalPrecision: 10
+                      },
+        items: [
+                {
+                xtype       : 'container',
+                border      : false,
+                width: 350,
+                height: 250,
+                layout: {
+                    type: 'hbox',
+                    //align: 'stretch'
+                        },
+                anchor      : '85%',
+                items       : [
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    items   : [alphaField],
+                                    flex:1, 
+				    border: false,
+                                } ,
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [betaField], 
+				    border: false,
+                                },
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [gammaField], 
+				    border: false,
+                                }
+                                ]
+                  },
+		          
+            ]
+    }
 
+     var latticeFieldSetBottom = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'numberfield',
+        defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        padding: '0 5 0 5',
+        defaults    : {
+                        allowBlank : false,
+                        decimalPrecision: 10
+                      },
+        items: [
+                {
+                xtype       : 'container',
+                border      : false,
+                width: 350,
+                height: 350,
+                layout: {
+                    type: 'hbox',
+                    //align: 'stretch'
+                        },
+                anchor      : '85%',
+                items       : [
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    items   : [spaceGroupField],
+                                    flex:1, 
+				    border: false,
+                                }
+                                ]
+                  },
+		          
+            ]
+    }
+       var latticeFieldSetTotal = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'numberfield',
+        defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        padding: '0 5 0 5',
+        defaults    : {
+                        allowBlank : false,
+                        decimalPrecision: 10
+                      },
+        items: [
+                {
+                xtype       : 'container',
+                border      : true,
+                width: 350,
+                height: 120,
+                layout: {
+                    type: 'vbox',
+                    //align: 'stretch'
+                        },
+                anchor      : '85%',
+                items       : [
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    items   : [latticeFieldSetTop],
+                                    flex:1, 
+				    border: false,
+                                } ,
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [latticeFieldSetMiddle], 
+				    border: false,
+                                },
+				{
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [latticeFieldSetBottom], 
+				    border: false,
+                                }
+                                ]
+                  },
+		          
+            ]
+    }
 
-
-
-//    var topFieldset = {
-//        xtype       : 'fieldset',
-//        border      : false,
-//        defaultType : 'numberfield',
-//        defaults    : {
-//                        allowBlank : false,
-//                        decimalPrecision: 10
-//                      },
-//        items: [
-//                 {
-//                xtype       : 'container',
-//                border      : false,
-//                layout      : 'column',
-//                anchor      : '115%',
-//                items       : [
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items   : [
-//                            aField
-//                        ]
-//                    },
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items       : [
-//                            bField
-//                        ]
-//                    },
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items       : [
-//                            cField
-//                        ]
-//                    }, {
-//                        //Buffer blank space to even out the c inputbox
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        columnWidth : 1,
-//                        labelWidth  : 1
-//                    }
-//                ]
-//            },
-//                 {
-//                xtype       : 'container',
-//                border      : false,
-//                layout      : 'column',
-//                anchor      : '100%',
-//                items       : [
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items   : [alphaField]
-//                    },
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items       : [betaField]
-//                    },
-//                    {
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        width       : 100,
-//                        labelWidth  : 10,
-//                        items       : [
-//                            gammaField
-//                        ]
-//                    },
-//                    {
-//                        //Buffer blank space to even out the gamma inputbox
-//                        xtype       : 'container',
-//                        layout      : 'form',
-//                        columnWidth : 1,
-//                        labelWidth  : 1
-//                    }
-//                ]
-//            },
-//            spaceGroupField,
-//        ]
-//    };
-   
-    
-    
-   
+    var spectrometerFieldSetTotal = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'numberfield',
+        defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        padding: '0 5 0 5',
+        defaults    : {
+                        allowBlank : false,
+                        decimalPrecision: 10
+                      },
+        items: [
+                {
+                xtype       : 'container',
+                border      : false,
+                width: 350,
+                height: 120,
+                layout: {
+                    type: 'vbox',
+                    //align: 'stretch'
+                        },
+                anchor      : '85%',
+                items       : [
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    items   : [radiationField],
+                                    flex:1
+                                } ,
+                                {
+                                    xtype       : 'panel',
+                                    //layout      : 'column',
+                                    //width       : 50,
+                                    //labelWidth  : 5,
+                                    flex:1,
+                                    items   : [wavelengthField]
+                                }
+                                ]
+                  },
+		          
+            ]
+    }
 
     var innerRightTopPanel = new Ext.Panel({
         layout: 'border',
-        width: 350,
-        height: 290,
+        width: 500,
+        height: 200,
         border: true,
         items: [{
                 title   : 'Lattice Parameters',
@@ -373,19 +404,20 @@ Ext.onReady(function () {
                 id      : 'center-component',
                 layout  : 'fit',
                 margins : '0 5 0 0', //small margins to the east of box
-                items   : [tmpFieldset]
+                split : true,
+                items   : [latticeFieldSetTotal]
                 }
                 ]
     });  
 
-//    var TopPanel = new Ext.Panel({
-//        layout: 'table',
-//        width: 790,
-//        layoutConfig: {
-//            columns: 1
-//        },
-//        items: [innerRightTopPanel]
-//    });
+    var TopPanel = new Ext.Panel({
+        layout: 'table',
+        width: 790,
+        layoutConfig: {
+            columns: 1
+        },
+        items: [innerRightTopPanel]
+    });
 
 
     var myTabs = new Ext.TabPanel({
@@ -402,7 +434,7 @@ Ext.onReady(function () {
                 title: 'WebRefine',
                 id: 'webrefinetab',
                 iconCls: '/static/img/silk/calculator.png',
-                items: [innerRightTopPanel]
+                items: [TopPanel]
             }, {
                 title: 'Help Manual',
                 id: 'helpmanualtab',

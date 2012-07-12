@@ -1,17 +1,14 @@
 /**
- * @class Ext.util.TextMetrics
- * <p>
  * Provides precise pixel measurements for blocks of text so that you can determine exactly how high and
  * wide, in pixels, a given block of text will be. Note that when measuring text, it should be plain text and
- * should not contain any HTML, otherwise it may not be measured correctly.</p> 
- * <p>The measurement works by copying the relevant CSS styles that can affect the font related display, 
+ * should not contain any HTML, otherwise it may not be measured correctly.
+ *
+ * The measurement works by copying the relevant CSS styles that can affect the font related display, 
  * then checking the size of an element that is auto-sized. Note that if the text is multi-lined, you must 
- * provide a <b>fixed width</b> when doing the measurement.</p>
- * 
- * <p>
+ * provide a **fixed width** when doing the measurement.
+ *
  * If multiple measurements are being done on the same element, you create a new instance to initialize 
  * to avoid the overhead of copying the styles to the element repeatedly.
- * </p>
  */
 Ext.define('Ext.util.TextMetrics', {
     statics: {
@@ -23,7 +20,8 @@ Ext.define('Ext.util.TextMetrics', {
          * @param {String} text The text to measure
          * @param {Number} fixedWidth (optional) If the text will be multiline, you have to set a fixed width
          * in order to accurately measure the text height
-         * @return {Object} An object containing the text's size {width: (width), height: (height)}
+         * @return {Object} An object containing the text's size `{width: (width), height: (height)}`
+         * @static
          */
         measure: function(el, text, fixedWidth){
             var me = this,
@@ -38,23 +36,24 @@ Ext.define('Ext.util.TextMetrics', {
         },
         
         /**
-          * Destroy the TextMetrics instance created by {@link #measure}.
-          */
-         destroy: function(){
-             var me = this;
-             Ext.destroy(me.shared);
-             me.shared = null;
-         }
+         * Destroy the TextMetrics instance created by {@link #measure}.
+         * @static
+         */
+        destroy: function(){
+            var me = this;
+            Ext.destroy(me.shared);
+            me.shared = null;
+        }
     },
     
     /**
-     * @constructor
-     * @param {Mixed} bindTo The element to bind to.
-     * @param {Number} fixedWidth A fixed width to apply to the measuring element.
+     * Creates new TextMetrics.
+     * @param {String/HTMLElement/Ext.Element} bindTo The element or its ID to bind to.
+     * @param {Number} [fixedWidth] A fixed width to apply to the measuring element.
      */
     constructor: function(bindTo, fixedWidth){
         var measure = this.measure = Ext.getBody().createChild({
-            cls: 'x-textmetrics'
+            cls: Ext.baseCSSPrefix + 'textmetrics'
         });
         this.el = Ext.get(bindTo);
         
@@ -68,10 +67,9 @@ Ext.define('Ext.util.TextMetrics', {
     },
     
     /**
-     * <p><b>Only available on the instance returned from {@link #createInstance}, <u>not</u> on the singleton.</b></p>
      * Returns the size of the specified text based on the internal element's style and width properties
      * @param {String} text The text to measure
-     * @return {Object} An object containing the text's size {width: (width), height: (height)}
+     * @return {Object} An object containing the text's size `{width: (width), height: (height)}`
      */
     getSize: function(text){
         var measure = this.measure,
@@ -85,7 +83,7 @@ Ext.define('Ext.util.TextMetrics', {
     
     /**
      * Binds this TextMetrics instance to a new element
-     * @param {Mixed} el The element
+     * @param {String/HTMLElement/Ext.Element} el The element or its ID.
      */
     bind: function(el){
         var me = this;
@@ -134,14 +132,14 @@ Ext.define('Ext.util.TextMetrics', {
          delete me.measure;
      }
 }, function(){
-    Ext.core.Element.addMethods({
+    Ext.Element.addMethods({
         /**
          * Returns the width in pixels of the passed text, or the width of the text in this Element.
          * @param {String} text The text to measure. Defaults to the innerHTML of the element.
-         * @param {Number} min (Optional) The minumum value to return.
-         * @param {Number} max (Optional) The maximum value to return.
+         * @param {Number} [min] The minumum value to return.
+         * @param {Number} [max] The maximum value to return.
          * @return {Number} The text width in pixels.
-         * @member Ext.core.Element getTextWidth
+         * @member Ext.dom.Element
          */
         getTextWidth : function(text, min, max){
             return Ext.Number.constrain(Ext.util.TextMetrics.measure(this.dom, Ext.value(text, this.dom.innerHTML, true)).width, min || 0, max || 1000000);

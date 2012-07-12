@@ -1,5 +1,6 @@
 Ext.require('Ext.chart.*');
 Ext.require('Ext.layout.container.Fit');
+Ext.require('Ext.window.MessageBox');
 
 Ext.onReady(function () {
     
@@ -60,6 +61,7 @@ Ext.onReady(function () {
     var grid = Ext.create('Ext.grid.Panel', {
         store: gridStore,
         height: 130,
+        width: 480,
         columns: [
             {
                 text   : 'name',
@@ -72,13 +74,7 @@ Ext.onReady(function () {
         ]
     });
     
-    var panel1 = Ext.create('widget.panel', {
-        width: 800,
-        height: 400,
-        title: 'Line Chart',
-        renderTo: Ext.getBody(),
-        layout: 'fit',
-        items: [{
+    var chart = Ext.create('Ext.chart.Chart', {
             xtype: 'chart',
             animate: true,
             shadow: true,
@@ -133,9 +129,31 @@ Ext.onReady(function () {
                         this.setTitle("Information for " + storeItem.get('name'));
                         pieStore.loadData(data);
                         gridStore.loadData(data);
+                        grid.setSize(480, 130);
                     }
                 }
             }]
-        }]
+        });
+
+
+    var panel1 = Ext.create('widget.panel', {
+        width: 800,
+        height: 400,
+        title: 'Line Chart',
+        renderTo: Ext.getBody(),
+        layout: 'fit',
+        tbar: [{
+            text: 'Save Chart',
+            handler: function() {
+                Ext.MessageBox.confirm('Confirm Download', 'Would you like to download the chart as an image?', function(choice){
+                    if(choice == 'yes'){
+                        chart.save({
+                            type: 'image/png'
+                        });
+                    }
+                });
+            }
+        }],
+        items: chart
     });
 });

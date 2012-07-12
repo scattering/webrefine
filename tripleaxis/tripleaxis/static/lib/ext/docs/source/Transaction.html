@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -15,12 +15,8 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='Ext-direct-Transaction-method-constructor'><span id='Ext-direct-Transaction'>/**
-</span></span> * @class Ext.direct.Transaction
- * @extends Object
- * &lt;p&gt;Supporting Class for Ext.Direct (not intended to be used directly).&lt;/p&gt;
- * @constructor
- * @param {Object} config
+  <pre class="prettyprint lang-js"><span id='Ext-direct-Transaction'>/**
+</span> * Supporting Class for Ext.Direct (not intended to be used directly).
  */
 Ext.define('Ext.direct.Transaction', {
     
@@ -34,12 +30,16 @@ Ext.define('Ext.direct.Transaction', {
     },
    
     /* End Definitions */
-   
+
+<span id='Ext-direct-Transaction-method-constructor'>    /**
+</span>     * Creates new Transaction.
+     * @param {Object} [config] Config object.
+     */
     constructor: function(config){
         var me = this;
         
         Ext.apply(me, config);
-        me.id = ++me.self.TRANSACTION_ID;
+        me.id = me.tid = ++me.self.TRANSACTION_ID;
         me.retryCount = 0;
     },
    

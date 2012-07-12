@@ -74,13 +74,13 @@ Ext.define('Ext.ux.LiveSearchGridPanel', {
                  }
             }, {
                 xtype: 'button',
-                text: '<',
+                text: '&lt;',
                 tooltip: 'Find Previous Row',
                 handler: me.onPreviousClick,
                 scope: me
             },{
                 xtype: 'button',
-                text: '>',
+                text: '&gt;',
                 tooltip: 'Find Next Row',
                 handler: me.onNextClick,
                 scope: me
@@ -154,20 +154,8 @@ Ext.define('Ext.ux.LiveSearchGridPanel', {
                 return null;
             }
         }
-        
-        var length = value.length,
-            resultArray = [me.tagsProtect + '*'],
-            i = 0,
-            c;
-            
-        for(; i < length; i++) {
-            c = value.charAt(i);
-            resultArray.push(c);
-            if (c !== '\\') {
-                resultArray.push(me.tagsProtect + '*');
-            } 
-        }
-        return resultArray.join('');
+
+        return value;
     },
     
     /**

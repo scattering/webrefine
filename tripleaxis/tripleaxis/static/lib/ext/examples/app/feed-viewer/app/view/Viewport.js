@@ -7,14 +7,14 @@ Ext.define('FV.view.Viewport', {
         'Ext.layout.container.Border'
     ],
 
-	layout: 'border',
+    layout: 'border',
 
-	items: [{
-		region: 'center',
-		xtype: 'viewer'
-	}, {
-		region: 'west',
-		width: 225,
-		xtype: 'feedlist'
-	}]
+    items: [{
+        region: 'center',
+        xtype: 'viewer'
+    }, {
+        region: 'west',
+        width: 225,
+        xtype: 'feedlist'
+    }]
 });

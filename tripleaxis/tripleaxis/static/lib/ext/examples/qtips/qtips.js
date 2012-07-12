@@ -1,6 +1,7 @@
 Ext.require([
     'Ext.tip.*',
-    'Ext.Button'
+    'Ext.Button',
+    'Ext.window.MessageBox'
 ]);
 
 Ext.onReady(function() {
@@ -8,7 +9,7 @@ Ext.onReady(function() {
     var defaultButtonConfig = {
         scale: 'medium',
         style: {
-            marginRight: '10px'
+            "margin-right": '10px'
         }
     };
     
@@ -81,7 +82,7 @@ Ext.onReady(function() {
             contentEl: 'content-tip', // load content from the page
             listeners: {
                 'render': function(){
-                    this.header.on('click', function(e){
+                    this.header.on('click', function(header, e){
                         e.stopEvent();
                         Ext.Msg.alert('Link', 'Link to something interesting.');
                         Ext.getCmp('content-anchor-tip').hide();

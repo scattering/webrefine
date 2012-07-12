@@ -9,14 +9,15 @@ Ext.require([
 
 Ext.onReady(function() {
     var currentItem;
-    var tabs = Ext.createWidget('tabpanel', {
+
+    var tabs = Ext.widget('tabpanel', {
         renderTo: 'tabs',
         resizeTabs: true,
         enableTabScroll: true,
         width: 600,
         height: 250,
         defaults: {
-            autoScroll:true,
+            autoScroll: true,
             bodyPadding: 10
         },
         items: [{
@@ -35,6 +36,15 @@ Ext.onReady(function() {
                     handler: function (item) {
                         currentItem.tab.setClosable(item.checked);
                     }
+                },
+                '-',
+                {
+                    text: 'Enabled',
+                    checked: true,
+                    hideOnClick: true,
+                    handler: function(item) {
+                        currentItem.tab.setDisabled(!item.checked);
+                    }
                 }
             ],
             listeners: {
@@ -42,9 +52,10 @@ Ext.onReady(function() {
                     currentItem = null;
                 },
                 beforemenu: function (menu, item) {
-                    var menuitem = menu.child('*[text="Closable"]');
+                    menu.child('[text="Closable"]').setChecked(item.closable);
+                    menu.child('[text="Enabled"]').setChecked(!item.tab.isDisabled());
+
                     currentItem = item;
-                    menuitem.setChecked(item.closable);
                 }
             }
         })
@@ -52,36 +63,37 @@ Ext.onReady(function() {
 
     // tab generation code
     var index = 0;
-    while(index < 3){
+
+    while(index < 3) {
         addTab(index % 2);
     }
 
     function addTab (closable) {
         ++index;
         tabs.add({
-            title: 'New Tab ' + index,
-            iconCls: 'tabs',
+            closable: !!closable,
             html: 'Tab Body ' + index + '<br/><br/>' + Ext.example.bogusMarkup,
-            closable: !!closable
+            iconCls: 'tabs',
+            title: 'New Tab ' + index
         }).show();
     }
 
-    Ext.createWidget('button', {
+    Ext.widget('button', {
+        iconCls: 'new-tab',
         renderTo: 'addButtonCt',
         text: 'Add Closable Tab',
         handler: function () {
             addTab(true);
-        },
-        iconCls:'new-tab'
+        }
     });
 
-    Ext.createWidget('button', {
+    Ext.widget('button', {
+        iconCls:'new-tab',
         renderTo: 'addButtonCt',
+        style: 'margin-left: 8px;',
         text: 'Add Unclosable Tab',
         handler: function () {
             addTab(false);
-        },
-        iconCls:'new-tab',
-        style: 'margin-left: 8px;'
+        }
     });
 });

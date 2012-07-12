@@ -1,42 +1,38 @@
 /**
- * @class Ext.menu.DatePicker
- * @extends Ext.menu.Menu
- * <p>A menu containing an {@link Ext.picker.Date} Component.</p>
- * <p>Notes:</p><div class="mdetail-params"><ul>
- * <li>Although not listed here, the <b>constructor</b> for this class
- * accepts all of the configuration options of <b>{@link Ext.picker.Date}</b>.</li>
- * <li>If subclassing DateMenu, any configuration options for the DatePicker must be
- * applied to the <tt><b>initialConfig</b></tt> property of the DateMenu.
- * Applying {@link Ext.picker.Date DatePicker} configuration settings to
- * <b><tt>this</tt></b> will <b>not</b> affect the DatePicker's configuration.</li>
- * </ul></div>
- * {@img Ext.menu.DatePicker/Ext.menu.DatePicker.png Ext.menu.DatePicker component}
- * __Example Usage__
-     var dateMenu = Ext.create('Ext.menu.DatePicker', {
-        handler: function(dp, date){
-            Ext.Msg.alert('Date Selected', 'You choose {0}.', Ext.Date.format(date, 'M j, Y'));
-
-        }
-    });
-
-    Ext.create('Ext.menu.Menu', {
-		width: 100,
-		height: 90,
-		floating: false,  // usually you want this set to True (default)
-		renderTo: Ext.getBody(),  // usually rendered by it's containing component
-		items: [{
-		    text: 'choose a date',
-		    menu: dateMenu
-		},{
-            iconCls: 'add16',
-		    text: 'icon item'
-		},{
-		    text: 'regular item'
-		}]
-	});
-
- * @xtype datemenu
- * @author Nicolas Ferrero
+ * A menu containing an Ext.picker.Date Component.
+ *
+ * Notes:
+ *
+ * - Although not listed here, the **constructor** for this class accepts all of the
+ *   configuration options of **{@link Ext.picker.Date}**.
+ * - If subclassing DateMenu, any configuration options for the DatePicker must be applied
+ *   to the **initialConfig** property of the DateMenu. Applying {@link Ext.picker.Date Date Picker}
+ *   configuration settings to **this** will **not** affect the Date Picker's configuration.
+ *
+ * Example:
+ *
+ *     @example
+ *     var dateMenu = Ext.create('Ext.menu.DatePicker', {
+ *         handler: function(dp, date){
+ *             Ext.Msg.alert('Date Selected', 'You selected ' + Ext.Date.format(date, 'M j, Y'));
+ *         }
+ *     });
+ *
+ *     Ext.create('Ext.menu.Menu', {
+ *         width: 100,
+ *         height: 90,
+ *         floating: false,  // usually you want this set to True (default)
+ *         renderTo: Ext.getBody(),  // usually rendered by it's containing component
+ *         items: [{
+ *             text: 'choose a date',
+ *             menu: dateMenu
+ *         },{
+ *             iconCls: 'add16',
+ *             text: 'icon item'
+ *         },{
+ *             text: 'regular item'
+ *         }]
+ *     });
  */
  Ext.define('Ext.menu.DatePicker', {
      extend: 'Ext.menu.Menu',
@@ -49,48 +45,43 @@
 
     /**
      * @cfg {Boolean} hideOnClick
-     * False to continue showing the menu after a date is selected, defaults to true.
+     * False to continue showing the menu after a date is selected.
      */
     hideOnClick : true,
 
     /**
      * @cfg {String} pickerId
-     * An id to assign to the underlying date picker. Defaults to <tt>null</tt>.
+     * An id to assign to the underlying date picker.
      */
     pickerId : null,
 
     /**
      * @cfg {Number} maxHeight
-     * @hide
+     * @private
      */
 
     /**
+     * @property {Ext.picker.Date} picker
      * The {@link Ext.picker.Date} instance for this DateMenu
-     * @property picker
-     * @type Ext.picker.Date
-     */
-
-    /**
-     * @event click
-     * @hide
-     */
-
-    /**
-     * @event itemclick
-     * @hide
      */
 
     initComponent : function(){
-        var me = this;
-
+        var me = this,
+            cfg = Ext.apply({}, me.initialConfig);
+            
+        // Ensure we clear any listeners so they aren't duplicated
+        delete cfg.listeners;
+            
         Ext.apply(me, {
             showSeparator: false,
             plain: true,
+            border: false,
+            bodyPadding: 0, // remove the body padding from the datepicker menu item so it looks like 3.3
             items: Ext.applyIf({
                 cls: Ext.baseCSSPrefix + 'menu-date-item',
                 id: me.pickerId,
                 xtype: 'datepicker'
-            }, me.initialConfig)
+            }, cfg)
         });
 
         me.callParent(arguments);
@@ -98,9 +89,7 @@
         me.picker = me.down('datepicker');
         /**
          * @event select
-         * Fires when a date is selected from the {@link #picker Ext.picker.Date}
-         * @param {Ext.picker.Date} picker The {@link #picker Ext.picker.Date}
-         * @param {Date} date The selected date
+         * @inheritdoc Ext.picker.Date#select
          */
         me.relayEvents(me.picker, ['select']);
 

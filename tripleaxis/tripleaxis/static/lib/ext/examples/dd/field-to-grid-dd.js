@@ -6,7 +6,12 @@ Ext.require(['*']);
 Ext.define('Ext.ux.CellFieldDropZone', {
     extend: 'Ext.dd.DropZone',
 
-    constructor: function(){},
+    constructor: function(cfg){
+        cfg = cfg || {};
+        if (cfg.onCellDrop) {
+            this.onCellDrop = cfg.onCellDrop;
+        }
+    },
 
 //  Call the DropZone constructor using the View's scrolling element
 //  only after the grid has been rendered.
@@ -108,10 +113,14 @@ Ext.define('Ext.ux.CellFieldDropZone', {
 //  Process the drop event if we have previously ascertained that a drop is OK.
     onNodeDrop: function(target, dd, e, dragData) {
         if (this.dropOK) {
-            target.record.set(target.fieldName, dragData.field.getValue());
+            var value = dragData.field.getValue();
+            target.record.set(target.fieldName, value);
+            this.onCellDrop(target.fieldName, value);
             return true;
         }
-    }
+    },
+    
+    onCellDrop: Ext.emptyFn
 });
 
 //  A class which makes Fields within a Panel draggable.
@@ -238,7 +247,7 @@ Ext.onReady(function(){
     // create the data store
     var store = Ext.create('Ext.data.ArrayStore', {
         fields: [
-           {name: 'company'},
+           {name: 'company', type: 'string'},
            {name: 'price', type: 'float'},
            {name: 'change', type: 'float'},
            {name: 'pctChange', type: 'float'},
@@ -274,15 +283,21 @@ Ext.onReady(function(){
     var grid = Ext.create('Ext.grid.Panel', {
         store: store,
         columns: [
-            {id:'company',header: "Company", width: 160, sortable: true, dataIndex: 'company'},
+            {id:'company',header: "Company", width: 160, sortable: true, dataIndex: 'company', flex: 1},
             {header: "Price", width: 75, sortable: true, renderer: 'usMoney', dataIndex: 'price'},
             {header: "Change", width: 75, sortable: true, renderer: change, dataIndex: 'change'},
             {header: "% Change", width: 75, sortable: true, renderer: pctChange, dataIndex: 'pctChange'},
             {header: "Last Updated", width: 85, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange'}
         ],
-        plugins: Ext.create('Ext.ux.CellFieldDropZone'),
+        plugins: Ext.create('Ext.ux.CellFieldDropZone', {
+            onCellDrop: function(field){
+                var sorter = store.sorters.first();
+                if (sorter && sorter.property == field) {
+                    store.sort();
+                }
+            }
+        }),
         stripeRows: true,
-        autoExpandColumn: 'company',
         height:350,
         width:600,
         title:'Array Grid',

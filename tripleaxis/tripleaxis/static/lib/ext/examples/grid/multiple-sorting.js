@@ -193,25 +193,21 @@ Ext.onReady(function() {
             xtype: 'tbtext',
             text: 'Sorting order:',
             reorderable: false
-        }, '-'],
+        }, createSorterButtonConfig({
+            text: 'Rating',
+            sortData: {
+                property: 'rating',
+                direction: 'DESC'
+            }
+        }), createSorterButtonConfig({
+            text: 'Salary',
+            sortData: {
+                property: 'salary',
+                direction: 'ASC'
+            }
+        })],
         plugins: [reorderer, droppable]
     });
-
-    tbar.add(createSorterButtonConfig({
-        text: 'Rating',
-        sortData: {
-            property: 'rating',
-            direction: 'DESC'
-        }
-    }));
-
-    tbar.add(createSorterButtonConfig({
-        text: 'Salary',
-        sortData: {
-            property: 'salary',
-            direction: 'ASC'
-        }
-    }));
 
     // create the Grid
     var grid = Ext.create('Ext.grid.Panel', {

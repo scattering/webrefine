@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -16,9 +16,7 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='Ext-view-BoundListKeyNav'>/**
-</span> * @class Ext.view.BoundListKeyNav
- * @extends Ext.util.KeyNav
- * A specialized {@link Ext.util.KeyNav} implementation for navigating a {@link Ext.view.BoundList} using
+</span> * A specialized {@link Ext.util.KeyNav} implementation for navigating a {@link Ext.view.BoundList} using
  * the keyboard. The up, down, pageup, pagedown, home, and end keys move the active highlight
  * through the list. The enter key invokes the selection model's select action using the highlighted item.
  */
@@ -27,9 +25,8 @@ Ext.define('Ext.view.BoundListKeyNav', {
     requires: 'Ext.view.BoundList',
 
 <span id='Ext-view-BoundListKeyNav-cfg-boundList'>    /**
-</span>     * @cfg {Ext.view.BoundList} boundList
-     * @required
-     * The {@link Ext.view.BoundList} instance for which key navigation will be managed. This is required.
+</span>     * @cfg {Ext.view.BoundList} boundList (required)
+     * The {@link Ext.view.BoundList} instance for which key navigation will be managed.
      */
 
     constructor: function(el, config) {

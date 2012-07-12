@@ -20,10 +20,11 @@ map.each(function(key, value, length){
  * there is no guarantee when iterating over the items that they will be in any particular
  * order. If this is required, then use a {@link Ext.util.MixedCollection}.
  * </p>
- * @constructor
- * @param {Object} config The configuration options
  */
 Ext.define('Ext.util.HashMap', {
+    mixins: {
+        observable: 'Ext.util.Observable'
+    },
 
     /**
      * @cfg {Function} keyFn A function that is used to retrieve a default key for a passed object.
@@ -31,12 +32,15 @@ Ext.define('Ext.util.HashMap', {
      * if the add method is called with a single argument.
      */
 
-    mixins: {
-        observable: 'Ext.util.Observable'
-    },
-
+    /**
+     * Creates new HashMap.
+     * @param {Object} config (optional) Config object.
+     */
     constructor: function(config) {
-        var me = this;
+        config = config || {};
+
+        var me = this,
+            keyFn = config.keyFn;
 
         me.addEvents(
             /**
@@ -74,6 +78,10 @@ Ext.define('Ext.util.HashMap', {
 
         me.mixins.observable.constructor.call(me, config);
         me.clear(true);
+
+        if (keyFn) {
+            me.getKey = keyFn;
+        }
     },
 
     /**
@@ -104,7 +112,6 @@ Ext.define('Ext.util.HashMap', {
 
     /**
      * Extracts the key from an object. This is a default implementation, it may be overridden
-     * @private
      * @param {Object} o The object to get the key from
      * @return {String} The key to use.
      */
@@ -113,40 +120,42 @@ Ext.define('Ext.util.HashMap', {
     },
 
     /**
-     * Adds an item to the collection. Fires the {@link #add} event when complete.
-     * @param {String} key <p>The key to associate with the item, or the new item.</p>
-     * <p>If a {@link #getKey} implementation was specified for this HashMap,
-     * or if the key of the stored items is in a property called <tt><b>id</b></tt>,
-     * the HashMap will be able to <i>derive</i> the key for the new item.
-     * In this case just pass the new item in this parameter.</p>
-     * @param {Object} o The item to add.
+     * Adds an item to the collection. Fires the {@link #event-add} event when complete.
+     *
+     * @param {String/Object} key The key to associate with the item, or the new item.
+     *
+     * If a {@link #getKey} implementation was specified for this HashMap,
+     * or if the key of the stored items is in a property called `id`,
+     * the HashMap will be able to *derive* the key for the new item.
+     * In this case just pass the new item in this parameter.
+     *
+     * @param {Object} [o] The item to add.
+     *
      * @return {Object} The item added.
      */
     add: function(key, value) {
-        var me = this,
-            data;
+        var me = this;
 
-        if (arguments.length === 1) {
+        if (value === undefined) {
             value = key;
             key = me.getKey(value);
         }
 
         if (me.containsKey(key)) {
-            me.replace(key, value);
+            return me.replace(key, value);
         }
 
-        data = me.getData(key, value);
-        key = data[0];
-        value = data[1];
         me.map[key] = value;
         ++me.length;
-        me.fireEvent('add', me, key, value);
+        if (me.hasListeners.add) {
+            me.fireEvent('add', me, key, value);
+        }
         return value;
     },
 
     /**
      * Replaces an item in the hash. If the key doesn't exist, the
-     * {@link #add} method will be used.
+     * {@link #method-add} method will be used.
      * @param {String} key The key of the item.
      * @param {Object} value The new value for the item.
      * @return {Object} The new value of the item.
@@ -156,12 +165,19 @@ Ext.define('Ext.util.HashMap', {
             map = me.map,
             old;
 
+        if (value === undefined) {
+            value = key;
+            key = me.getKey(value);
+        }
+
         if (!me.containsKey(key)) {
             me.add(key, value);
         }
         old = map[key];
         map[key] = value;
-        me.fireEvent('replace', me, key, value, old);
+        if (me.hasListeners.replace) {
+            me.fireEvent('replace', me, key, value, old);
+        }
         return value;
     },
 
@@ -191,7 +207,9 @@ Ext.define('Ext.util.HashMap', {
             value = me.map[key];
             delete me.map[key];
             --me.length;
-            me.fireEvent('remove', me, key, value);
+            if (me.hasListeners.remove) {
+                me.fireEvent('remove', me, key, value);
+            }
             return true;
         }
         return false;
@@ -214,7 +232,7 @@ Ext.define('Ext.util.HashMap', {
         var me = this;
         me.map = {};
         me.length = 0;
-        if (initial !== true) {
+        if (initial !== true && me.hasListeners.clear) {
             me.fireEvent('clear', me);
         }
         return me;

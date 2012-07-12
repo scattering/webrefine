@@ -86,9 +86,7 @@ Ext.onReady(function() {
         handler: function(widget, event) {
             var rec = grid.getSelectionModel().getSelection()[0];
             if (rec) {
-                alert("Sell " + rec.get('company'));
-            } else {
-                alert('Please select a company from the grid');
+                Ext.example.msg('Sell', 'Sell ' + rec.get('company'));
             }
         }
     });
@@ -99,9 +97,7 @@ Ext.onReady(function() {
         handler: function(widget, event) {
             var rec = grid.getSelectionModel().getSelection()[0];
             if (rec) {
-                alert("Buy " + rec.get('company'));
-            } else {
-                alert('Please select a company from the grid');
+                Ext.example.msg('Buy', 'Buy ' + rec.get('company'));
             }
         }
     });

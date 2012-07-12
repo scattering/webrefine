@@ -9,20 +9,22 @@ underlying animation will create the appropriate Ext.fx.target.Target object by 
 the instance to be animated.
 
 The following types of objects can be animated:
-- {@link #Ext.fx.target.Component Components}
-- {@link #Ext.fx.target.Element Elements}
-- {@link #Ext.fx.target.Sprite Sprites}
+
+- {@link Ext.fx.target.Component Components}
+- {@link Ext.fx.target.Element Elements}
+- {@link Ext.fx.target.Sprite Sprites}
 
  * @markdown
  * @abstract
- * @constructor
- * @param {Mixed} target The object to be animated
  */
-
 Ext.define('Ext.fx.target.Target', {
 
     isAnimTarget: true,
 
+    /**
+     * Creates new Target.
+     * @param {Ext.Component/Ext.Element/Ext.draw.Sprite} target The object to be animated
+     */
     constructor: function(target) {
         this.target = target;
         this.id = this.getId();

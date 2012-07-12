@@ -1,12 +1,24 @@
 /**
  * @class Ext.util.AbstractMixedCollection
+ * @private
  */
 Ext.define('Ext.util.AbstractMixedCollection', {
     requires: ['Ext.util.Filter'],
-    
+
     mixins: {
         observable: 'Ext.util.Observable'
     },
+
+    /**
+     * @property {Boolean} isMixedCollection
+     * `true` in this class to identify an object as an instantiated MixedCollection, or subclass thereof.
+     */
+    isMixedCollection: true,
+
+    /**
+     * @private Mutation counter which is incremented upon add and remove.
+     */
+    generation: 0,
 
     constructor: function(allowFunctions, keyFn) {
         var me = this;
@@ -16,12 +28,10 @@ Ext.define('Ext.util.AbstractMixedCollection', {
         me.keys = [];
         me.length = 0;
 
-        me.addEvents(
             /**
              * @event clear
              * Fires when the collection is cleared.
              */
-            'clear',
 
             /**
              * @event add
@@ -30,7 +40,6 @@ Ext.define('Ext.util.AbstractMixedCollection', {
              * @param {Object} o The item added.
              * @param {String} key The key associated with the added item.
              */
-            'add',
 
             /**
              * @event replace
@@ -39,16 +48,12 @@ Ext.define('Ext.util.AbstractMixedCollection', {
              * @param {Object} old The item being replaced.
              * @param {Object} new The new item.
              */
-            'replace',
-
             /**
              * @event remove
              * Fires when an item is removed from the collection.
              * @param {Object} o The item being removed.
              * @param {String} key (optional) The key associated with the removed item.
              */
-            'remove'
-        );
 
         me.allowFunctions = allowFunctions === true;
 
@@ -58,22 +63,26 @@ Ext.define('Ext.util.AbstractMixedCollection', {
 
         me.mixins.observable.constructor.call(me);
     },
-    
+
     /**
-     * @cfg {Boolean} allowFunctions Specify <tt>true</tt> if the {@link #addAll}
+     * @cfg {Boolean} allowFunctions Specify <code>true</code> if the {@link #addAll}
      * function should add function references to the collection. Defaults to
-     * <tt>false</tt>.
+     * <code>false</code>.
      */
     allowFunctions : false,
 
     /**
-     * Adds an item to the collection. Fires the {@link #add} event when complete.
-     * @param {String} key <p>The key to associate with the item, or the new item.</p>
-     * <p>If a {@link #getKey} implementation was specified for this MixedCollection,
-     * or if the key of the stored items is in a property called <tt><b>id</b></tt>,
-     * the MixedCollection will be able to <i>derive</i> the key for the new item.
-     * In this case just pass the new item in this parameter.</p>
-     * @param {Object} o The item to add.
+     * Adds an item to the collection. Fires the {@link #event-add} event when complete.
+     *
+     * @param {String/Object} key The key to associate with the item, or the new item.
+     *
+     * If a {@link #getKey} implementation was specified for this MixedCollection,
+     * or if the key of the stored items is in a property called `id`,
+     * the MixedCollection will be able to *derive* the key for the new item.
+     * In this case just pass the new item in this parameter.
+     *
+     * @param {Object} [o] The item to add.
+     *
      * @return {Object} The item added.
      */
     add : function(key, obj){
@@ -93,10 +102,13 @@ Ext.define('Ext.util.AbstractMixedCollection', {
             }
             me.map[myKey] = myObj;
         }
+        me.generation++;
         me.length++;
         me.items.push(myObj);
         me.keys.push(myKey);
-        me.fireEvent('add', me.length - 1, myObj, myKey);
+        if (me.hasListeners.add) {
+            me.fireEvent('add', me.length - 1, myObj, myKey);
+        }
         return myObj;
     },
 
@@ -133,10 +145,10 @@ mc.add(otherEl);
     },
 
     /**
-     * Replaces an item in the collection. Fires the {@link #replace} event when complete.
+     * Replaces an item in the collection. Fires the {@link #event-replace} event when complete.
      * @param {String} key <p>The key associated with the item to replace, or the replacement item.</p>
      * <p>If you supplied a {@link #getKey} implementation for this MixedCollection, or if the key
-     * of your stored items is in a property called <tt><b>id</b></tt>, then the MixedCollection
+     * of your stored items is in a property called <code><b>id</b></code>, then the MixedCollection
      * will be able to <i>derive</i> the key of the replacement item. If you want to replace an item
      * with one having the same key value, then just pass the replacement item in this parameter.</p>
      * @param o {Object} o (optional) If the first parameter passed was a key, the item to associate
@@ -156,10 +168,13 @@ mc.add(otherEl);
         if (typeof key == 'undefined' || key === null || typeof old == 'undefined') {
              return me.add(key, o);
         }
+        me.generation++;
         index = me.indexOfKey(key);
         me.items[index] = o;
         me.map[key] = o;
-        me.fireEvent('replace', key, old, o);
+        if (me.hasListeners.replace) {
+            me.fireEvent('replace', key, old, o);
+        }
         return o;
     },
 
@@ -168,7 +183,7 @@ mc.add(otherEl);
      * @param {Object/Array} objs An Object containing properties which will be added
      * to the collection, or an Array of values, each of which are added to the collection.
      * Functions references will be added to the collection if <code>{@link #allowFunctions}</code>
-     * has been set to <tt>true</tt>.
+     * has been set to <code>true</code>.
      */
     addAll : function(objs){
         var me = this,
@@ -194,15 +209,16 @@ mc.add(otherEl);
     },
 
     /**
-     * Executes the specified function once for every item in the collection, passing the following arguments:
-     * <div class="mdetail-params"><ul>
-     * <li><b>item</b> : Mixed<p class="sub-desc">The collection item</p></li>
-     * <li><b>index</b> : Number<p class="sub-desc">The item's index</p></li>
-     * <li><b>length</b> : Number<p class="sub-desc">The total number of items in the collection</p></li>
-     * </ul></div>
-     * The function should return a boolean value. Returning false from the function will stop the iteration.
+     * Executes the specified function once for every item in the collection.
+     * The function should return a boolean value.
+     * Returning false from the function will stop the iteration.
+     *
      * @param {Function} fn The function to execute for each item.
-     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the function is executed. Defaults to the current item in the iteration.
+     * @param {Mixed} fn.item The collection item.
+     * @param {Number} fn.index The index of item.
+     * @param {Number} fn.len Total length of collection.
+     * @param {Object} scope (optional) The scope (<code>this</code> reference)
+     * in which the function is executed. Defaults to the current item in the iteration.
      */
     each : function(fn, scope){
         var items = [].concat(this.items), // each safe for removal
@@ -222,7 +238,12 @@ mc.add(otherEl);
      * Executes the specified function once for every key in the collection, passing each
      * key, and its associated item as the first two parameters.
      * @param {Function} fn The function to execute for each item.
-     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the function is executed. Defaults to the browser window.
+     * @param {String} fn.key The key of collection item.
+     * @param {Mixed} fn.item The collection item.
+     * @param {Number} fn.index The index of item.
+     * @param {Number} fn.len Total length of collection.
+     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the
+     * function is executed. Defaults to the browser window.
      */
     eachKey : function(fn, scope){
         var keys = this.keys,
@@ -239,8 +260,12 @@ mc.add(otherEl);
      * Returns the first item in the collection which elicits a true return value from the
      * passed selection function.
      * @param {Function} fn The selection function to execute for each item.
-     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the function is executed. Defaults to the browser window.
-     * @return {Object} The first item in the collection which returned true from the selection function.
+     * @param {Mixed} fn.item The collection item.
+     * @param {String} fn.key The key of collection item.
+     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the
+     * function is executed. Defaults to the browser window.
+     * @return {Object} The first item in the collection which returned true from the selection
+     * function, or null if none was found.
      */
     findBy : function(fn, scope) {
         var keys = this.keys,
@@ -266,7 +291,7 @@ mc.add(otherEl);
     //</deprecated>
 
     /**
-     * Inserts an item at the specified index in the collection. Fires the {@link #add} event when complete.
+     * Inserts an item at the specified index in the collection. Fires the {@link #event-add} event when complete.
      * @param {Number} index The index to insert the item at.
      * @param {String} key The key to associate with the new item, or the item itself.
      * @param {Object} o (optional) If the second parameter was a key, the new item.
@@ -289,13 +314,16 @@ mc.add(otherEl);
         if (index >= me.length) {
             return me.add(myKey, myObj);
         }
+        me.generation++;
         me.length++;
-        me.items.splice(index, 0, myObj);
+        Ext.Array.splice(me.items, index, 0, myObj);
         if (typeof myKey != 'undefined' && myKey !== null) {
             me.map[myKey] = myObj;
         }
-        me.keys.splice(index, 0, myKey);
-        me.fireEvent('add', index, myObj, myKey);
+        Ext.Array.splice(me.keys, index, 0, myKey);
+        if (me.hasListeners.add) {
+            me.fireEvent('add', index, myObj, myKey);
+        }
         return myObj;
     },
 
@@ -304,7 +332,8 @@ mc.add(otherEl);
      * @param {Object} o The item to remove.
      * @return {Object} The item removed or false if no item was removed.
      */
-    remove : function(o){
+    remove : function(o) {
+        this.generation++;
         return this.removeAt(this.indexOf(o));
     },
 
@@ -313,20 +342,22 @@ mc.add(otherEl);
      * @param {Array} items An array of items to be removed.
      * @return {Ext.util.MixedCollection} this object
      */
-    removeAll : function(items){
-        Ext.each(items || [], function(item) {
-            this.remove(item);
-        }, this);
+    removeAll : function(items) {
+        items = [].concat(items);
+        var i, iLen = items.length;
+        for (i = 0; i < iLen; i++) {
+            this.remove(items[i]);
+        }
 
         return this;
     },
 
     /**
-     * Remove an item from a specified index in the collection. Fires the {@link #remove} event when complete.
+     * Remove an item from a specified index in the collection. Fires the {@link #event-remove} event when complete.
      * @param {Number} index The index within the collection of the item to remove.
      * @return {Object} The item removed or false if no item was removed.
      */
-    removeAt : function(index){
+    removeAt : function(index) {
         var me = this,
             o,
             key;
@@ -334,13 +365,16 @@ mc.add(otherEl);
         if (index < me.length && index >= 0) {
             me.length--;
             o = me.items[index];
-            me.items.splice(index, 1);
+            Ext.Array.erase(me.items, index, 1);
             key = me.keys[index];
             if (typeof key != 'undefined') {
                 delete me.map[key];
             }
-            me.keys.splice(index, 1);
-            me.fireEvent('remove', o, key);
+            Ext.Array.erase(me.keys, index, 1);
+            if (me.hasListeners.remove) {
+                me.fireEvent('remove', o, key);
+            }
+            me.generation++;
             return o;
         }
         return false;
@@ -384,10 +418,10 @@ mc.add(otherEl);
     /**
      * Returns the item associated with the passed key OR index.
      * Key has priority over index.  This is the equivalent
-     * of calling {@link #key} first, then if nothing matched calling {@link #getAt}.
+     * of calling {@link #getByKey} first, then if nothing matched calling {@link #getAt}.
      * @param {String/Number} key The key or index of the item.
-     * @return {Object} If the item is found, returns the item.  If the item was not found, returns <tt>undefined</tt>.
-     * If an item was found, but is a Class, returns <tt>null</tt>.
+     * @return {Object} If the item is found, returns the item.  If the item was not found, returns <code>undefined</code>.
+     * If an item was found, but is a Class, returns <code>null</code>.
      */
     get : function(key) {
         var me = this,
@@ -420,7 +454,7 @@ mc.add(otherEl);
      * @return {Boolean} True if the collection contains the Object as an item.
      */
     contains : function(o){
-        return Ext.Array.contains(this.items, o);
+        return typeof this.map[this.getKey(o)] != 'undefined';
     },
 
     /**
@@ -433,7 +467,7 @@ mc.add(otherEl);
     },
 
     /**
-     * Removes all items from the collection.  Fires the {@link #clear} event when complete.
+     * Removes all items from the collection.  Fires the {@link #event-clear} event when complete.
      */
     clear : function(){
         var me = this;
@@ -442,7 +476,10 @@ mc.add(otherEl);
         me.items = [];
         me.keys = [];
         me.map = {};
-        me.fireEvent('clear');
+        me.generation++;
+        if (me.hasListeners.clear) {
+            me.fireEvent('clear');
+        }
     },
 
     /**
@@ -464,10 +501,10 @@ mc.add(otherEl);
     /**
      * Collects all of the values of the given property and returns their sum
      * @param {String} property The property to sum by
-     * @param {String} root Optional 'root' property to extract the first argument from. This is used mainly when
+     * @param {String} [root] 'root' property to extract the first argument from. This is used mainly when
      * summing fields in records, where the fields are all stored inside the 'data' object
-     * @param {Number} start (optional) The record index to start at (defaults to <tt>0</tt>)
-     * @param {Number} end (optional) The record index to end at (defaults to <tt>-1</tt>)
+     * @param {Number} [start=0] The record index to start at
+     * @param {Number} [end=-1] The record index to end at
      * @return {Number} The total
      */
     sum: function(property, root, start, end) {
@@ -489,7 +526,7 @@ mc.add(otherEl);
     /**
      * Collects unique values of a particular property in this MixedCollection
      * @param {String} property The property to collect on
-     * @param {String} root Optional 'root' property to extract the first argument from. This is used mainly when
+     * @param {String} root (optional) 'root' property to extract the first argument from. This is used mainly when
      * summing fields in records, where the fields are all stored inside the 'data' object
      * @param {Boolean} allowBlank (optional) Pass true to allow null, undefined or empty string values
      * @return {Array} The unique values
@@ -519,7 +556,7 @@ mc.add(otherEl);
      * Extracts all of the given property values from the items in the MC. Mainly used as a supporting method for
      * functions like sum and collect.
      * @param {String} property The property to extract
-     * @param {String} root Optional 'root' property to extract the first argument from. This is used mainly when
+     * @param {String} root (optional) 'root' property to extract the first argument from. This is used mainly when
      * extracting field data from Model instances, where the fields are stored inside the 'data' object
      * @return {Array} The extracted values
      */
@@ -583,12 +620,12 @@ var middleAged = people.filter('age', 24);
 </code></pre>
      *
      *
-     * @param {Array/String} property A property on your objects, or an array of {@link Ext.util.Filter Filter} objects
+     * @param {Ext.util.Filter[]/String} property A property on your objects, or an array of {@link Ext.util.Filter Filter} objects
      * @param {String/RegExp} value Either string that the property values
      * should start with or a RegExp to test against the property
-     * @param {Boolean} anyMatch (optional) True to match any part of the string, not just the beginning
-     * @param {Boolean} caseSensitive (optional) True for case sensitive comparison (defaults to False).
-     * @return {MixedCollection} The new filtered collection
+     * @param {Boolean} [anyMatch=false] True to match any part of the string, not just the beginning
+     * @param {Boolean} [caseSensitive=false] True for case sensitive comparison.
+     * @return {Ext.util.MixedCollection} The new filtered collection
      */
     filter : function(property, value, anyMatch, caseSensitive) {
         var filters = [],
@@ -596,7 +633,7 @@ var middleAged = people.filter('age', 24);
 
         //support for the simple case of filtering by property/value
         if (Ext.isString(property)) {
-            filters.push(Ext.create('Ext.util.Filter', {
+            filters.push(new Ext.util.Filter({
                 property     : property,
                 value        : value,
                 anyMatch     : anyMatch,
@@ -611,12 +648,16 @@ var middleAged = people.filter('age', 24);
         filterFn = function(record) {
             var isMatch = true,
                 length = filters.length,
-                i;
+                i,
+                filter,
+                fn,
+                scope;
+                
 
             for (i = 0; i < length; i++) {
-                var filter = filters[i],
-                    fn     = filter.filterFn,
-                    scope  = filter.scope;
+                filter = filters[i];
+                fn     = filter.filterFn;
+                scope  = filter.scope;
 
                 isMatch = isMatch && fn.call(scope, record);
             }
@@ -631,9 +672,12 @@ var middleAged = people.filter('age', 24);
      * Filter by a function. Returns a <i>new</i> collection that has been filtered.
      * The passed function will be called with each object in the collection.
      * If the function returns true, the value is included otherwise it is filtered.
-     * @param {Function} fn The function to be called, it will receive the args o (the object), k (the key)
-     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the function is executed. Defaults to this MixedCollection.
-     * @return {MixedCollection} The new filtered collection
+     * @param {Function} fn The function to be called.
+     * @param {Mixed} fn.item The collection item.
+     * @param {String} fn.key The key of collection item.
+     * @param {Object} scope (optional) The scope (<code>this</code> reference) in
+     * which the function is executed. Defaults to this MixedCollection.
+     * @return {Ext.util.MixedCollection} The new filtered collection
      */
     filterBy : function(fn, scope) {
         var me = this,
@@ -659,9 +703,9 @@ var middleAged = people.filter('age', 24);
      * @param {String} property The name of a property on your objects.
      * @param {String/RegExp} value A string that the property values
      * should start with or a RegExp to test against the property.
-     * @param {Number} start (optional) The index to start searching at (defaults to 0).
-     * @param {Boolean} anyMatch (optional) True to match any part of the string, not just the beginning.
-     * @param {Boolean} caseSensitive (optional) True for case sensitive comparison.
+     * @param {Number} [start=0] The index to start searching at.
+     * @param {Boolean} [anyMatch=false] True to match any part of the string, not just the beginning.
+     * @param {Boolean} [caseSensitive=false] True for case sensitive comparison.
      * @return {Number} The matched index or -1
      */
     findIndex : function(property, value, start, anyMatch, caseSensitive){
@@ -677,9 +721,11 @@ var middleAged = people.filter('age', 24);
     /**
      * Find the index of the first matching object in this collection by a function.
      * If the function returns <i>true</i> it is considered a match.
-     * @param {Function} fn The function to be called, it will receive the args o (the object), k (the key).
-     * @param {Object} scope (optional) The scope (<code>this</code> reference) in which the function is executed. Defaults to this MixedCollection.
-     * @param {Number} start (optional) The index to start searching at (defaults to 0).
+     * @param {Function} fn The function to be called.
+     * @param {Mixed} fn.item The collection item.
+     * @param {String} fn.key The key of collection item.
+     * @param {Object} [scope] The scope (<code>this</code> reference) in which the function is executed. Defaults to this MixedCollection.
+     * @param {Number} [start=0] The index to start searching at.
      * @return {Number} The matched index or -1
      */
     findIndexBy : function(fn, scope, start){
@@ -726,7 +772,7 @@ var middleAged = people.filter('age', 24);
 
     /**
      * Creates a shallow copy of this collection
-     * @return {MixedCollection}
+     * @return {Ext.util.MixedCollection}
      */
     clone : function() {
         var me = this,

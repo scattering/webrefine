@@ -1,6 +1,7 @@
 Ext.require([
-    'Ext.panel.Panel',
-    'Ext.form.field.Number'
+    //'Ext.panel.Panel',
+    //'Ext.form.field.Number'
+    '*'
 ]);
 
 Ext.onReady(function(){

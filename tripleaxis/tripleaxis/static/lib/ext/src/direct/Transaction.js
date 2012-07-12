@@ -1,9 +1,5 @@
 /**
- * @class Ext.direct.Transaction
- * @extends Object
- * <p>Supporting Class for Ext.Direct (not intended to be used directly).</p>
- * @constructor
- * @param {Object} config
+ * Supporting Class for Ext.Direct (not intended to be used directly).
  */
 Ext.define('Ext.direct.Transaction', {
     
@@ -17,12 +13,16 @@ Ext.define('Ext.direct.Transaction', {
     },
    
     /* End Definitions */
-   
+
+    /**
+     * Creates new Transaction.
+     * @param {Object} [config] Config object.
+     */
     constructor: function(config){
         var me = this;
         
         Ext.apply(me, config);
-        me.id = ++me.self.TRANSACTION_ID;
+        me.id = me.tid = ++me.self.TRANSACTION_ID;
         me.retryCount = 0;
     },
    

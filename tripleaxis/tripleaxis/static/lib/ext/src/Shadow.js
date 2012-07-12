@@ -1,126 +1,174 @@
 /**
- * @class Ext.Shadow
- * Simple class that can provide a shadow effect for any element.  Note that the element MUST be absolutely positioned,
- * and the shadow does not provide any shimming.  This should be used only in simple cases -- for more advanced
- * functionality that can also provide the same shadow effect, see the {@link Ext.Layer} class.
- * @constructor
- * Create a new Shadow
- * @param {Object} config The config object
+ * Simple class that can provide a shadow effect for any element.  Note that the element
+ * MUST be absolutely positioned, and the shadow does not provide any shimming.  This
+ * should be used only in simple cases - for more advanced functionality that can also
+ * provide the same shadow effect, see the {@link Ext.Layer} class.
  */
 Ext.define('Ext.Shadow', {
     requires: ['Ext.ShadowPool'],
 
+    /**
+     * Creates new Shadow.
+     * @param {Object} config (optional) Config object.
+     */
     constructor: function(config) {
-        Ext.apply(this, config);
-        if (typeof this.mode != "string") {
-            this.mode = this.defaultMode;
+        var me = this,
+            adjusts,
+            offset,
+            rad;
+        
+        Ext.apply(me, config);
+        if (!Ext.isString(me.mode)) {
+            me.mode = me.defaultMode;
         }
-        var offset = this.offset,
-            adjusts = {
-                h: 0
-            },
-            rad = Math.floor(this.offset / 2);
-
-        switch (this.mode.toLowerCase()) {
+        offset = me.offset;
+        rad = Math.floor(offset / 2);
+        me.opacity = 50;
+        switch (me.mode.toLowerCase()) {
             // all this hideous nonsense calculates the various offsets for shadows
             case "drop":
                 if (Ext.supports.CSS3BoxShadow) {
-                    adjusts.w = adjusts.h = -offset;
-                    adjusts.l = adjusts.t = offset;
-                } else {
-                    adjusts.w = 0;
-                    adjusts.l = adjusts.t = offset;
-                    adjusts.t -= 1;
-                    if (Ext.isIE) {
-                        adjusts.l -= offset + rad;
-                        adjusts.t -= offset + rad;
-                        adjusts.w -= rad;
-                        adjusts.h -= rad;
-                        adjusts.t += 1;
-                    }
+                    adjusts = {
+                        t: offset,
+                        l: offset,
+                        h: -offset,
+                        w: -offset
+                    };
+                }
+                else {
+                    adjusts = {
+                        t: -rad,
+                        l: -rad,
+                        h: -rad,
+                        w: -rad
+                    };
                 }
                 break;
             case "sides":
                 if (Ext.supports.CSS3BoxShadow) {
-                    adjusts.h -= offset;
-                    adjusts.t = offset;
-                    adjusts.l = adjusts.w = 0;
-                } else {
-                    adjusts.w = (offset * 2);
-                    adjusts.l = -offset;
-                    adjusts.t = offset - 1;
-                    if (Ext.isIE) {
-                        adjusts.l -= (offset - rad);
-                        adjusts.t -= offset + rad;
-                        adjusts.l += 1;
-                        adjusts.w -= (offset - rad) * 2;
-                        adjusts.w -= rad + 1;
-                        adjusts.h -= 1;
-                    }
+                    adjusts = {
+                        t: offset,
+                        l: 0,
+                        h: -offset,
+                        w: 0
+                    };
+                }
+                else {
+                    adjusts = {
+                        t: - (1 + rad),
+                        l: 1 + rad - 2 * offset,
+                        h: -1,
+                        w: rad - 1
+                    };
                 }
                 break;
             case "frame":
                 if (Ext.supports.CSS3BoxShadow) {
-                    adjusts.l = adjusts.w = adjusts.t = 0;
-                } else {
-                    adjusts.w = adjusts.h = (offset * 2);
-                    adjusts.l = adjusts.t = -offset;
-                    adjusts.t += 1;
-                    adjusts.h -= 2;
-                    if (Ext.isIE) {
-                        adjusts.l -= (offset - rad);
-                        adjusts.t -= (offset - rad);
-                        adjusts.l += 1;
-                        adjusts.w -= (offset + rad + 1);
-                        adjusts.h -= (offset + rad);
-                        adjusts.h += 1;
-                    }
-                    break;
+                    adjusts = {
+                        t: 0,
+                        l: 0,
+                        h: 0,
+                        w: 0
+                    };
                 }
+                else {
+                    adjusts = {
+                        t: 1 + rad - 2 * offset,
+                        l: 1 + rad - 2 * offset,
+                        h: offset - rad - 1,
+                        w: offset - rad - 1
+                    };
+                }
+                break;
         }
-        this.adjusts = adjusts;
+        me.adjusts = adjusts;
+    },
+
+    /**
+     * @private
+     * Returns the shadow size on each side of the element in standard CSS order: top, right, bottom, left;
+     * @return {Number[]} Top, right, bottom and left shadow size.
+     */
+    getShadowSize: function() {
+        var me = this,
+            offset = me.el ? me.offset : 0,
+            result = [offset, offset, offset, offset],
+            mode = me.mode.toLowerCase();
+
+        // There are only offsets if the shadow element is present.
+        if (me.el && mode !== 'frame') {
+            result[0] = 0;
+            if (mode == 'drop') {
+                result[3] = 0;
+            }
+        }
+        return result;
     },
 
     /**
      * @cfg {String} mode
-     * The shadow display mode.  Supports the following options:<div class="mdetail-params"><ul>
-     * <li><b><tt>sides</tt></b> : Shadow displays on both sides and bottom only</li>
-     * <li><b><tt>frame</tt></b> : Shadow displays equally on all four sides</li>
-     * <li><b><tt>drop</tt></b> : Traditional bottom-right drop shadow</li>
-     * </ul></div>
+     * The shadow display mode.  Supports the following options:
+     *
+     * - sides : Shadow displays on both sides and bottom only</li>
+     * - frame : Shadow displays equally on all four sides</li>
+     * - drop : Traditional bottom-right drop shadow</li>
      */
+
     /**
-     * @cfg {String} offset
-     * The number of pixels to offset the shadow from the element (defaults to <tt>4</tt>)
+     * @cfg {Number} offset
+     * The number of pixels to offset the shadow from the element
      */
     offset: 4,
 
     // private
     defaultMode: "drop",
 
-    /**
-     * Displays the shadow under the target element
-     * @param {Mixed} targetEl The id or element under which the shadow should display
-     */
-    show: function(target) {
-        target = Ext.get(target);
-        if (!this.el) {
-            this.el = Ext.ShadowPool.pull();
-            if (this.el.dom.nextSibling != target.dom) {
-                this.el.insertBefore(target);
+    // private - CSS property to use to set the box shadow
+    boxShadowProperty: (function() {
+        var property = 'boxShadow',
+            style = document.documentElement.style;
+
+        if (!('boxShadow' in style)) {
+            if ('WebkitBoxShadow' in style) {
+                // Safari prior to version 5.1 and Chrome prior to version 10
+                property = 'WebkitBoxShadow';
+            }
+            else if ('MozBoxShadow' in style) {
+                // FF 3.5 & 3.6
+                property = 'MozBoxShadow';
             }
         }
-        this.el.setStyle("z-index", this.zIndex || parseInt(target.getStyle("z-index"), 10) - 1);
-        if (Ext.isIE && !Ext.supports.CSS3BoxShadow) {
-            this.el.dom.style.filter = "progid:DXImageTransform.Microsoft.alpha(opacity=50) progid:DXImageTransform.Microsoft.Blur(pixelradius=" + (this.offset) + ")";
+
+        return property;
+    }()),
+
+    /**
+     * Displays the shadow under the target element
+     * @param {String/HTMLElement/Ext.Element} targetEl The id or element under which the shadow should display
+     */
+    show: function(target) {
+        var me = this,
+            index;
+        
+        target = Ext.get(target);
+        if (!me.el) {
+            me.el = Ext.ShadowPool.pull();
+            if (me.el.dom.nextSibling != target.dom) {
+                me.el.insertBefore(target);
+            }
         }
-        this.realign(
-            target.getLeft(true),
-            target.getTop(true),
-            target.getWidth(),
-            target.getHeight()
+        index = (parseInt(target.getStyle("z-index"), 10) - 1) || 0;
+        me.el.setStyle("z-index", me.zIndex || index);
+        if (Ext.isIE && !Ext.supports.CSS3BoxShadow) {
+            me.el.dom.style.filter = "progid:DXImageTransform.Microsoft.alpha(opacity=" + me.opacity + ") progid:DXImageTransform.Microsoft.Blur(pixelradius=" + (me.offset) + ")";
+        }
+        me.realign(
+            target.getLocalX(),
+            target.getLocalY(),
+            target.dom.offsetWidth,
+            target.dom.offsetHeight
         );
-        this.el.dom.style.display = "block";
+        me.el.dom.style.display = "block";
     },
 
     /**
@@ -147,9 +195,7 @@ Ext.define('Ext.Shadow', {
             targetStyle = d.style,
             shadowWidth,
             shadowHeight,
-            cn,
-            sww, 
-            sws, 
+            sws,
             shs;
 
         targetStyle.left = (l + adjusts.l) + "px";
@@ -161,19 +207,9 @@ Ext.define('Ext.Shadow', {
         if (targetStyle.width != sws || targetStyle.height != shs) {
             targetStyle.width = sws;
             targetStyle.height = shs;
-            if (Ext.supports.CSS3BoxShadow) {
-                targetStyle.boxShadow = '0 0 ' + this.offset + 'px 0 #888';
-            } else {
 
-                // Adjust the 9 point framed element to poke out on the required sides
-                if (!Ext.isIE) {
-                    cn = d.childNodes;
-                    sww = Math.max(0, (shadowWidth - 12)) + "px";
-                    cn[0].childNodes[1].style.width = sww;
-                    cn[1].childNodes[1].style.width = sww;
-                    cn[2].childNodes[1].style.width = sww;
-                    cn[1].style.height = Math.max(0, (shadowHeight - 12)) + "px";
-                }
+            if (Ext.supports.CSS3BoxShadow) {
+                targetStyle[this.boxShadowProperty] = '0 0 ' + this.offset + 'px #888';
             }
         }
     },
@@ -182,10 +218,12 @@ Ext.define('Ext.Shadow', {
      * Hides this shadow
      */
     hide: function() {
-        if (this.el) {
-            this.el.dom.style.display = "none";
-            Ext.ShadowPool.push(this.el);
-            delete this.el;
+        var me = this;
+        
+        if (me.el) {
+            me.el.dom.style.display = "none";
+            Ext.ShadowPool.push(me.el);
+            delete me.el;
         }
     },
 
@@ -197,6 +235,20 @@ Ext.define('Ext.Shadow', {
         this.zIndex = z;
         if (this.el) {
             this.el.setStyle("z-index", z);
+        }
+    },
+    
+    /**
+     * Sets the opacity of the shadow
+     * @param {Number} opacity The opacity
+     */
+    setOpacity: function(opacity){
+        if (this.el) {
+            if (Ext.isIE && !Ext.supports.CSS3BoxShadow) {
+                opacity = Math.floor(opacity * 100 / 2) / 100;
+            }
+            this.opacity = opacity;
+            this.el.setOpacity(opacity);
         }
     }
 });

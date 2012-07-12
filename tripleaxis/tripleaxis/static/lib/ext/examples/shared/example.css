@@ -1,13 +1,15 @@
 /*!
  * Ext JS
- * Copyright(c) 2006-2011 Sencha Inc.
+ * Copyright(c) 2006-2012 Sencha Inc.
  * licensing@sencha.com
  * http://www.sencha.com/license
  */
 body {
-    font-family:helvetica,tahoma,verdana,sans-serif;
     padding:20px;
     padding-top:32px;
+}
+.x-body {
+    font-family:helvetica,tahoma,verdana,sans-serif;
     font-size:13px;
 }
 p {

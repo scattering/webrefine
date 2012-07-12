@@ -1,6 +1,10 @@
 /**
  * @class Ext.util.Grouper
- * @extends Ext.util.Sorter
+
+Represents a single grouper that can be applied to a Store. The grouper works
+in the same fashion as the {@link Ext.util.Sorter}.
+
+ * @markdown
  */
  
 Ext.define('Ext.util.Grouper', {
@@ -10,9 +14,11 @@ Ext.define('Ext.util.Grouper', {
     extend: 'Ext.util.Sorter',
 
     /* End Definitions */
+   
+   isGrouper: true,
 
     /**
-     * Function description
+     * Returns the value for grouping to be used.
      * @param {Ext.data.Model} instance The Model instance
      * @return {String} The group string for this model
      */

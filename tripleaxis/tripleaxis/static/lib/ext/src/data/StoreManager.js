@@ -1,36 +1,32 @@
 /**
- * @class Ext.data.StoreManager
- * @extends Ext.util.MixedCollection
- * <p>Contains a collection of all stores that are created that have an identifier.
- * An identifier can be assigned by setting the {@link Ext.data.AbstractStore#storeId storeId} 
- * property. When a store is in the StoreManager, it can be referred to via it's identifier:
- * <pre><code>
-Ext.create('Ext.data.Store', {
-    model: 'SomeModel',
-    storeId: 'myStore'
-});
-
-var store = Ext.data.StoreManager.lookup('myStore');
- * </code></pre>
- * Also note that the {@link #lookup} method is aliased to {@link Ext#getStore} for convenience.</p>
- * <p>
- * If a store is registered with the StoreManager, you can also refer to the store by it's identifier when
- * registering it with any Component that consumes data from a store:
- * <pre><code>
-Ext.create('Ext.data.Store', {
-    model: 'SomeModel',
-    storeId: 'myStore'
-});
-
-Ext.create('Ext.view.View', {
-    store: 'myStore',
-    // other configuration here
-});
- * </code></pre>
- * </p>
- * @singleton
  * @docauthor Evan Trimboli <evan@sencha.com>
- * TODO: Make this an AbstractMgr
+ *
+ * Contains a collection of all stores that are created that have an identifier. An identifier can be assigned by
+ * setting the {@link Ext.data.AbstractStore#storeId storeId} property. When a store is in the StoreManager, it can be
+ * referred to via it's identifier:
+ *
+ *     Ext.create('Ext.data.Store', {
+ *         model: 'SomeModel',
+ *         storeId: 'myStore'
+ *     });
+ *
+ *     var store = Ext.data.StoreManager.lookup('myStore');
+ *
+ * Also note that the {@link #lookup} method is aliased to {@link Ext#getStore} for convenience.
+ *
+ * If a store is registered with the StoreManager, you can also refer to the store by it's identifier when registering
+ * it with any Component that consumes data from a store:
+ *
+ *     Ext.create('Ext.data.Store', {
+ *         model: 'SomeModel',
+ *         storeId: 'myStore'
+ *     });
+ *
+ *     Ext.create('Ext.view.View', {
+ *         store: 'myStore',
+ *         // other configuration here
+ *     });
+ *
  */
 Ext.define('Ext.data.StoreManager', {
     extend: 'Ext.util.MixedCollection',
@@ -39,15 +35,14 @@ Ext.define('Ext.data.StoreManager', {
     uses: ['Ext.data.ArrayStore'],
     
     /**
-     * @cfg {Object} listeners @hide
+     * @cfg {Object} listeners
+     * @private
      */
 
     /**
-     * Registers one or more Stores with the StoreManager. You do not normally need to register stores
-     * manually.  Any store initialized with a {@link Ext.data.Store#storeId} will be auto-registered. 
-     * @param {Ext.data.Store} store1 A Store instance
-     * @param {Ext.data.Store} store2 (optional)
-     * @param {Ext.data.Store} etc... (optional)
+     * Registers one or more Stores with the StoreManager. You do not normally need to register stores manually. Any
+     * store initialized with a {@link Ext.data.Store#storeId} will be auto-registered.
+     * @param {Ext.data.Store...} stores Any number of Store instances
      */
     register : function() {
         for (var i = 0, s; (s = arguments[i]); i++) {
@@ -57,9 +52,7 @@ Ext.define('Ext.data.StoreManager', {
 
     /**
      * Unregisters one or more Stores with the StoreManager
-     * @param {String/Object} id1 The id of the Store, or a Store instance
-     * @param {String/Object} id2 (optional)
-     * @param {String/Object} etc... (optional)
+     * @param {String/Object...} stores Any number of Store instances or ID-s
      */
     unregister : function() {
         for (var i = 0, s; (s = arguments[i]); i++) {
@@ -69,7 +62,7 @@ Ext.define('Ext.data.StoreManager', {
 
     /**
      * Gets a registered Store by id
-     * @param {String/Object} id The id of the Store, or a Store instance, or a store configuration
+     * @param {String/Object} store The id of the Store, or a Store instance, or a store configuration
      * @return {Ext.data.Store}
      */
     lookup : function(store) {
@@ -91,7 +84,7 @@ Ext.define('Ext.data.StoreManager', {
                     fields.push('field' + i);
                 }
             }
-            return Ext.create('Ext.data.ArrayStore', {
+            return new Ext.data.ArrayStore({
                 data  : data,
                 fields: fields,
                 autoDestroy: true,
@@ -115,22 +108,21 @@ Ext.define('Ext.data.StoreManager', {
     }
 }, function() {    
     /**
-     * <p>Creates a new store for the given id and config, then registers it with the {@link Ext.data.StoreManager Store Mananger}. 
-     * Sample usage:</p>
-    <pre><code>
-    Ext.regStore('AllUsers', {
-        model: 'User'
-    });
-
-    //the store can now easily be used throughout the application
-    new Ext.List({
-        store: 'AllUsers',
-        ... other config
-    });
-    </code></pre>
+     * Creates a new store for the given id and config, then registers it with the {@link Ext.data.StoreManager Store Manager}. 
+     * Sample usage:
+     *
+     *     Ext.regStore('AllUsers', {
+     *         model: 'User'
+     *     });
+     *
+     *     // the store can now easily be used throughout the application
+     *     new Ext.List({
+     *         store: 'AllUsers',
+     *         ... other config
+     *     });
+     *
      * @param {String} id The id to set on the new store
      * @param {Object} config The store config
-     * @param {Constructor} cls The new Component class.
      * @member Ext
      * @method regStore
      */
@@ -146,18 +138,17 @@ Ext.define('Ext.data.StoreManager', {
         if (config instanceof Ext.data.Store) {
             store = config;
         } else {
-            store = Ext.create('Ext.data.Store', config);
+            store = new Ext.data.Store(config);
         }
 
         return Ext.data.StoreManager.register(store);
     };
 
     /**
-     * Gets a registered Store by id (shortcut to {@link #lookup})
-     * @param {String/Object} id The id of the Store, or a Store instance
-     * @return {Ext.data.Store}
+     * Shortcut to {@link Ext.data.StoreManager#lookup}.
      * @member Ext
      * @method getStore
+     * @inheritdoc Ext.data.StoreManager#lookup
      */
     Ext.getStore = function(name) {
         return Ext.data.StoreManager.lookup(name);

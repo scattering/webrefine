@@ -28,8 +28,10 @@ Ext.define('FeedViewer.App', {
         });
         
         Ext.apply(this, {
-            layout: 'border',
-            padding: 5,
+            layout: {
+                type: 'border',
+                padding: 5
+            },
             items: [this.createFeedPanel(), this.createFeedInfo()]
         });
         this.callParent(arguments);
@@ -45,7 +47,7 @@ Ext.define('FeedViewer.App', {
             region: 'west',
             collapsible: true,
             width: 225,
-            floatable: false,
+            //floatable: false,
             split: true,
             minWidth: 175,
             feeds: [{

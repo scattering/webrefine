@@ -1,11 +1,9 @@
 /**
- * @class Ext.util.Region
- * @extends Object
+ * This class represents a rectangular region in X,Y space, and performs geometric
+ * transformations or tests upon the region.
  *
- * Represents a rectangular region and provides a number of utility methods
- * to compare regions.
+ * This class may be used to compare the document regions occupied by elements.
  */
-
 Ext.define('Ext.util.Region', {
 
     /* Begin Definitions */
@@ -15,10 +13,9 @@ Ext.define('Ext.util.Region', {
     statics: {
         /**
          * @static
-         * @param {Mixed} el A string, DomElement or Ext.core.Element representing an element
-         * on the page.
-         * @returns {Ext.util.Region} region
          * Retrieves an Ext.util.Region for a particular element.
+         * @param {String/HTMLElement/Ext.Element} el An element ID, htmlElement or Ext.Element representing an element in the document.
+         * @returns {Ext.util.Region} region
          */
         getRegion: function(el) {
             return Ext.fly(el).getPageBox(true);
@@ -26,8 +23,9 @@ Ext.define('Ext.util.Region', {
 
         /**
          * @static
-         * @param {Object} o An object with top, right, bottom, left properties
-         * @return {Ext.util.Region} region The region constructed based on the passed object
+         * Creates a Region from a "box" Object which contains four numeric properties `top`, `right`, `bottom` and `left`.
+         * @param {Object} o An object with `top`, `right`, `bottom` and `left` properties.
+         * @return {Ext.util.Region} region The Region constructed based on the passed object
          */
         from: function(o) {
             return new this(o.top, o.right, o.bottom, o.left);
@@ -37,11 +35,11 @@ Ext.define('Ext.util.Region', {
     /* End Definitions */
 
     /**
-     * @constructor
-     * @param {Number} top Top
-     * @param {Number} right Right
-     * @param {Number} bottom Bottom
-     * @param {Number} left Left
+     * Creates a region from the bounding sides.
+     * @param {Number} top Top The topmost pixel of the Region.
+     * @param {Number} right Right The rightmost pixel of the Region.
+     * @param {Number} bottom Bottom The bottom pixel of the Region.
+     * @param {Number} left Left The leftmost pixel of the Region.
      */
     constructor : function(t, r, b, l) {
         var me = this;
@@ -54,6 +52,7 @@ Ext.define('Ext.util.Region', {
     /**
      * Checks if this region completely contains the region that is passed in.
      * @param {Ext.util.Region} region
+     * @return {Boolean}
      */
     contains : function(region) {
         var me = this;
@@ -87,6 +86,7 @@ Ext.define('Ext.util.Region', {
     /**
      * Returns the smallest region that contains the current AND targetRegion.
      * @param {Ext.util.Region} region
+     * @return {Ext.util.Region} a new region
      */
     union : function(region) {
         var me = this,
@@ -101,6 +101,7 @@ Ext.define('Ext.util.Region', {
     /**
      * Modifies the current region to be constrained to the targetRegion.
      * @param {Ext.util.Region} targetRegion
+     * @return {Ext.util.Region} this
      */
     constrainTo : function(r) {
         var me = this,
@@ -118,6 +119,7 @@ Ext.define('Ext.util.Region', {
      * @param {Number} right right offset
      * @param {Number} bottom bottom offset
      * @param {Number} left left offset
+     * @return {Ext.util.Region} this
      */
     adjust : function(t, r, b, l) {
         var me = this;
@@ -130,8 +132,8 @@ Ext.define('Ext.util.Region', {
 
     /**
      * Get the offset amount of a point outside the region
-     * @param {String} axis optional
-     * @param {Ext.util.Point} p the point
+     * @param {String} [axis]
+     * @param {Ext.util.Point} [p] the point
      * @return {Ext.util.Offset}
      */
     getOutOfBoundOffset: function(axis, p) {
@@ -143,7 +145,7 @@ Ext.define('Ext.util.Region', {
             }
         } else {
             p = axis;
-            var d = Ext.create('Ext.util.Offset');
+            var d = new Ext.util.Offset();
             d.x = this.getOutOfBoundOffsetX(p.x);
             d.y = this.getOutOfBoundOffsetY(p.y);
             return d;
@@ -183,8 +185,8 @@ Ext.define('Ext.util.Region', {
 
     /**
      * Check whether the point / offset is out of bound
-     * @param {String} axis optional
-     * @param {Ext.util.Point/Number} p the point / offset
+     * @param {String} [axis]
+     * @param {Ext.util.Point/Number} [p] the point / offset
      * @return {Boolean}
      */
     isOutOfBound: function(axis, p) {
@@ -218,12 +220,13 @@ Ext.define('Ext.util.Region', {
         return (p < this.y || p > this.bottom);
     },
 
-    /*
+    /**
      * Restrict a point within the region by a certain factor.
-     * @param {String} axis Optional
-     * @param {Ext.util.Point/Ext.util.Offset/Object} p
-     * @param {Number} factor
+     * @param {String} [axis]
+     * @param {Ext.util.Point/Ext.util.Offset/Object} [p]
+     * @param {Number} [factor]
      * @return {Ext.util.Point/Ext.util.Offset/Object/Number}
+     * @private
      */
     restrict: function(axis, p, factor) {
         if (Ext.isObject(axis)) {
@@ -254,11 +257,12 @@ Ext.define('Ext.util.Region', {
         }
     },
 
-    /*
+    /**
      * Restrict an offset within the region by a certain factor, on the x-axis
      * @param {Number} p
-     * @param {Number} factor The factor, optional, defaults to 1
-     * @return
+     * @param {Number} [factor=1] The factor.
+     * @return {Number}
+     * @private
      */
     restrictX : function(p, factor) {
         if (!factor) {
@@ -274,10 +278,12 @@ Ext.define('Ext.util.Region', {
         return p;
     },
 
-    /*
+    /**
      * Restrict an offset within the region by a certain factor, on the y-axis
      * @param {Number} p
-     * @param {Number} factor The factor, optional, defaults to 1
+     * @param {Number} [factor] The factor, defaults to 1
+     * @return {Number}
+     * @private
      */
     restrictY : function(p, factor) {
         if (!factor) {
@@ -293,9 +299,10 @@ Ext.define('Ext.util.Region', {
         return p;
     },
 
-    /*
+    /**
      * Get the width / height of this region
      * @return {Object} an object with width and height properties
+     * @private
      */
     getSize: function() {
         return {
@@ -305,7 +312,7 @@ Ext.define('Ext.util.Region', {
     },
 
     /**
-     * Copy a new instance
+     * Create a copy of this Region.
      * @return {Ext.util.Region}
      */
     copy: function() {
@@ -314,8 +321,8 @@ Ext.define('Ext.util.Region', {
 
     /**
      * Copy the values of another Region to this Region
-     * @param {Region} The region to copy from.
-     * @return {Ext.util.Point} this This point
+     * @param {Ext.util.Region} p The region to copy from.
+     * @return {Ext.util.Region} This Region
      */
     copyFrom: function(p) {
         var me = this;
@@ -327,7 +334,7 @@ Ext.define('Ext.util.Region', {
         return this;
     },
 
-    /**
+    /*
      * Dump this to an eye-friendly string, great for debugging
      * @return {String}
      */
@@ -335,12 +342,11 @@ Ext.define('Ext.util.Region', {
         return "Region[" + this.top + "," + this.right + "," + this.bottom + "," + this.left + "]";
     },
 
-
     /**
      * Translate this region by the given offset amount
-     * @param {Ext.util.Offset/Object} offset Object containing the <code>x</code> and <code>y</code> properties.
+     * @param {Ext.util.Offset/Object} x Object containing the `x` and `y` properties.
      * Or the x value is using the two argument form.
-     * @param {Number} The y value unless using an Offset object.
+     * @param {Number} y The y value unless using an Offset object.
      * @return {Ext.util.Region} this This Region
      */
     translateBy: function(x, y) {

@@ -1,78 +1,71 @@
 /**
- * @class Ext.form.field.Date
- * @extends Ext.form.field.Picker
-
-Provides a date input field with a {@link Ext.picker.Date date picker} dropdown and automatic date
-validation.
-
-This field recognizes and uses the JavaScript Date object as its main {@link #value} type. In addition,
-it recognizes string values which are parsed according to the {@link #format} and/or {@link #altFormats}
-configs. These may be reconfigured to use date formats appropriate for the user's locale.
-
-The field may be limited to a certain range of dates by using the {@link #minValue}, {@link #maxValue},
-{@link #disabledDays}, and {@link #disabledDates} config parameters. These configurations will be used both
-in the field's validation, and in the date picker dropdown by preventing invalid dates from being selected.
-{@img Ext.form.Date/Ext.form.Date.png Ext.form.Date component}
-#Example usage:#
-
-    Ext.create('Ext.form.Panel', {
-        width: 300,
-        bodyPadding: 10,
-        title: 'Dates',
-        items: [{
-            xtype: 'datefield',
-            anchor: '100%',
-            fieldLabel: 'From',
-            name: 'from_date',
-            maxValue: new Date()  // limited to the current date or prior
-        }, {
-            xtype: 'datefield',
-            anchor: '100%',
-            fieldLabel: 'To',
-            name: 'to_date',
-            value: new Date()  // defaults to today
-        }],
-            renderTo: Ext.getBody()
-    });
-
-#Date Formats Examples#
-
-This example shows a couple of different date format parsing scenarios. Both use custom date format
-configurations; the first one matches the configured `format` while the second matches the `altFormats`.
-
-    Ext.create('Ext.form.Panel', {
-        renderTo: Ext.getBody(),
-        width: 300,
-        bodyPadding: 10,
-        title: 'Dates',
-        items: [{
-            xtype: 'datefield',
-            anchor: '100%',
-            fieldLabel: 'Date',
-            name: 'date',
-            // The value matches the format; will be parsed and displayed using that format.
-            format: 'm d Y',
-            value: '2 4 1978'
-        }, {
-            xtype: 'datefield',
-            anchor: '100%',
-            fieldLabel: 'Date',
-            name: 'date',
-            // The value does not match the format, but does match an altFormat; will be parsed
-            // using the altFormat and displayed using the format.
-            format: 'm d Y',
-            altFormats: 'm,d,Y|m.d.Y',
-            value: '2.4.1978'
-        }]
-    });
-
- * @constructor
- * Create a new Date field
- * @param {Object} config
- * 
- * @xtype datefield
- * @markdown
  * @docauthor Jason Johnston <jason@sencha.com>
+ *
+ * Provides a date input field with a {@link Ext.picker.Date date picker} dropdown and automatic date
+ * validation.
+ *
+ * This field recognizes and uses the JavaScript Date object as its main {@link #value} type. In addition,
+ * it recognizes string values which are parsed according to the {@link #format} and/or {@link #altFormats}
+ * configs. These may be reconfigured to use date formats appropriate for the user's locale.
+ *
+ * The field may be limited to a certain range of dates by using the {@link #minValue}, {@link #maxValue},
+ * {@link #disabledDays}, and {@link #disabledDates} config parameters. These configurations will be used both
+ * in the field's validation, and in the date picker dropdown by preventing invalid dates from being selected.
+ *
+ * # Example usage
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         renderTo: Ext.getBody(),
+ *         width: 300,
+ *         bodyPadding: 10,
+ *         title: 'Dates',
+ *         items: [{
+ *             xtype: 'datefield',
+ *             anchor: '100%',
+ *             fieldLabel: 'From',
+ *             name: 'from_date',
+ *             maxValue: new Date()  // limited to the current date or prior
+ *         }, {
+ *             xtype: 'datefield',
+ *             anchor: '100%',
+ *             fieldLabel: 'To',
+ *             name: 'to_date',
+ *             value: new Date()  // defaults to today
+ *         }]
+ *     });
+ *
+ * # Date Formats Examples
+ *
+ * This example shows a couple of different date format parsing scenarios. Both use custom date format
+ * configurations; the first one matches the configured `format` while the second matches the `altFormats`.
+ *
+ *     @example
+ *     Ext.create('Ext.form.Panel', {
+ *         renderTo: Ext.getBody(),
+ *         width: 300,
+ *         bodyPadding: 10,
+ *         title: 'Dates',
+ *         items: [{
+ *             xtype: 'datefield',
+ *             anchor: '100%',
+ *             fieldLabel: 'Date',
+ *             name: 'date',
+ *             // The value matches the format; will be parsed and displayed using that format.
+ *             format: 'm d Y',
+ *             value: '2 4 1978'
+ *         }, {
+ *             xtype: 'datefield',
+ *             anchor: '100%',
+ *             fieldLabel: 'Date',
+ *             name: 'date',
+ *             // The value does not match the format, but does match an altFormat; will be parsed
+ *             // using the altFormat and displayed using the format.
+ *             format: 'm d Y',
+ *             altFormats: 'm,d,Y|m.d.Y',
+ *             value: '2.4.1978'
+ *         }]
+ *     });
  */
 Ext.define('Ext.form.field.Date', {
     extend:'Ext.form.field.Picker',
@@ -80,103 +73,122 @@ Ext.define('Ext.form.field.Date', {
     requires: ['Ext.picker.Date'],
     alternateClassName: ['Ext.form.DateField', 'Ext.form.Date'],
 
+    //<locale>
     /**
      * @cfg {String} format
-     * The default date format string which can be overriden for localization support.  The format must be
-     * valid according to {@link Ext.Date#parse} (defaults to <tt>'m/d/Y'</tt>).
+     * The default date format string which can be overriden for localization support. The format must be valid
+     * according to {@link Ext.Date#parse}.
      */
     format : "m/d/Y",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} altFormats
-     * Multiple date formats separated by "<tt>|</tt>" to try when parsing a user input value and it
-     * does not match the defined format (defaults to
-     * <tt>'m/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j'</tt>).
+     * Multiple date formats separated by "|" to try when parsing a user input value and it does not match the defined
+     * format.
      */
     altFormats : "m/d/Y|n/j/Y|n/j/y|m/j/y|n/d/y|m/j/Y|n/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d|n-j|n/j",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} disabledDaysText
-     * The tooltip to display when the date falls on a disabled day (defaults to <tt>'Disabled'</tt>)
+     * The tooltip to display when the date falls on a disabled day.
      */
     disabledDaysText : "Disabled",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} disabledDatesText
-     * The tooltip text to display when the date falls on a disabled date (defaults to <tt>'Disabled'</tt>)
+     * The tooltip text to display when the date falls on a disabled date.
      */
     disabledDatesText : "Disabled",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} minText
-     * The error text to display when the date in the cell is before <tt>{@link #minValue}</tt> (defaults to
-     * <tt>'The date in this field must be after {minValue}'</tt>).
+     * The error text to display when the date in the cell is before {@link #minValue}.
      */
     minText : "The date in this field must be equal to or after {0}",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} maxText
-     * The error text to display when the date in the cell is after <tt>{@link #maxValue}</tt> (defaults to
-     * <tt>'The date in this field must be before {maxValue}'</tt>).
+     * The error text to display when the date in the cell is after {@link #maxValue}.
      */
     maxText : "The date in this field must be equal to or before {0}",
+    //</locale>
+    //<locale>
     /**
      * @cfg {String} invalidText
-     * The error text to display when the date in the field is invalid (defaults to
-     * <tt>'{value} is not a valid date - it must be in the format {format}'</tt>).
+     * The error text to display when the date in the field is invalid.
      */
     invalidText : "{0} is not a valid date - it must be in the format {1}",
+    //</locale>
     /**
-     * @cfg {String} triggerCls
-     * An additional CSS class used to style the trigger button.  The trigger will always get the
-     * class <tt>'x-form-trigger'</tt> and <tt>triggerCls</tt> will be <b>appended</b> if specified
-     * (defaults to <tt>'x-form-date-trigger'</tt> which displays a calendar icon).
+     * @cfg {String} [triggerCls='x-form-date-trigger']
+     * An additional CSS class used to style the trigger button. The trigger will always get the class 'x-form-trigger'
+     * and triggerCls will be **appended** if specified (default class displays a calendar icon).
      */
     triggerCls : Ext.baseCSSPrefix + 'form-date-trigger',
     /**
      * @cfg {Boolean} showToday
-     * <tt>false</tt> to hide the footer area of the Date picker containing the Today button and disable
-     * the keyboard handler for spacebar that selects the current date (defaults to <tt>true</tt>).
+     * false to hide the footer area of the Date picker containing the Today button and disable the keyboard handler for
+     * spacebar that selects the current date.
      */
     showToday : true,
     /**
      * @cfg {Date/String} minValue
-     * The minimum allowed date. Can be either a Javascript date object or a string date in a
-     * valid format (defaults to undefined).
+     * The minimum allowed date. Can be either a Javascript date object or a string date in a valid format.
      */
     /**
      * @cfg {Date/String} maxValue
-     * The maximum allowed date. Can be either a Javascript date object or a string date in a
-     * valid format (defaults to undefined).
+     * The maximum allowed date. Can be either a Javascript date object or a string date in a valid format.
      */
     /**
-     * @cfg {Array} disabledDays
-     * An array of days to disable, 0 based (defaults to undefined). Some examples:<pre><code>
-// disable Sunday and Saturday:
-disabledDays:  [0, 6]
-// disable weekdays:
-disabledDays: [1,2,3,4,5]
-     * </code></pre>
+     * @cfg {Number[]} disabledDays
+     * An array of days to disable, 0 based. Some examples:
+     *
+     *     // disable Sunday and Saturday:
+     *     disabledDays:  [0, 6]
+     *     // disable weekdays:
+     *     disabledDays: [1,2,3,4,5]
      */
     /**
-     * @cfg {Array} disabledDates
-     * An array of "dates" to disable, as strings. These strings will be used to build a dynamic regular
-     * expression so they are very powerful. Some examples:<pre><code>
-// disable these exact dates:
-disabledDates: ["03/08/2003", "09/16/2003"]
-// disable these days for every year:
-disabledDates: ["03/08", "09/16"]
-// only match the beginning (useful if you are using short years):
-disabledDates: ["^03/08"]
-// disable every day in March 2006:
-disabledDates: ["03/../2006"]
-// disable every day in every March:
-disabledDates: ["^03"]
-     * </code></pre>
-     * Note that the format of the dates included in the array should exactly match the {@link #format} config.
-     * In order to support regular expressions, if you are using a {@link #format date format} that has "." in
-     * it, you will have to escape the dot when restricting dates. For example: <tt>["03\\.08\\.03"]</tt>.
+     * @cfg {String[]} disabledDates
+     * An array of "dates" to disable, as strings. These strings will be used to build a dynamic regular expression so
+     * they are very powerful. Some examples:
+     *
+     *     // disable these exact dates:
+     *     disabledDates: ["03/08/2003", "09/16/2003"]
+     *     // disable these days for every year:
+     *     disabledDates: ["03/08", "09/16"]
+     *     // only match the beginning (useful if you are using short years):
+     *     disabledDates: ["^03/08"]
+     *     // disable every day in March 2006:
+     *     disabledDates: ["03/../2006"]
+     *     // disable every day in every March:
+     *     disabledDates: ["^03"]
+     *
+     * Note that the format of the dates included in the array should exactly match the {@link #format} config. In order
+     * to support regular expressions, if you are using a {@link #format date format} that has "." in it, you will have
+     * to escape the dot when restricting dates. For example: `["03\\.08\\.03"]`.
+     */
+
+    /**
+     * @cfg {String} submitFormat
+     * The date format string which will be submitted to the server. The format must be valid according to
+     * {@link Ext.Date#parse}.
+     *
+     * Defaults to {@link #format}.
      */
     
     /**
-     * @cfg {String} submitFormat The date format string which will be submitted to the server.  
-     * The format must be valid according to {@link Ext.Date#parse} (defaults to <tt>{@link #format}</tt>).
+     * @cfg {Boolean} useStrict
+     * True to enforce strict date parsing to prevent the default Javascript "date rollover".
+     * Defaults to the useStrict parameter set on Ext.Date
+     * See {@link Ext.Date#parse}.
      */
+    useStrict: undefined,
 
     // in the absence of a time value, a default value of 12 noon will be used
     // (note: 12 noon was chosen because it steers well clear of all DST timezone changes)
@@ -185,12 +197,16 @@ disabledDates: ["^03"]
     initTimeFormat: 'H',
 
     matchFieldWidth: false,
+    //<locale>
     /**
-     * @cfg {Number} startDay
-     * Day index at which the week should begin, 0-based (defaults to 0, which is Sunday)
+     * @cfg {Number} [startDay=undefined]
+     * Day index at which the week should begin, 0-based.
+     *
+     * Defaults to `0` (Sunday).
      */
     startDay: 0,
-    
+    //</locale>
+
     initComponent : function(){
         var me = this,
             isString = Ext.isString,
@@ -225,29 +241,35 @@ disabledDates: ["^03"]
     // private
     initDisabledDays : function(){
         if(this.disabledDates){
-            var dd = this.disabledDates,
-                len = dd.length - 1,
-                re = "(?:";
+            var dd   = this.disabledDates,
+                len  = dd.length - 1,
+                re   = "(?:",
+                d,
+                dLen = dd.length,
+                date;
 
-            Ext.each(dd, function(d, i){
-                re += Ext.isDate(d) ? '^' + Ext.String.escapeRegex(d.dateFormat(this.format)) + '$' : dd[i];
-                if (i !== len) {
+            for (d = 0; d < dLen; d++) {
+                date = dd[d];
+
+                re += Ext.isDate(date) ? '^' + Ext.String.escapeRegex(date.dateFormat(this.format)) + '$' : date;
+                if (d !== len) {
                     re += '|';
                 }
-            }, this);
+            }
+
             this.disabledDatesRE = new RegExp(re + ')');
         }
     },
 
     /**
      * Replaces any existing disabled dates with new values and refreshes the Date picker.
-     * @param {Array} disabledDates An array of date strings (see the <tt>{@link #disabledDates}</tt> config
-     * for details on supported values) used to disable a pattern of dates.
+     * @param {String[]} disabledDates An array of date strings (see the {@link #disabledDates} config for details on
+     * supported values) used to disable a pattern of dates.
      */
     setDisabledDates : function(dd){
         var me = this,
             picker = me.picker;
-            
+
         me.disabledDates = dd;
         me.initDisabledDays();
         if (picker) {
@@ -257,12 +279,12 @@ disabledDates: ["^03"]
 
     /**
      * Replaces any existing disabled days (by index, 0-6) with new values and refreshes the Date picker.
-     * @param {Array} disabledDays An array of disabled day indexes. See the <tt>{@link #disabledDays}</tt>
-     * config for details on supported values.
+     * @param {Number[]} disabledDays An array of disabled day indexes. See the {@link #disabledDays} config for details on
+     * supported values.
      */
     setDisabledDays : function(dd){
         var picker = this.picker;
-            
+
         this.disabledDays = dd;
         if (picker) {
             picker.setDisabledDays(dd);
@@ -270,14 +292,14 @@ disabledDates: ["^03"]
     },
 
     /**
-     * Replaces any existing <tt>{@link #minValue}</tt> with the new value and refreshes the Date picker.
+     * Replaces any existing {@link #minValue} with the new value and refreshes the Date picker.
      * @param {Date} value The minimum date that can be selected
      */
     setMinValue : function(dt){
         var me = this,
             picker = me.picker,
             minValue = (Ext.isString(dt) ? me.parseDate(dt) : dt);
-            
+
         me.minValue = minValue;
         if (picker) {
             picker.minText = Ext.String.format(me.minText, me.formatDate(me.minValue));
@@ -286,14 +308,14 @@ disabledDates: ["^03"]
     },
 
     /**
-     * Replaces any existing <tt>{@link #maxValue}</tt> with the new value and refreshes the Date picker.
+     * Replaces any existing {@link #maxValue} with the new value and refreshes the Date picker.
      * @param {Date} value The maximum date that can be selected
      */
     setMaxValue : function(dt){
         var me = this,
             picker = me.picker,
             maxValue = (Ext.isString(dt) ? me.parseDate(dt) : dt);
-            
+
         me.maxValue = maxValue;
         if (picker) {
             picker.maxText = Ext.String.format(me.maxText, me.formatDate(me.maxValue));
@@ -302,13 +324,12 @@ disabledDates: ["^03"]
     },
 
     /**
-     * Runs all of Date's validations and returns an array of any errors. Note that this first
-     * runs Text's validations, so the returned array is an amalgamation of all field errors.
-     * The additional validation checks are testing that the date format is valid, that the chosen
-     * date is within the min and max date constraints set, that the date chosen is not in the disabledDates
-     * regex and that the day chosed is not one of the disabledDays.
-     * @param {Mixed} value The value to get errors for (defaults to the current field value)
-     * @return {Array} All validation errors for this field
+     * Runs all of Date's validations and returns an array of any errors. Note that this first runs Text's validations,
+     * so the returned array is an amalgamation of all field errors. The additional validation checks are testing that
+     * the date format is valid, that the chosen date is within the min and max date constraints set, that the date
+     * chosen is not in the disabledDates regex and that the day chosed is not one of the disabledDays.
+     * @param {Object} [value] The value to get errors for (defaults to the current field value)
+     * @return {String[]} All validation errors for this field
      */
     getErrors: function(value) {
         var me = this,
@@ -335,7 +356,7 @@ disabledDates: ["^03"]
         svalue = value;
         value = me.parseDate(value);
         if (!value) {
-            errors.push(format(me.invalidText, svalue, me.format));
+            errors.push(format(me.invalidText, svalue, Ext.Date.unescapeFormat(me.format)));
             return errors;
         }
 
@@ -376,27 +397,28 @@ disabledDates: ["^03"]
     },
 
     /**
-     * Sets the value of the date field.  You can pass a date object or any string that can be
-     * parsed into a valid date, using <tt>{@link #format}</tt> as the date format, according
-     * to the same rules as {@link Ext.Date#parse} (the default format used is <tt>"m/d/Y"</tt>).
-     * <br />Usage:
-     * <pre><code>
-//All of these calls set the same date value (May 4, 2006)
-
-//Pass a date object:
-var dt = new Date('5/4/2006');
-dateField.setValue(dt);
-
-//Pass a date string (default format):
-dateField.setValue('05/04/2006');
-
-//Pass a date string (custom format):
-dateField.format = 'Y-m-d';
-dateField.setValue('2006-05-04');
-</code></pre>
+     * @method setValue
+     * Sets the value of the date field. You can pass a date object or any string that can be parsed into a valid date,
+     * using {@link #format} as the date format, according to the same rules as {@link Ext.Date#parse} (the default
+     * format used is "m/d/Y").
+     *
+     * Usage:
+     *
+     *     //All of these calls set the same date value (May 4, 2006)
+     *
+     *     //Pass a date object:
+     *     var dt = new Date('5/4/2006');
+     *     dateField.setValue(dt);
+     *
+     *     //Pass a date string (default format):
+     *     dateField.setValue('05/04/2006');
+     *
+     *     //Pass a date string (custom format):
+     *     dateField.format = 'Y-m-d';
+     *     dateField.setValue('2006-05-04');
+     *
      * @param {String/Date} date The date or valid date string
      * @return {Ext.form.field.Date} this
-     * @method setValue
      */
 
     /**
@@ -408,29 +430,29 @@ dateField.setValue('2006-05-04');
     safeParse : function(value, format) {
         var me = this,
             utilDate = Ext.Date,
-            parsedDate,
-            result = null;
-            
+            result = null,
+            strict = me.useStrict,
+            parsedDate;
+
         if (utilDate.formatContainsHourInfo(format)) {
             // if parse format contains hour information, no DST adjustment is necessary
-            result = utilDate.parse(value, format);
+            result = utilDate.parse(value, format, strict);
         } else {
             // set time to 12 noon, then clear the time
-            parsedDate = utilDate.parse(value + ' ' + me.initTime, format + ' ' + me.initTimeFormat);
+            parsedDate = utilDate.parse(value + ' ' + me.initTime, format + ' ' + me.initTimeFormat, strict);
             if (parsedDate) {
                 result = utilDate.clearTime(parsedDate);
             }
         }
         return result;
     },
-    
+
     // @private
     getSubmitValue: function() {
-        var me = this,
-            format = me.submitFormat || me.format,
-            value = me.getValue();
-            
-        return value ? Ext.Date.format(value, format) : null;
+        var format = this.submitFormat || this.format,
+            value = this.getValue();
+
+        return value ? Ext.Date.format(value, format) : '';
     },
 
     /**
@@ -467,7 +489,8 @@ dateField.setValue('2006-05-04');
         var me = this,
             format = Ext.String.format;
 
-        return Ext.create('Ext.picker.Date', {
+        return new Ext.picker.Date({
+            pickerField: me,
             ownerCt: me.ownerCt,
             renderTo: document.body,
             floating: true,
@@ -498,7 +521,7 @@ dateField.setValue('2006-05-04');
 
     onSelect: function(m, d) {
         var me = this;
-        
+
         me.setValue(d);
         me.fireEvent('select', me, d);
         me.collapse();
@@ -509,9 +532,8 @@ dateField.setValue('2006-05-04');
      * Sets the Date picker's value to match the current field value when expanding.
      */
     onExpand: function() {
-        var me = this,
-            value = me.getValue();
-        me.picker.setValue(Ext.isDate(value) ? value : new Date());
+        var value = this.getValue();
+        this.picker.setValue(Ext.isDate(value) ? value : new Date());
     },
 
     /**
@@ -527,27 +549,30 @@ dateField.setValue('2006-05-04');
         var me = this,
             v = me.parseDate(me.getRawValue()),
             focusTask = me.focusTask;
-        
+
         if (focusTask) {
             focusTask.cancel();
         }
-        
+
         if (v) {
             me.setValue(v);
         }
     }
 
     /**
-     * @cfg {Boolean} grow @hide
+     * @cfg {Boolean} grow
+     * @private
      */
     /**
-     * @cfg {Number} growMin @hide
+     * @cfg {Number} growMin
+     * @private
      */
     /**
-     * @cfg {Number} growMax @hide
+     * @cfg {Number} growMax
+     * @private
      */
     /**
-     * @hide
      * @method autoSize
+     * @private
      */
 });

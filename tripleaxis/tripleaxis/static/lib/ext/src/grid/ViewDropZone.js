@@ -1,8 +1,11 @@
+/**
+ * @private
+ */
 Ext.define('Ext.grid.ViewDropZone', {
     extend: 'Ext.view.DropZone',
 
-    indicatorHtml: '<div class="x-grid-drop-indicator-left"></div><div class="x-grid-drop-indicator-right"></div>',
-    indicatorCls: 'x-grid-drop-indicator',
+    indicatorHtml: '<div class="' + Ext.baseCSSPrefix + 'grid-drop-indicator-left"></div><div class="' + Ext.baseCSSPrefix + 'grid-drop-indicator-right"></div>',
+    indicatorCls: Ext.baseCSSPrefix + 'grid-drop-indicator',
 
     handleNodeDrop : function(data, record, position) {
         var view = this.view,
@@ -27,7 +30,9 @@ Ext.define('Ext.grid.ViewDropZone', {
         }
 
         index = store.indexOf(record);
-        if (position == 'after') {
+
+        // 'after', or undefined (meaning a drop at index -1 on an empty View)...
+        if (position !== 'before') {
             index++;
         }
         store.insert(index, data.records);
