@@ -207,12 +207,15 @@ function getCombinationLayouts() {
             items: {
                 title: 'New Email',
                 layout: 'fit',
+                frame: true,
                 items: {
                     xtype: 'form',
                     layout:'absolute',
                     url:'save-form.php',
                     padding: '5 5 0 5',
                     border: false,
+                    cls: 'absolute-form-panel-body',
+                    
                     defaultType: 'textfield',
                     items: [{
                         x: 0,
@@ -236,7 +239,7 @@ function getCombinationLayouts() {
                         xtype: 'button',
                         text: 'Contacts...'
                     },{
-                        x: 135,
+                        x: 127,
                         y: 27,
                         name: 'to',
                         hideLabel: true,
@@ -262,22 +265,32 @@ function getCombinationLayouts() {
                     }]
                 },
 
-                tbar: [{
-                     text: 'Send',
-                     iconCls: 'icon-send'
-                },'-',{
-                     text: 'Save',
-                     iconCls: 'icon-save'
-                },{
-                     text: 'Check Spelling',
-                     iconCls: 'icon-spell'
-                },'-',{
-                     text: 'Print',
-                     iconCls: 'icon-print'
-                },'->',{
-                     text: 'Attach a File',
-                     iconCls: 'icon-attach'
-                }]
+                dockedItems: [
+                    {
+                        xtype: 'toolbar',
+                        ignoreParentFrame: true,
+                        ignoreBorderManagement: true,
+                        cls: 'absolute-form-toolbar',
+                        items: [
+                            {
+                                 text: 'Send',
+                                 iconCls: 'icon-send'
+                            },'-',{
+                                 text: 'Save',
+                                 iconCls: 'icon-save'
+                            },{
+                                 text: 'Check Spelling',
+                                 iconCls: 'icon-spell'
+                            },'-',{
+                                 text: 'Print',
+                                 iconCls: 'icon-print'
+                            },'->',{
+                                 text: 'Attach a File',
+                                 iconCls: 'icon-attach'
+                            }
+                        ]
+                    }
+                ]
             }
         }
     };

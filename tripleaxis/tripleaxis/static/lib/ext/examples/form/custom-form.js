@@ -56,7 +56,7 @@ Ext.onReady(function(){
     var resultTpl = Ext.create('Ext.XTemplate',
         '<tpl for=".">',
         '<div class="search-item">',
-            '<h3><span>{lastPost:this.formatDate}<br />by {author}</span>',
+            '<h3><span>{lastPost:this.formatDate}<br>by {author}</span>',
             '<a href="http://sencha.com/forum/showthread.php?t={topicId}&p={postId}" target="_blank">{title}</a></h3>',
             '<p>{excerpt}</p>',
         '</div></tpl>',
@@ -74,11 +74,12 @@ Ext.onReady(function(){
         id: 'search-results',
         layout: 'fit',
         items: {
-            autoScroll: true,
+            overflowY: 'auto',
             xtype: 'dataview',
             tpl: resultTpl,
             store: store,
-            itemSelector: 'div.search-item'
+            itemSelector: 'div.search-item',
+            emptyText: '<div class="x-grid-empty">No Matching Threads</div>'
         },
         dockedItems: [{
             dock: 'top',

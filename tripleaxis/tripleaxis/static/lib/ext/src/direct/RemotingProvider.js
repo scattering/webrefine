@@ -1,6 +1,5 @@
 /**
  * @class Ext.direct.RemotingProvider
- * @extends Ext.direct.JsonProvider
  * 
  * <p>The {@link Ext.direct.RemotingProvider RemotingProvider} exposes access to
  * server side methods on the client (a remote procedure call (RPC) type of
@@ -102,7 +101,7 @@ TestAction.multiply(
      * @cfg {Number/Boolean} enableBuffer
      * <p><tt>true</tt> or <tt>false</tt> to enable or disable combining of method
      * calls. If a number is specified this is the amount of time in milliseconds
-     * to wait before sending a batched request (defaults to <tt>10</tt>).</p>
+     * to wait before sending a batched request.</p>
      * <br><p>Calls which are received within the specified timeframe will be
      * concatenated together and sent in a single request, optimizing the
      * application by reducing the amount of round trips that have to be made
@@ -112,13 +111,13 @@ TestAction.multiply(
     
     /**
      * @cfg {Number} maxRetries
-     * Number of times to re-attempt delivery on failure of a call. Defaults to <tt>1</tt>.
+     * Number of times to re-attempt delivery on failure of a call.
      */
     maxRetries: 1,
     
     /**
      * @cfg {Number} timeout
-     * The timeout to use for each request. Defaults to <tt>undefined</tt>.
+     * The timeout to use for each request.
      */
     timeout: undefined,
     
@@ -147,7 +146,7 @@ TestAction.multiply(
             'call'
         );
         me.namespace = (Ext.isString(me.namespace)) ? Ext.ns(me.namespace) : me.namespace || window;
-        me.transactions = Ext.create('Ext.util.MixedCollection');
+        me.transactions = new Ext.util.MixedCollection();
         me.callBuffer = [];
     },
     
@@ -166,15 +165,17 @@ TestAction.multiply(
             method;
             
         for (action in actions) {
-            cls = namespace[action];
-            if (!cls) {
-                cls = namespace[action] = {};
-            }
-            methods = actions[action];
-            
-            for (i = 0, len = methods.length; i < len; ++i) {
-                method = Ext.create('Ext.direct.RemotingMethod', methods[i]);
-                cls[method.name] = this.createHandler(action, method);
+            if (actions.hasOwnProperty(action)) {
+                cls = namespace[action];
+                if (!cls) {
+                    cls = namespace[action] = {};
+                }
+                methods = actions[action];
+                
+                for (i = 0, len = methods.length; i < len; ++i) {
+                    method = new Ext.direct.RemotingMethod(methods[i]);
+                    cls[method.name] = this.createHandler(action, method);
+                }
             }
         }
     },
@@ -243,7 +244,8 @@ TestAction.multiply(
      * @param {Ext.direct.Event} event The event
      */
     runCallback: function(transaction, event){
-        var funcName = event.status ? 'success' : 'failure',
+        var success = !!event.status,
+            funcName = success ? 'success' : 'failure',
             callback,
             result;
         
@@ -252,10 +254,10 @@ TestAction.multiply(
             result = Ext.isDefined(event.result) ? event.result : event.data;
         
             if (Ext.isFunction(callback)) {
-                callback(result, event);
+                callback(result, event, success);
             } else {
-                Ext.callback(callback[funcName], callback.scope, [result, event]);
-                Ext.callback(callback.callback, callback.scope, [result, event]);
+                Ext.callback(callback[funcName], callback.scope, [result, event, success]);
+                Ext.callback(callback.callback, callback.scope, [result, event, success]);
             }
         }
     },
@@ -291,10 +293,10 @@ TestAction.multiply(
                 if (transaction && transaction.retryCount < me.maxRetries) {
                     transaction.retry();
                 } else {
-                    event = Ext.create('Ext.direct.ExceptionEvent', {
+                    event = new Ext.direct.ExceptionEvent({
                         data: null,
                         transaction: transaction,
-                        code: Ext.direct.Manager.self.exceptions.TRANSPORT,
+                        code: Ext.direct.Manager.exceptions.TRANSPORT,
                         message: 'Unable to connect to the server.',
                         xhr: response
                     });
@@ -332,7 +334,7 @@ TestAction.multiply(
             scope = callData.scope,
             transaction;
 
-        transaction = Ext.create('Ext.direct.Transaction', {
+        transaction = new Ext.direct.Transaction({
             provider: me,
             args: args,
             action: action,
@@ -420,7 +422,7 @@ TestAction.multiply(
         me.callBuffer.push(transaction);
         if (enableBuffer) {
             if (!me.callTask) {
-                me.callTask = Ext.create('Ext.util.DelayedTask', me.combineAndSend, me);
+                me.callTask = new Ext.util.DelayedTask(me.combineAndSend, me);
             }
             me.callTask.delay(Ext.isNumber(enableBuffer) ? enableBuffer : 10);
         } else {
@@ -449,11 +451,11 @@ TestAction.multiply(
      * @param {Object} method The method being executed
      * @param {HTMLElement} form The form being submitted
      * @param {Function} callback (optional) A callback to run after the form submits
-     * @param {Object} scope A scope to execute the callback in
+     * @param {Object} scope (optional) A scope to execute the callback in
      */
     configureFormRequest : function(action, method, form, callback, scope){
         var me = this,
-            transaction = Ext.create('Ext.direct.Transaction', {
+            transaction = new Ext.direct.Transaction({
                 provider: me,
                 action: action,
                 method: method.name,

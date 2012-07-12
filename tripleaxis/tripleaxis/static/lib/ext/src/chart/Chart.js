@@ -1,38 +1,140 @@
 /**
- * @class Ext.chart.Chart
- * @extends Ext.draw.Component
- *
- * The Ext.chart package provides the capability to visualize data.
- * Each chart binds directly to an Ext.data.Store enabling automatic updates of the chart.
- * A chart configuration object has some overall styling options as well as an array of axes
- * and series. A chart instance example could look like:
- *
-  <pre><code>
-    Ext.create('Ext.chart.Chart', {
-        renderTo: Ext.getBody(),
-        width: 800,
-        height: 600,
-        animate: true,
-        store: store1,
-        shadow: true,
-        theme: 'Category1',
-        legend: {
-            position: 'right'
-        },
-        axes: [ ...some axes options... ],
-        series: [ ...some series options... ]
-    });
-  </code></pre>
- *
- * In this example we set the `width` and `height` of the chart, we decide whether our series are
- * animated or not and we select a store to be bound to the chart. We also turn on shadows for all series,
- * select a color theme `Category1` for coloring the series, set the legend to the right part of the chart and
- * then tell the chart to render itself in the body element of the document. For more information about the axes and
- * series configurations please check the documentation of each series (Line, Bar, Pie, etc).
- *
- * @xtype chart
+ * Charts provide a flexible way to achieve a wide range of data visualization capablitities.
+ * Each Chart gets its data directly from a {@link Ext.data.Store Store}, and automatically
+ * updates its display whenever data in the Store changes. In addition, the look and feel
+ * of a Chart can be customized using {@link Ext.chart.theme.Theme Theme}s.
+ * 
+ * ## Creating a Simple Chart
+ * 
+ * Every Chart has three key parts - a {@link Ext.data.Store Store} that contains the data,
+ * an array of {@link Ext.chart.axis.Axis Axes} which define the boundaries of the Chart,
+ * and one or more {@link Ext.chart.series.Series Series} to handle the visual rendering of the data points.
+ * 
+ * ### 1. Creating a Store
+ * 
+ * The first step is to create a {@link Ext.data.Model Model} that represents the type of
+ * data that will be displayed in the Chart. For example the data for a chart that displays
+ * a weather forecast could be represented as a series of "WeatherPoint" data points with
+ * two fields - "temperature", and "date":
+ * 
+ *     Ext.define('WeatherPoint', {
+ *         extend: 'Ext.data.Model',
+ *         fields: ['temperature', 'date']
+ *     });
+ * 
+ * Next a {@link Ext.data.Store Store} must be created.  The store contains a collection of "WeatherPoint" Model instances.
+ * The data could be loaded dynamically, but for sake of ease this example uses inline data:
+ * 
+ *     var store = Ext.create('Ext.data.Store', {
+ *         model: 'WeatherPoint',
+ *         data: [
+ *             { temperature: 58, date: new Date(2011, 1, 1, 8) },
+ *             { temperature: 63, date: new Date(2011, 1, 1, 9) },
+ *             { temperature: 73, date: new Date(2011, 1, 1, 10) },
+ *             { temperature: 78, date: new Date(2011, 1, 1, 11) },
+ *             { temperature: 81, date: new Date(2011, 1, 1, 12) }
+ *         ]
+ *     });
+ *    
+ * For additional information on Models and Stores please refer to the [Data Guide](#/guide/data).
+ * 
+ * ### 2. Creating the Chart object
+ * 
+ * Now that a Store has been created it can be used in a Chart:
+ * 
+ *     Ext.create('Ext.chart.Chart', {
+ *        renderTo: Ext.getBody(),
+ *        width: 400,
+ *        height: 300,
+ *        store: store
+ *     });
+ *    
+ * That's all it takes to create a Chart instance that is backed by a Store.
+ * However, if the above code is run in a browser, a blank screen will be displayed.
+ * This is because the two pieces that are responsible for the visual display,
+ * the Chart's {@link #cfg-axes axes} and {@link #cfg-series series}, have not yet been defined.
+ * 
+ * ### 3. Configuring the Axes
+ * 
+ * {@link Ext.chart.axis.Axis Axes} are the lines that define the boundaries of the data points that a Chart can display.
+ * This example uses one of the most common Axes configurations - a horizontal "x" axis, and a vertical "y" axis:
+ * 
+ *     Ext.create('Ext.chart.Chart', {
+ *         ...
+ *         axes: [
+ *             {
+ *                 title: 'Temperature',
+ *                 type: 'Numeric',
+ *                 position: 'left',
+ *                 fields: ['temperature'],
+ *                 minimum: 0,
+ *                 maximum: 100
+ *             },
+ *             {
+ *                 title: 'Time',
+ *                 type: 'Time',
+ *                 position: 'bottom',
+ *                 fields: ['date'],
+ *                 dateFormat: 'ga'
+ *             }
+ *         ]
+ *     });
+ *    
+ * The "Temperature" axis is a vertical {@link Ext.chart.axis.Numeric Numeric Axis} and is positioned on the left edge of the Chart.
+ * It represents the bounds of the data contained in the "WeatherPoint" Model's "temperature" field that was
+ * defined above. The minimum value for this axis is "0", and the maximum is "100".
+ * 
+ * The horizontal axis is a {@link Ext.chart.axis.Time Time Axis} and is positioned on the bottom edge of the Chart.
+ * It represents the bounds of the data contained in the "WeatherPoint" Model's "date" field.
+ * The {@link Ext.chart.axis.Time#cfg-dateFormat dateFormat}
+ * configuration tells the Time Axis how to format it's labels.
+ * 
+ * Here's what the Chart looks like now that it has its Axes configured:
+ * 
+ * {@img Ext.chart.Chart/Ext.chart.Chart1.png Chart Axes}
+ * 
+ * ### 4. Configuring the Series
+ * 
+ * The final step in creating a simple Chart is to configure one or more {@link Ext.chart.series.Series Series}.
+ * Series are responsible for the visual representation of the data points contained in the Store.
+ * This example only has one Series:
+ * 
+ *     Ext.create('Ext.chart.Chart', {
+ *         ...
+ *         axes: [
+ *             ...
+ *         ],
+ *         series: [
+ *             {
+ *                 type: 'line',
+ *                 xField: 'date',
+ *                 yField: 'temperature'
+ *             }
+ *         ]
+ *     });
+ *     
+ * This Series is a {@link Ext.chart.series.Line Line Series}, and it uses the "date" and "temperature" fields
+ * from the "WeatherPoint" Models in the Store to plot its data points:
+ * 
+ * {@img Ext.chart.Chart/Ext.chart.Chart2.png Line Series}
+ * 
+ * See the [Line Charts Example](#!/example/charts/Charts.html) for a live demo.
+ * 
+ * ## Themes
+ * 
+ * The color scheme for a Chart can be easily changed using the {@link #cfg-theme theme} configuration option:
+ * 
+ *     Ext.create('Ext.chart.Chart', {
+ *         ...
+ *         theme: 'Green',
+ *         ...
+ *     });
+ * 
+ * {@img Ext.chart.Chart/Ext.chart.Chart3.png Green Theme}
+ * 
+ * For more information on Charts please refer to the [Drawing and Charting Guide](#/guide/drawing_and_charting).
+ * 
  */
-
 Ext.define('Ext.chart.Chart', {
 
     /* Begin Definitions */
@@ -44,13 +146,21 @@ Ext.define('Ext.chart.Chart', {
     mixins: {
         themeManager: 'Ext.chart.theme.Theme',
         mask: 'Ext.chart.Mask',
-        navigation: 'Ext.chart.Navigation'
+        navigation: 'Ext.chart.Navigation',
+        bindable: 'Ext.util.Bindable',
+        observable: 'Ext.util.Observable'
     },
 
+    uses: [
+        'Ext.chart.series.Series'
+    ],
+    
     requires: [
         'Ext.util.MixedCollection',
         'Ext.data.StoreManager',
         'Ext.chart.Legend',
+        'Ext.chart.theme.Base',
+        'Ext.chart.theme.Theme',
         'Ext.util.DelayedTask'
     ],
 
@@ -60,134 +170,166 @@ Ext.define('Ext.chart.Chart', {
     viewBox: false,
 
     /**
-     * @cfg {String} theme (optional) The name of the theme to be used. A theme defines the colors and
-     * other visual displays of tick marks on axis, text, title text, line colors, marker colors and styles, etc.
-     * Possible theme values are 'Base', 'Green', 'Sky', 'Red', 'Purple', 'Blue', 'Yellow' and also six category themes
-     * 'Category1' to 'Category6'. Default value is 'Base'.
+     * @cfg {String} theme
+     * The name of the theme to be used. A theme defines the colors and other visual displays of tick marks
+     * on axis, text, title text, line colors, marker colors and styles, etc. Possible theme values are 'Base', 'Green',
+     * 'Sky', 'Red', 'Purple', 'Blue', 'Yellow' and also six category themes 'Category1' to 'Category6'. Default value
+     * is 'Base'.
      */
 
     /**
-     * @cfg {Boolean/Object} animate (optional) true for the default animation (easing: 'ease' and duration: 500)
-     * or a standard animation config object to be used for default chart animations. Defaults to false.
+     * @cfg {Boolean/Object} animate
+     * True for the default animation (easing: 'ease' and duration: 500) or a standard animation config
+     * object to be used for default chart animations. Defaults to false.
      */
     animate: false,
 
     /**
-     * @cfg {Boolean/Object} legend (optional) true for the default legend display or a legend config object. Defaults to false.
+     * @cfg {Boolean/Object} legend
+     * True for the default legend display or a legend config object. Defaults to false.
      */
     legend: false,
 
     /**
-     * @cfg {integer} insetPadding (optional) Set the amount of inset padding in pixels for the chart. Defaults to 10.
+     * @cfg {Number} insetPadding
+     * The amount of inset padding in pixels for the chart. Defaults to 10.
      */
     insetPadding: 10,
 
     /**
-     * @cfg {Array} enginePriority
-     * Defines the priority order for which Surface implementation to use. The first
-     * one supported by the current environment will be used.
+     * @cfg {String[]} enginePriority
+     * Defines the priority order for which Surface implementation to use. The first one supported by the current
+     * environment will be used. Defaults to `['Svg', 'Vml']`.
      */
     enginePriority: ['Svg', 'Vml'],
 
     /**
-     * @cfg {Object|Boolean} background (optional) Set the chart background. This can be a gradient object, image, or color.
-     * Defaults to false for no background.
+     * @cfg {Object/Boolean} background
+     * The chart background. This can be a gradient object, image, or color. Defaults to false for no
+     * background. For example, if `background` were to be a color we could set the object as
      *
-     * For example, if `background` were to be a color we could set the object as
+     *     background: {
+     *         //color string
+     *         fill: '#ccc'
+     *     }
      *
-     <pre><code>
-        background: {
-            //color string
-            fill: '#ccc'
-        }
-     </code></pre>
-
-     You can specify an image by using:
-
-     <pre><code>
-        background: {
-            image: 'http://path.to.image/'
-        }
-     </code></pre>
-
-     Also you can specify a gradient by using the gradient object syntax:
-
-     <pre><code>
-        background: {
-            gradient: {
-                id: 'gradientId',
-                angle: 45,
-                stops: {
-                    0: {
-                        color: '#555'
-                    }
-                    100: {
-                        color: '#ddd'
-                    }
-                }
-            }
-        }
-     </code></pre>
+     * You can specify an image by using:
+     *
+     *     background: {
+     *         image: 'http://path.to.image/'
+     *     }
+     *
+     * Also you can specify a gradient by using the gradient object syntax:
+     *
+     *     background: {
+     *         gradient: {
+     *             id: 'gradientId',
+     *             angle: 45,
+     *             stops: {
+     *                 0: {
+     *                     color: '#555'
+     *                 }
+     *                 100: {
+     *                     color: '#ddd'
+     *                 }
+     *             }
+     *         }
+     *     }
      */
     background: false,
 
     /**
-     * @cfg {Array} gradients (optional) Define a set of gradients that can be used as `fill` property in sprites.
-     * The gradients array is an array of objects with the following properties:
+     * @cfg {Object[]} gradients
+     * Define a set of gradients that can be used as `fill` property in sprites. The gradients array is an
+     * array of objects with the following properties:
      *
-     * <ul>
-     * <li><strong>id</strong> - string - The unique name of the gradient.</li>
-     * <li><strong>angle</strong> - number, optional - The angle of the gradient in degrees.</li>
-     * <li><strong>stops</strong> - object - An object with numbers as keys (from 0 to 100) and style objects
-     * as values</li>
-     * </ul>
+     * - **id** - string - The unique name of the gradient.
+     * - **angle** - number, optional - The angle of the gradient in degrees.
+     * - **stops** - object - An object with numbers as keys (from 0 to 100) and style objects as values
      *
-
-     For example:
-
-     <pre><code>
-        gradients: [{
-            id: 'gradientId',
-            angle: 45,
-            stops: {
-                0: {
-                    color: '#555'
-                },
-                100: {
-                    color: '#ddd'
-                }
-            }
-        },  {
-            id: 'gradientId2',
-            angle: 0,
-            stops: {
-                0: {
-                    color: '#590'
-                },
-                20: {
-                    color: '#599'
-                },
-                100: {
-                    color: '#ddd'
-                }
-            }
-        }]
-     </code></pre>
-
-     Then the sprites can use `gradientId` and `gradientId2` by setting the fill attributes to those ids, for example:
-
-     <pre><code>
-        sprite.setAttributes({
-            fill: 'url(#gradientId)'
-        }, true);
-     </code></pre>
-
+     * For example:
+     *
+     *     gradients: [{
+     *         id: 'gradientId',
+     *         angle: 45,
+     *         stops: {
+     *             0: {
+     *                 color: '#555'
+     *             },
+     *             100: {
+     *                 color: '#ddd'
+     *             }
+     *         }
+     *     }, {
+     *         id: 'gradientId2',
+     *         angle: 0,
+     *         stops: {
+     *             0: {
+     *                 color: '#590'
+     *             },
+     *             20: {
+     *                 color: '#599'
+     *             },
+     *             100: {
+     *                 color: '#ddd'
+     *             }
+     *         }
+     *     }]
+     *
+     * Then the sprites can use `gradientId` and `gradientId2` by setting the fill attributes to those ids, for example:
+     *
+     *     sprite.setAttributes({
+     *         fill: 'url(#gradientId)'
+     *     }, true);
      */
 
+    /**
+     * @cfg {Ext.data.Store} store
+     * The store that supplies data to this chart.
+     */
+
+    /**
+     * @cfg {Ext.chart.series.Series[]} series
+     * Array of {@link Ext.chart.series.Series Series} instances or config objects.  For example:
+     * 
+     *     series: [{
+     *         type: 'column',
+     *         axis: 'left',
+     *         listeners: {
+     *             'afterrender': function() {
+     *                 console('afterrender');
+     *             }
+     *         },
+     *         xField: 'category',
+     *         yField: 'data1'
+     *     }]
+     */
+
+    /**
+     * @cfg {Ext.chart.axis.Axis[]} axes
+     * Array of {@link Ext.chart.axis.Axis Axis} instances or config objects.  For example:
+     * 
+     *     axes: [{
+     *         type: 'Numeric',
+     *         position: 'left',
+     *         fields: ['data1'],
+     *         title: 'Number of Hits',
+     *         minimum: 0,
+     *         //one minor tick between two major ticks
+     *         minorTickSteps: 1
+     *     }, {
+     *         type: 'Category',
+     *         position: 'bottom',
+     *         fields: ['name'],
+     *         title: 'Month of the Year'
+     *     }]
+     */
 
     constructor: function(config) {
         var me = this,
             defaultAnim;
+
+        config = Ext.apply({}, config);
         me.initTheme(config.theme || me.theme);
         if (me.gradients) {
             Ext.apply(config, { gradients: me.gradients });
@@ -207,9 +349,17 @@ Ext.define('Ext.chart.Chart', {
                 config.animate = defaultAnim;
             }
         }
-        me.mixins.mask.constructor.call(me, config);
-        me.mixins.navigation.constructor.call(me, config);
+
+        me.mixins.observable.constructor.call(me, config);
+        if (config.enableMask) {
+            me.mixins.mask.constructor.call(me);
+        }
+        me.mixins.navigation.constructor.call(me);
         me.callParent([config]);
+    },
+    
+    getChartStore: function(){
+        return this.substore || this.store;
     },
 
     initComponent: function() {
@@ -223,22 +373,22 @@ Ext.define('Ext.chart.Chart', {
             'itemmouseover',
             'itemmouseout',
             'itemclick',
-            'itemdoubleclick',
+            'itemdblclick',
             'itemdragstart',
             'itemdrag',
             'itemdragend',
             /**
-                 * @event beforerefresh
-                 * Fires before a refresh to the chart data is called.  If the beforerefresh handler returns
-                 * <tt>false</tt> the {@link #refresh} action will be cancelled.
-                 * @param {Chart} this
-                 */
+             * @event beforerefresh
+             * Fires before a refresh to the chart data is called. If the beforerefresh handler returns false the
+             * {@link #event-refresh} action will be cancelled.
+             * @param {Ext.chart.Chart} this
+             */
             'beforerefresh',
             /**
-                 * @event refresh
-                 * Fires after the chart data has been refreshed.
-                 * @param {Chart} this
-                 */
+             * @event refresh
+             * Fires after the chart data has been refreshed.
+             * @param {Ext.chart.Chart} this
+             */
             'refresh'
         );
         Ext.applyIf(me, {
@@ -252,17 +402,17 @@ Ext.define('Ext.chart.Chart', {
         me.maxGutter = [0, 0];
         me.store = Ext.data.StoreManager.lookup(me.store);
         axes = me.axes;
-        me.axes = Ext.create('Ext.util.MixedCollection', false, function(a) { return a.position; });
+        me.axes = new Ext.util.MixedCollection(false, function(a) { return a.position; });
         if (axes) {
             me.axes.addAll(axes);
         }
         series = me.series;
-        me.series = Ext.create('Ext.util.MixedCollection', false, function(a) { return a.seriesId || (a.seriesId = Ext.id(null, 'ext-chart-series-')); });
+        me.series = new Ext.util.MixedCollection(false, function(a) { return a.seriesId || (a.seriesId = Ext.id(null, 'ext-chart-series-')); });
         if (series) {
             me.series.addAll(series);
         }
         if (me.legend !== false) {
-            me.legend = Ext.create('Ext.chart.Legend', Ext.applyIf({chart:me}, me.legend));
+            me.legend = new Ext.chart.Legend(Ext.applyIf({chart:me}, me.legend));
         }
 
         me.on({
@@ -270,6 +420,8 @@ Ext.define('Ext.chart.Chart', {
             mouseleave: me.onMouseLeave,
             mousedown: me.onMouseDown,
             mouseup: me.onMouseUp,
+            click: me.onClick,
+            dblclick: me.onDblClick,
             scope: me
         });
     },
@@ -278,19 +430,29 @@ Ext.define('Ext.chart.Chart', {
     afterComponentLayout: function(width, height) {
         var me = this;
         if (Ext.isNumber(width) && Ext.isNumber(height)) {
-            me.curWidth = width;
-            me.curHeight = height;
-            me.redraw(true);
+            if (width !== me.curWidth || height !== me.curHeight) {
+                me.curWidth = width;
+                me.curHeight = height;
+                me.redraw(true);
+            } else if (me.needsRedraw) {
+                delete me.needsRedraw;
+                me.redraw();
+            }
         }
         this.callParent(arguments);
     },
 
     /**
-     * Redraw the chart. If animations are set this will animate the chart too.
-     * @cfg {boolean} resize Optional flag which changes the default origin points of the chart for animations.
+     * Redraws the chart. If animations are set this will animate the chart too. 
+     * @param {Boolean} resize (optional) flag which changes the default origin points of the chart for animations.
      */
     redraw: function(resize) {
         var me = this,
+            seriesItems = me.series.items,
+            seriesLen = seriesItems.length,
+            axesItems = me.axes.items,
+            axesLen = axesItems.length,
+            i,
             chartBBox = me.chartBBox = {
                 x: 0,
                 y: 0,
@@ -300,27 +462,33 @@ Ext.define('Ext.chart.Chart', {
             legend = me.legend;
         me.surface.setSize(chartBBox.width, chartBBox.height);
         // Instantiate Series and Axes
-        me.series.each(me.initializeSeries, me);
-        me.axes.each(me.initializeAxis, me);
+        for (i = 0; i < seriesLen; i++) {
+            me.initializeSeries(seriesItems[i],i);
+        }
+        for (i = 0; i < axesLen; i++) {
+            me.initializeAxis(axesItems[i]);
+        }
         //process all views (aggregated data etc) on stores
         //before rendering.
-        me.axes.each(function(axis) {
-            axis.processView();
-        });
-        me.axes.each(function(axis) {
-            axis.drawAxis(true);
-        });
+        for (i = 0; i < axesLen; i++) {
+            axesItems[i].processView();
+        }
+        for (i = 0; i < axesLen; i++) {
+            axesItems[i].drawAxis(true);
+        }
 
         // Create legend if not already created
-        if (legend !== false) {
-            legend.create();
+        if (legend !== false && legend.visible) {
+            if (legend.update || !legend.created) {
+              legend.create();
+            }
         }
 
         // Place axes properly, including influence from each other
         me.alignAxes();
 
         // Reposition legend based on new axis alignment
-        if (me.legend !== false) {
+        if (legend !== false && legend.visible) {
             legend.updatePosition();
         }
 
@@ -330,8 +498,12 @@ Ext.define('Ext.chart.Chart', {
         // Draw axes and series
         me.resizing = !!resize;
 
-        me.axes.each(me.drawAxis, me);
-        me.series.each(me.drawCharts, me);
+        for (i = 0; i < axesLen; i++) {
+            axesItems[i].drawAxis();
+        }
+        for (i = 0; i < seriesLen; i++) {
+            me.drawCharts(seriesItems[i]);
+        }
         me.resizing = false;
     },
 
@@ -351,6 +523,26 @@ Ext.define('Ext.chart.Chart', {
         }
         me.bindStore(me.store, true);
         me.refresh();
+
+        if (me.surface.engine === 'Vml') {
+            me.on('added', me.onAddedVml, me);
+            me.mon(Ext.container.Container.hierarchyEventSource, 'added', me.onContainerAddedVml, me);
+        }
+    },
+
+    // When using a vml surface we need to redraw when this chart or one of its ancestors
+    // is moved to a new container after render, because moving the vml chart causes the
+    // vml elements to go haywire, some displaing incorrectly or not displaying at all.
+    // This appears to be caused by the component being moved to the detached body element
+    // before being added to the new container.
+    onAddedVml: function() {
+        this.needsRedraw = true; // redraw after component layout
+    },
+
+    onContainerAddedVml: function(container) {
+        if (this.isDescendantOf(container)) {
+            this.needsRedraw = true; // redraw after component layout
+        }
     },
 
     // @private get x and y position of the mouse cursor.
@@ -362,39 +554,53 @@ Ext.define('Ext.chart.Chart', {
             y = pageXY[1] - box.top;
         return [x, y];
     },
+    
+    onClick: function(e) {
+        this.handleClick('itemclick', e);
+    },
+    
+    onDblClick: function(e) {
+        this.handleClick('itemdblclick', e);
+    },
 
     // @private wrap the mouse down position to delegate the event to the series.
-    onClick: function(e) {
+    handleClick: function(name, e) {
         var me = this,
             position = me.getEventXY(e),
+            seriesItems = me.series.items,
+            i, ln, series,
             item;
 
         // Ask each series if it has an item corresponding to (not necessarily exactly
         // on top of) the current mouse coords. Fire itemclick event.
-        me.series.each(function(series) {
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
             if (Ext.draw.Draw.withinBox(position[0], position[1], series.bbox)) {
                 if (series.getItemForPoint) {
                     item = series.getItemForPoint(position[0], position[1]);
                     if (item) {
-                        series.fireEvent('itemclick', item);
+                        series.fireEvent(name, item);
                     }
                 }
             }
-        }, me);
+        }
     },
 
     // @private wrap the mouse down position to delegate the event to the series.
     onMouseDown: function(e) {
         var me = this,
             position = me.getEventXY(e),
+            seriesItems = me.series.items,
+            i, ln, series,
             item;
 
-        if (me.mask) {
+        if (me.enableMask) {
             me.mixins.mask.onMouseDown.call(me, e);
         }
         // Ask each series if it has an item corresponding to (not necessarily exactly
-        // on top of) the current mouse coords. Fire mousedown event.
-        me.series.each(function(series) {
+        // on top of) the current mouse coords. Fire itemmousedown event.
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
             if (Ext.draw.Draw.withinBox(position[0], position[1], series.bbox)) {
                 if (series.getItemForPoint) {
                     item = series.getItemForPoint(position[0], position[1]);
@@ -403,21 +609,24 @@ Ext.define('Ext.chart.Chart', {
                     }
                 }
             }
-        }, me);
+        }
     },
 
     // @private wrap the mouse up event to delegate it to the series.
     onMouseUp: function(e) {
         var me = this,
             position = me.getEventXY(e),
+            seriesItems = me.series.items,
+            i, ln, series,
             item;
 
-        if (me.mask) {
+        if (me.enableMask) {
             me.mixins.mask.onMouseUp.call(me, e);
         }
         // Ask each series if it has an item corresponding to (not necessarily exactly
-        // on top of) the current mouse coords. Fire mousedown event.
-        me.series.each(function(series) {
+        // on top of) the current mouse coords. Fire itemmouseup event.
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
             if (Ext.draw.Draw.withinBox(position[0], position[1], series.bbox)) {
                 if (series.getItemForPoint) {
                     item = series.getItemForPoint(position[0], position[1]);
@@ -426,21 +635,25 @@ Ext.define('Ext.chart.Chart', {
                     }
                 }
             }
-        }, me);
+        }
     },
 
     // @private wrap the mouse move event so it can be delegated to the series.
     onMouseMove: function(e) {
         var me = this,
             position = me.getEventXY(e),
+            seriesItems = me.series.items,
+            i, ln, series,
             item, last, storeItem, storeField;
 
-        if (me.mask) {
+        
+        if (me.enableMask) {
             me.mixins.mask.onMouseMove.call(me, e);
         }
         // Ask each series if it has an item corresponding to (not necessarily exactly
         // on top of) the current mouse coords. Fire itemmouseover/out events.
-        me.series.each(function(series) {
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
             if (Ext.draw.Draw.withinBox(position[0], position[1], series.bbox)) {
                 if (series.getItemForPoint) {
                     item = series.getItemForPoint(position[0], position[1]);
@@ -473,25 +686,29 @@ Ext.define('Ext.chart.Chart', {
                     delete series._lastStoreItem;
                 }
             }
-        }, me);
+        }
     },
 
     // @private handle mouse leave event.
     onMouseLeave: function(e) {
-        var me = this;
-        if (me.mask) {
+        var me = this,
+            seriesItems = me.series.items,
+            i, ln, series;
+
+        if (me.enableMask) {
             me.mixins.mask.onMouseLeave.call(me, e);
         }
-        me.series.each(function(series) {
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
             delete series._lastItemForPoint;
-        });
+        }
     },
 
     // @private buffered refresh for when we update the store
     delayRefresh: function() {
         var me = this;
         if (!me.refreshTask) {
-            me.refreshTask = Ext.create('Ext.util.DelayedTask', me.refresh, me);
+            me.refreshTask = new Ext.util.DelayedTask(me.refresh, me);
         }
         me.refreshTask.delay(me.refreshBuffer);
     },
@@ -499,47 +716,70 @@ Ext.define('Ext.chart.Chart', {
     // @private
     refresh: function() {
         var me = this;
-        if (me.rendered && me.curWidth != undefined && me.curHeight != undefined) {
+            
+        if (me.rendered && me.curWidth !== undefined && me.curHeight !== undefined) {
+            if (!me.isVisible(true) && !me.refreshPending) {
+                me.setShowListeners('mon');
+                me.refreshPending = true;
+                return;
+            }
             if (me.fireEvent('beforerefresh', me) !== false) {
                 me.redraw();
                 me.fireEvent('refresh', me);
             }
         }
     },
+    
+    onShow: function(){
+        var me = this;
+        me.callParent(arguments);
+        if (me.refreshPending) {
+            me.delayRefresh();
+            me.setShowListeners('mun');
+        }
+        delete me.refreshPending;
+    },
+    
+    setShowListeners: function(method){
+        var me = this;
+        me[method](Ext.container.Container.hierarchyEventSource, {
+            scope: me,
+            single: true,
+            show: me.forceRefresh,
+            expand: me.forceRefresh
+        });
+    },
+    
+    forceRefresh: function(container) {
+        var me = this;
+        if (me.isDescendantOf(container) && me.refreshPending) {
+            // Add unbind here, because either expand/show could be fired,
+            // so be sure to unbind the listener that didn't
+            me.setShowListeners('mun');
+            me.delayRefresh();
+        }    
+        delete me.refreshPending;
+    },
 
-    /**
-     * Changes the data store bound to this chart and refreshes it.
-     * @param {Store} store The store to bind to this chart
-     */
     bindStore: function(store, initial) {
         var me = this;
-        if (!initial && me.store) {
-            if (store !== me.store && me.store.autoDestroy) {
-                me.store.destroy();
-            }
-            else {
-                me.store.un('datachanged', me.refresh, me);
-                me.store.un('add', me.delayRefresh, me);
-                me.store.un('remove', me.delayRefresh, me);
-                me.store.un('update', me.delayRefresh, me);
-                me.store.un('clear', me.refresh, me);
-            }
-        }
-        if (store) {
-            store = Ext.data.StoreManager.lookup(store);
-            store.on({
-                scope: me,
-                datachanged: me.refresh,
-                add: me.delayRefresh,
-                remove: me.delayRefresh,
-                update: me.delayRefresh,
-                clear: me.refresh
-            });
-        }
-        me.store = store;
-        if (store && !initial) {
+        me.mixins.bindable.bindStore.apply(me, arguments);
+        if (me.store && !initial) {
             me.refresh();
         }
+    },
+    
+    getStoreListeners: function() {
+        var refresh = this.refresh,
+            delayRefresh = this.delayRefresh;
+            
+        return {
+            refresh: refresh,
+            add: delayRefresh,
+            remove: delayRefresh,
+            update: delayRefresh,
+            clear: refresh
+        };
     },
 
     // @private Create Axis
@@ -616,8 +856,12 @@ Ext.define('Ext.chart.Chart', {
     alignAxes: function() {
         var me = this,
             axes = me.axes,
+            axesItems = axes.items,
+            axis,
             legend = me.legend,
             edges = ['top', 'right', 'bottom', 'left'],
+            edge,
+            i, ln,
             chartBBox,
             insetPadding = me.insetPadding,
             insets = {
@@ -625,7 +869,8 @@ Ext.define('Ext.chart.Chart', {
                 right: insetPadding,
                 bottom: insetPadding,
                 left: insetPadding
-            };
+            },
+            isVertical, bbox, pos;
 
         function getAxis(edge) {
             var i = axes.findIndex('position', edge);
@@ -633,10 +878,10 @@ Ext.define('Ext.chart.Chart', {
         }
 
         // Find the space needed by axes and legend as a positive inset from each edge
-        Ext.each(edges, function(edge) {
-            var isVertical = (edge === 'left' || edge === 'right'),
-                axis = getAxis(edge),
-                bbox;
+        for (i = 0, ln = edges.length; i < ln; i++) {
+            edge = edges[i];
+            isVertical = (edge === 'left' || edge === 'right');
+            axis = getAxis(edge);
 
             // Add legend size if it's on this edge
             if (legend !== false) {
@@ -652,7 +897,7 @@ Ext.define('Ext.chart.Chart', {
                 bbox = axis.bbox;
                 insets[edge] += (isVertical ? bbox.width : bbox.height);
             }
-        });
+        }
         // Build the chart bbox based on the collected inset values
         chartBBox = {
             x: insets.left,
@@ -664,15 +909,16 @@ Ext.define('Ext.chart.Chart', {
 
         // Go back through each axis and set its length and position based on the
         // corresponding edge of the chartBBox
-        axes.each(function(axis) {
-            var pos = axis.position,
-                isVertical = (pos === 'left' || pos === 'right');
+        for (i = 0, ln = axesItems.length; i < ln; i++) {
+            axis = axesItems[i];
+            pos = axis.position;
+            isVertical = (pos === 'left' || pos === 'right');
 
             axis.x = (pos === 'right' ? chartBBox.x + chartBBox.width : chartBBox.x);
             axis.y = (pos === 'top' ? chartBBox.y : chartBBox.y + chartBBox.height);
             axis.width = (isVertical ? chartBBox.width : chartBBox.height);
             axis.length = (isVertical ? chartBBox.height : chartBBox.width);
-        });
+        }
     },
 
     // @private initialize the series.
@@ -724,12 +970,16 @@ Ext.define('Ext.chart.Chart', {
     // @private
     getMaxGutter: function() {
         var me = this,
-            maxGutter = [0, 0];
-        me.series.each(function(s) {
-            var gutter = s.getGutters && s.getGutters() || [0, 0];
+            seriesItems = me.series.items,
+            i, ln, series,
+            maxGutter = [0, 0],
+            gutter;
+        for (i = 0, ln = seriesItems.length; i < ln; i++) {
+            series = seriesItems[i];
+            gutter = series.getGutters && series.getGutters() || [0, 0];
             maxGutter[0] = Math.max(maxGutter[0], gutter[0]);
             maxGutter[1] = Math.max(maxGutter[1], gutter[1]);
-        });
+        }
         me.maxGutter = maxGutter;
     },
 
@@ -746,10 +996,40 @@ Ext.define('Ext.chart.Chart', {
             series.fireEvent('afterrender');
         }
     },
-
+    /**
+     * Saves the chart by either triggering a download or returning a string containing the chart data
+     * as SVG.  The action depends on the export type specified in the passed configuration. The chart
+     * will be exported using either the {@link Ext.draw.engine.SvgExporter} or the {@link Ext.draw.engine.ImageExporter}
+     * classes.
+     *
+     * Possible export types:
+     *
+     * - 'image/png'
+     * - 'image/jpeg',
+     * - 'image/svg+xml'
+     *
+     * If 'image/svg+xml' is specified, the SvgExporter will be used. 
+     * If 'image/png' or 'image/jpeg' are specified, the ImageExporter will be used. This exporter
+     * must post the SVG data to a remote server to have the data processed, see the {@link Ext.draw.engine.ImageExporter}
+     * for more details.
+     *
+     * Example usage:
+     *
+     *     chart.save({
+     *          type: 'image/png'
+     *     });
+     *
+     * @param {Object} [config] The configuration to be passed to the exporter.
+     * See the export method for the appropriate exporter for the relevant
+     * configuration options
+     * @return {Object} See the return types for the appropriate exporter
+     */
+    save: function(config){
+        return Ext.draw.Surface.save(this.surface, config);
+    },
     // @private remove gently.
     destroy: function() {
-        this.surface.destroy();
+        Ext.destroy(this.surface);
         this.bindStore(null);
         this.callParent(arguments);
     }

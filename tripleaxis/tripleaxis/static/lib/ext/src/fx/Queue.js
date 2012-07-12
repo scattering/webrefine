@@ -9,7 +9,7 @@ Ext.define('Ext.fx.Queue', {
     requires: ['Ext.util.HashMap'],
 
     constructor: function() {
-        this.targets = Ext.create('Ext.util.HashMap');
+        this.targets = new Ext.util.HashMap();
         this.fxQueue = {};
     },
 

@@ -1,84 +1,104 @@
 /**
- * @class Ext.tip.ToolTip
- * @extends Ext.tip.Tip
- * 
  * ToolTip is a {@link Ext.tip.Tip} implementation that handles the common case of displaying a
  * tooltip when hovering over a certain element or elements on the page. It allows fine-grained
  * control over the tooltip's alignment relative to the target element or mouse, and the timing
  * of when it is automatically shown and hidden.
- * 
+ *
  * This implementation does **not** have a built-in method of automatically populating the tooltip's
  * text based on the target element; you must either configure a fixed {@link #html} value for each
  * ToolTip instance, or implement custom logic (e.g. in a {@link #beforeshow} event listener) to
  * generate the appropriate tooltip content on the fly. See {@link Ext.tip.QuickTip} for a more
  * convenient way of automatically populating and configuring a tooltip based on specific DOM
  * attributes of each target element.
- * 
- * ## Basic Example
- * 
+ *
+ * # Basic Example
+ *
  *     var tip = Ext.create('Ext.tip.ToolTip', {
  *         target: 'clearButton',
  *         html: 'Press this button to clear the form'
  *     });
- * 
+ *
  * {@img Ext.tip.ToolTip/Ext.tip.ToolTip1.png Basic Ext.tip.ToolTip}
- * 
- * ## Delegation
- * 
+ *
+ * # Delegation
+ *
  * In addition to attaching a ToolTip to a single element, you can also use delegation to attach
  * one ToolTip to many elements under a common parent. This is more efficient than creating many
  * ToolTip instances. To do this, point the {@link #target} config to a common ancestor of all the
  * elements, and then set the {@link #delegate} config to a CSS selector that will select all the
  * appropriate sub-elements.
- * 
+ *
  * When using delegation, it is likely that you will want to programmatically change the content
  * of the ToolTip based on each delegate element; you can do this by implementing a custom
  * listener for the {@link #beforeshow} event. Example:
- * 
- *     var myGrid = Ext.create('Ext.grid.GridPanel', gridConfig);
- *     myGrid.on('render', function(grid) {
- *         var view = grid.getView();    // Capture the grid's view.
- *         grid.tip = Ext.create('Ext.tip.ToolTip', {
- *             target: view.el,          // The overall target element.
- *             delegate: view.itemSelector, // Each grid row causes its own seperate show and hide.
- *             trackMouse: true,         // Moving within the row should not hide the tip.
- *             renderTo: Ext.getBody(),  // Render immediately so that tip.body can be referenced prior to the first show.
- *             listeners: {              // Change content dynamically depending on which element triggered the show.
+ *
+ *     var store = Ext.create('Ext.data.ArrayStore', {
+ *         fields: ['company', 'price', 'change'],
+ *         data: [
+ *             ['3m Co',                               71.72, 0.02],
+ *             ['Alcoa Inc',                           29.01, 0.42],
+ *             ['Altria Group Inc',                    83.81, 0.28],
+ *             ['American Express Company',            52.55, 0.01],
+ *             ['American International Group, Inc.',  64.13, 0.31],
+ *             ['AT&T Inc.',                           31.61, -0.48]
+ *         ]
+ *     });
+ *
+ *     var grid = Ext.create('Ext.grid.Panel', {
+ *         title: 'Array Grid',
+ *         store: store,
+ *         columns: [
+ *             {text: 'Company', flex: 1, dataIndex: 'company'},
+ *             {text: 'Price', width: 75, dataIndex: 'price'},
+ *             {text: 'Change', width: 75, dataIndex: 'change'}
+ *         ],
+ *         height: 200,
+ *         width: 400,
+ *         renderTo: Ext.getBody()
+ *     });
+ *
+ *     grid.getView().on('render', function(view) {
+ *         view.tip = Ext.create('Ext.tip.ToolTip', {
+ *             // The overall target element.
+ *             target: view.el,
+ *             // Each grid row causes its own separate show and hide.
+ *             delegate: view.itemSelector,
+ *             // Moving within the row should not hide the tip.
+ *             trackMouse: true,
+ *             // Render immediately so that tip.body can be referenced prior to the first show.
+ *             renderTo: Ext.getBody(),
+ *             listeners: {
+ *                 // Change content dynamically depending on which element triggered the show.
  *                 beforeshow: function updateTipBody(tip) {
  *                     tip.update('Over company "' + view.getRecord(tip.triggerElement).get('company') + '"');
  *                 }
  *             }
  *         });
  *     });
- * 
+ *
  * {@img Ext.tip.ToolTip/Ext.tip.ToolTip2.png Ext.tip.ToolTip with delegation}
- * 
- * ## Alignment
- * 
+ *
+ * # Alignment
+ *
  * The following configuration properties allow control over how the ToolTip is aligned relative to
  * the target element and/or mouse pointer:
- * 
- *  - {@link #anchor}
- *  - {@link #anchorToTarget}
- *  - {@link #anchorOffset}
- *  - {@link #trackMouse}
- *  - {@link #mouseOffset}
- * 
- * ## Showing/Hiding
- * 
+ *
+ * - {@link #anchor}
+ * - {@link #anchorToTarget}
+ * - {@link #anchorOffset}
+ * - {@link #trackMouse}
+ * - {@link #mouseOffset}
+ *
+ * # Showing/Hiding
+ *
  * The following configuration properties allow control over how and when the ToolTip is automatically
  * shown and hidden:
- * 
- *  - {@link #autoHide}
- *  - {@link #showDelay}
- *  - {@link #hideDelay}
- *  - {@link #dismissDelay}
- * 
- * @constructor
- * Create a new ToolTip instance
- * @param {Object} config The configuration options
- * @xtype tooltip
- * @markdown
+ *
+ * - {@link #autoHide}
+ * - {@link #showDelay}
+ * - {@link #hideDelay}
+ * - {@link #dismissDelay}
+ *
  * @docauthor Jason Johnston <jason@sencha.com>
  */
 Ext.define('Ext.tip.ToolTip', {
@@ -86,101 +106,89 @@ Ext.define('Ext.tip.ToolTip', {
     alias: 'widget.tooltip',
     alternateClassName: 'Ext.ToolTip',
     /**
-     * When a ToolTip is configured with the <code>{@link #delegate}</code>
-     * option to cause selected child elements of the <code>{@link #target}</code>
-     * Element to each trigger a seperate show event, this property is set to
+     * @property {HTMLElement} triggerElement
+     * When a ToolTip is configured with the `{@link #delegate}`
+     * option to cause selected child elements of the `{@link #target}`
+     * Element to each trigger a separate show event, this property is set to
      * the DOM element which triggered the show.
-     * @type DOMElement
-     * @property triggerElement
      */
     /**
-     * @cfg {Mixed} target The target HTMLElement, Ext.core.Element or id to monitor
-     * for mouseover events to trigger showing this ToolTip.
+     * @cfg {HTMLElement/Ext.Element/String} target
+     * The target element or string id to monitor for mouseover events to trigger
+     * showing this ToolTip.
      */
     /**
-     * @cfg {Boolean} autoHide True to automatically hide the tooltip after the
-     * mouse exits the target element or after the <code>{@link #dismissDelay}</code>
-     * has expired if set (defaults to true).  If <code>{@link #closable} = true</code>
+     * @cfg {Boolean} [autoHide=true]
+     * True to automatically hide the tooltip after the
+     * mouse exits the target element or after the `{@link #dismissDelay}`
+     * has expired if set.  If `{@link #closable} = true`
      * a close tool button will be rendered into the tooltip header.
      */
+    autoHide: true,
+    
     /**
-     * @cfg {Number} showDelay Delay in milliseconds before the tooltip displays
-     * after the mouse enters the target element (defaults to 500)
+     * @cfg {Number} showDelay
+     * Delay in milliseconds before the tooltip displays after the mouse enters the target element.
      */
     showDelay: 500,
     /**
-     * @cfg {Number} hideDelay Delay in milliseconds after the mouse exits the
-     * target element but before the tooltip actually hides (defaults to 200).
+     * @cfg {Number} hideDelay
+     * Delay in milliseconds after the mouse exits the target element but before the tooltip actually hides.
      * Set to 0 for the tooltip to hide immediately.
      */
     hideDelay: 200,
     /**
-     * @cfg {Number} dismissDelay Delay in milliseconds before the tooltip
-     * automatically hides (defaults to 5000). To disable automatic hiding, set
+     * @cfg {Number} dismissDelay
+     * Delay in milliseconds before the tooltip automatically hides. To disable automatic hiding, set
      * dismissDelay = 0.
      */
     dismissDelay: 5000,
     /**
-     * @cfg {Array} mouseOffset An XY offset from the mouse position where the
-     * tooltip should be shown (defaults to [15,18]).
+     * @cfg {Number[]} [mouseOffset=[15,18]]
+     * An XY offset from the mouse position where the tooltip should be shown.
      */
     /**
-     * @cfg {Boolean} trackMouse True to have the tooltip follow the mouse as it
-     * moves over the target element (defaults to false).
+     * @cfg {Boolean} trackMouse
+     * True to have the tooltip follow the mouse as it moves over the target element.
      */
     trackMouse: false,
     /**
-     * @cfg {String} anchor If specified, indicates that the tip should be anchored to a
+     * @cfg {String} anchor
+     * If specified, indicates that the tip should be anchored to a
      * particular side of the target element or mouse pointer ("top", "right", "bottom",
      * or "left"), with an arrow pointing back at the target or mouse pointer. If
      * {@link #constrainPosition} is enabled, this will be used as a preferred value
      * only and may be flipped as needed.
      */
     /**
-     * @cfg {Boolean} anchorToTarget True to anchor the tooltip to the target
-     * element, false to anchor it relative to the mouse coordinates (defaults
-     * to true).  When <code>anchorToTarget</code> is true, use
-     * <code>{@link #defaultAlign}</code> to control tooltip alignment to the
-     * target element.  When <code>anchorToTarget</code> is false, use
-     * <code>{@link #anchorPosition}</code> instead to control alignment.
+     * @cfg {Boolean} anchorToTarget
+     * True to anchor the tooltip to the target element, false to anchor it relative to the mouse coordinates.
+     * When `anchorToTarget` is true, use `{@link #defaultAlign}` to control tooltip alignment to the
+     * target element.  When `anchorToTarget` is false, use `{@link #anchor}` instead to control alignment.
      */
     anchorToTarget: true,
     /**
-     * @cfg {Number} anchorOffset A numeric pixel value used to offset the
-     * default position of the anchor arrow (defaults to 0).  When the anchor
-     * position is on the top or bottom of the tooltip, <code>anchorOffset</code>
-     * will be used as a horizontal offset.  Likewise, when the anchor position
-     * is on the left or right side, <code>anchorOffset</code> will be used as
+     * @cfg {Number} anchorOffset
+     * A numeric pixel value used to offset the default position of the anchor arrow.  When the anchor
+     * position is on the top or bottom of the tooltip, `anchorOffset` will be used as a horizontal offset.
+     * Likewise, when the anchor position is on the left or right side, `anchorOffset` will be used as
      * a vertical offset.
      */
     anchorOffset: 0,
     /**
-     * @cfg {String} delegate <p>Optional. A {@link Ext.DomQuery DomQuery}
-     * selector which allows selection of individual elements within the
-     * <code>{@link #target}</code> element to trigger showing and hiding the
-     * ToolTip as the mouse moves within the target.</p>
-     * <p>When specified, the child element of the target which caused a show
-     * event is placed into the <code>{@link #triggerElement}</code> property
-     * before the ToolTip is shown.</p>
-     * <p>This may be useful when a Component has regular, repeating elements
-     * in it, each of which need a ToolTip which contains information specific
-     * to that element. For example:</p><pre><code>
-var myGrid = Ext.create('Ext.grid.GridPanel', gridConfig);
-myGrid.on('render', function(grid) {
-    var view = grid.getView();    // Capture the grid's view.
-    grid.tip = Ext.create('Ext.tip.ToolTip', {
-        target: view.el,          // The overall target element.
-        delegate: view.itemSelector, // Each grid row causes its own seperate show and hide.
-        trackMouse: true,         // Moving within the row should not hide the tip.
-        renderTo: Ext.getBody(),  // Render immediately so that tip.body can be referenced prior to the first show.
-        listeners: {              // Change content dynamically depending on which element triggered the show.
-            beforeshow: function(tip) {
-                tip.update('Over Record ID ' + view.getRecord(tip.triggerElement).id);
-            }
-        }
-    });
-});
-     *</code></pre>
+     * @cfg {String} delegate
+     *
+     * A {@link Ext.DomQuery DomQuery} selector which allows selection of individual elements within the
+     * `{@link #target}` element to trigger showing and hiding the ToolTip as the mouse moves within the
+     * target.
+     *
+     * When specified, the child element of the target which caused a show event is placed into the
+     * `{@link #triggerElement}` property before the ToolTip is shown.
+     *
+     * This may be useful when a Component has regular, repeating elements in it, each of which need a
+     * ToolTip which contains information specific to that element.
+     *
+     * See the delegate example in class documentation of {@link Ext.tip.ToolTip}.
      */
 
     // private
@@ -206,19 +214,9 @@ myGrid.on('render', function(grid) {
         });
     },
 
-    // private
-    afterRender: function() {
-        var me = this,
-            zIndex;
-
-        me.callParent(arguments);
-        zIndex = parseInt(me.el.getZIndex(), 10) || 0;
-        me.anchorEl.setStyle('z-index', zIndex + 1).setVisibilityMode(Ext.core.Element.DISPLAY);
-    },
-
     /**
      * Binds this ToolTip to the specified element. The tooltip will be displayed when the mouse moves over the element.
-     * @param {Mixed} t The Element, HtmlElement, or ID of an element to bind to
+     * @param {String/HTMLElement/Ext.Element} t The Element, HtmlElement, or ID of an element to bind to
      */
     setTarget: function(target) {
         var me = this,
@@ -231,10 +229,10 @@ myGrid.on('render', function(grid) {
             me.mun(tg, 'mouseout', me.onTargetOut, me);
             me.mun(tg, 'mousemove', me.onMouseMove, me);
         }
-        
+
         me.target = t;
         if (t) {
-            
+
             me.mon(t, {
                 // TODO - investigate why IE6/7 seem to fire recursive resize in e.getXY
                 // breaking QuickTip#onTargetOver (EXTJSIV-1608)
@@ -262,7 +260,7 @@ myGrid.on('render', function(grid) {
                 if (!me.hidden && me.trackMouse) {
                     xy = me.getTargetXY();
                     if (me.constrainPosition) {
-                        xy = me.el.adjustForConstraints(xy, me.el.dom.parentNode);
+                        xy = me.el.adjustForConstraints(xy, me.el.getScopeParent());
                     }
                     me.setPagePosition(xy);
                 }
@@ -279,23 +277,24 @@ myGrid.on('render', function(grid) {
     // private
     getTargetXY: function() {
         var me = this,
-            mouseOffset;
+            mouseOffset,
+            offsets, xy, dw, dh, de, bd, scrollX, scrollY, axy, sz, constrainPosition;
         if (me.delegate) {
             me.anchorTarget = me.triggerElement;
         }
         if (me.anchor) {
             me.targetCounter++;
-                var offsets = me.getOffsets(),
-                    xy = (me.anchorToTarget && !me.trackMouse) ? me.el.getAlignToXY(me.anchorTarget, me.getAnchorAlign()) : me.targetXY,
-                    dw = Ext.core.Element.getViewWidth() - 5,
-                    dh = Ext.core.Element.getViewHeight() - 5,
-                    de = document.documentElement,
-                    bd = document.body,
-                    scrollX = (de.scrollLeft || bd.scrollLeft || 0) + 5,
-                    scrollY = (de.scrollTop || bd.scrollTop || 0) + 5,
-                    axy = [xy[0] + offsets[0], xy[1] + offsets[1]],
-                    sz = me.getSize(),
-                    constrainPosition = me.constrainPosition;
+            offsets = me.getOffsets();
+            xy = (me.anchorToTarget && !me.trackMouse) ? me.el.getAlignToXY(me.anchorTarget, me.getAnchorAlign()) : me.targetXY;
+            dw = Ext.Element.getViewWidth() - 5;
+            dh = Ext.Element.getViewHeight() - 5;
+            de = document.documentElement;
+            bd = document.body;
+            scrollX = (de.scrollLeft || bd.scrollLeft || 0) + 5;
+            scrollY = (de.scrollTop || bd.scrollTop || 0) + 5;
+            axy = [xy[0] + offsets[0], xy[1] + offsets[1]];
+            sz = me.getSize();
+            constrainPosition = me.constrainPosition;
 
             me.anchorEl.removeCls(me.anchorCls);
 
@@ -478,10 +477,18 @@ myGrid.on('render', function(grid) {
             me.show();
         }
     },
+    
+    onShowVeto: function(){
+        this.callParent();
+        this.clearTimer('show');
+    },
 
     // private
     onTargetOut: function(e) {
         var me = this;
+
+        // If disabled, moving within the current target, ignore the mouseout
+        // EventObject.within is the only correct way to determine this.
         if (me.disabled || e.within(me.target.dom, true)) {
             return;
         }
@@ -528,7 +535,10 @@ myGrid.on('render', function(grid) {
             if (me.anchor) {
                 me.anchor = me.origAnchor;
             }
-            me.showAt(me.getTargetXY());
+            
+            if (!me.calledFromShowAt) {
+                me.showAt(me.getTargetXY());
+            }
 
             if (me.anchor) {
                 me.syncAnchor();
@@ -544,6 +554,7 @@ myGrid.on('render', function(grid) {
         var me = this;
         me.lastActive = new Date();
         me.clearTimers();
+        me.calledFromShowAt = true;
 
         // Only call if this is hidden. May have been called from show above.
         if (!me.isVisible()) {
@@ -557,19 +568,20 @@ myGrid.on('render', function(grid) {
                 me.doConstrain();
             }
             me.toFront(true);
-        }
-
-        if (me.dismissDelay && me.autoHide !== false) {
-            me.dismissTimer = Ext.defer(me.hide, me.dismissDelay, me);
-        }
-        if (me.anchor) {
-            me.syncAnchor();
-            if (!me.anchorEl.isVisible()) {
-                me.anchorEl.show();
+            me.el.sync(true);
+            if (me.dismissDelay && me.autoHide !== false) {
+                me.dismissTimer = Ext.defer(me.hide, me.dismissDelay, me);
             }
-        } else {
-            me.anchorEl.hide();
+            if (me.anchor) {
+                me.syncAnchor();
+                if (!me.anchorEl.isVisible()) {
+                    me.anchorEl.show();
+                }
+            } else {
+                me.anchorEl.hide();
+            }
         }
+        delete me.calledFromShowAt;
     },
 
     // private
@@ -601,6 +613,7 @@ myGrid.on('render', function(grid) {
             break;
         }
         me.anchorEl.alignTo(me.el, anchorPos + '-' + targetPos, offset);
+        me.anchorEl.setStyle('z-index', parseInt(me.el.getZIndex(), 10) || 0 + 1).setVisibilityMode(Ext.Element.DISPLAY);
     },
 
     // private
@@ -644,7 +657,7 @@ myGrid.on('render', function(grid) {
     // private
     onDocMouseDown: function(e) {
         var me = this;
-        if (me.autoHide !== true && !me.closable && !e.within(me.el.dom)) {
+        if (!me.closable && !e.within(me.el.dom)) {
             me.disable();
             Ext.defer(me.doEnable, 100, me);
         }

@@ -30,15 +30,6 @@ var biggerThanZero = coll.filterBy(function(value){
 console.log(biggerThanZero.getCount()); // prints 2
  * </code></pre>
  * </p>
- *
- * @constructor
- * @param {Boolean} allowFunctions Specify <tt>true</tt> if the {@link #addAll}
- * function should add function references to the collection. Defaults to
- * <tt>false</tt>.
- * @param {Function} keyFn A function that can accept an item of the type(s) stored in this MixedCollection
- * and return the key value for that item.  This is used when available to look up the key on items that
- * were passed without an explicit key parameter to a MixedCollection method.  Passing this parameter is
- * equivalent to providing an implementation for the {@link #getKey} method.
  */
 Ext.define('Ext.util.MixedCollection', {
     extend: 'Ext.util.AbstractMixedCollection',
@@ -46,6 +37,16 @@ Ext.define('Ext.util.MixedCollection', {
         sortable: 'Ext.util.Sortable'
     },
 
+    /**
+     * Creates new MixedCollection.
+     * @param {Boolean} allowFunctions Specify <tt>true</tt> if the {@link #addAll}
+     * function should add function references to the collection. Defaults to
+     * <tt>false</tt>.
+     * @param {Function} keyFn A function that can accept an item of the type(s) stored in this MixedCollection
+     * and return the key value for that item.  This is used when available to look up the key on items that
+     * were passed without an explicit key parameter to a MixedCollection method.  Passing this parameter is
+     * equivalent to providing an implementation for the {@link #getKey} method.
+     */
     constructor: function() {
         var me = this;
         me.callParent(arguments);
@@ -144,8 +145,43 @@ Ext.define('Ext.util.MixedCollection', {
             items[i] = temp[i].value;
             keys[i]  = temp[i].key;
         }
-        
+
         me.fireEvent('sort', me, items, keys);
+    },
+
+    /**
+     * Calculates the insertion index of the new item based upon the comparison function passed, or the current sort order.
+     * @param {Object} newItem The new object to find the insertion position of.
+     * @param {Function} [sorterFn] The function to sort by. This is the same as the sorting function
+     * passed to {@link #sortBy}. It accepts 2 items from this MixedCollection, and returns -1 0, or 1
+     * depending on the relative sort positions of the 2 compared items.
+     *
+     * If omitted, a function {@link #generateComparator generated} from the currently defined set of
+     * {@link #sorters} will be used.
+     *
+     * @return {Number} The insertion point to add the new item into this MixedCollection at using {@link #insert}
+     */
+    findInsertionIndex: function(newItem, sorterFn) {
+        var me    = this,
+            items = me.items,
+            start = 0,
+            end   = items.length - 1,
+            middle,
+            comparison;
+
+        if (!sorterFn) {
+            sorterFn = me.generateComparator();
+        }
+        while (start <= end) {
+            middle = (start + end) >> 1;
+            comparison = sorterFn(newItem, items[middle]);
+            if (comparison >= 0) {
+                start = middle + 1;
+            } else if (comparison < 0) {
+                end = middle - 1;
+            }
+        }
+        return start;
     },
 
     /**

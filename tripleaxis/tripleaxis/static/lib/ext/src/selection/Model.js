@@ -1,66 +1,77 @@
 /**
- * @class Ext.selection.Model
- * @extends Ext.util.Observable
+ * Tracks what records are currently selected in a databound component.
  *
- * Tracks what records are currently selected in a databound widget.
+ * This is an abstract class and is not meant to be directly used. Databound UI widgets such as
+ * {@link Ext.grid.Panel Grid} and {@link Ext.tree.Panel Tree} should subclass Ext.selection.Model
+ * and provide a way to binding to the component.
  *
- * This is an abstract class and is not meant to be directly used.
- *
- * DataBound UI widgets such as GridPanel, TreePanel, and ListView
- * should subclass AbstractStoreSelectionModel and provide a way
- * to binding to the component.
- *
- * The abstract methods onSelectChange and onLastFocusChanged should
- * be implemented in these subclasses to update the UI widget.
+ * The abstract methods `onSelectChange` and `onLastFocusChanged` should be implemented in these
+ * subclasses to update the UI widget.
  */
 Ext.define('Ext.selection.Model', {
     extend: 'Ext.util.Observable',
-    alternateClassName: 'Ext.AbstractStoreSelectionModel',
+    alternateClassName: 'Ext.AbstractSelectionModel',
     requires: ['Ext.data.StoreManager'],
+    mixins: {
+        bindable: 'Ext.util.Bindable'    
+    },
     // lastSelected
 
     /**
      * @cfg {String} mode
-     * Modes of selection.
-     * Valid values are SINGLE, SIMPLE, and MULTI. Defaults to 'SINGLE'
+     * Mode of selection.  Valid values are:
+     *
+     * - **SINGLE** - Only allows selecting one item at a time.  Use {@link #allowDeselect} to allow
+     *   deselecting that item.  This is the default.
+     * - **SIMPLE** - Allows simple selection of multiple items one-by-one. Each click in grid will either
+     *   select or deselect an item.
+     * - **MULTI** - Allows complex selection of multiple items using Ctrl and Shift keys.
      */
-    
+
     /**
      * @cfg {Boolean} allowDeselect
-     * Allow users to deselect a record in a DataView, List or Grid. Only applicable when the SelectionModel's mode is 'SINGLE'. Defaults to false.
+     * Allow users to deselect a record in a DataView, List or Grid.
+     * Only applicable when the {@link #mode} is 'SINGLE'.
      */
     allowDeselect: false,
 
     /**
-     * @property selected
-     * READ-ONLY A MixedCollection that maintains all of the currently selected
-     * records.
+     * @property {Ext.util.MixedCollection} [selected=undefined]
+     * A MixedCollection that maintains all of the currently selected records.
+     * @readonly
      */
     selected: null,
-    
-    
+
     /**
+     * @cfg {Boolean} pruneRemoved
      * Prune records when they are removed from the store from the selection.
      * This is a private flag. For an example of its usage, take a look at
      * Ext.selection.TreeModel.
-     * @private
      */
     pruneRemoved: true,
 
     constructor: function(cfg) {
         var me = this;
-        
+
         cfg = cfg || {};
         Ext.apply(me, cfg);
-        
+
         me.addEvents(
             /**
-             * @event selectionchange
+             * @event
              * Fired after a selection change has occurred
              * @param {Ext.selection.Model} this
-             * @param  {Array} selected The selected records
+             * @param {Ext.data.Model[]} selected The selected records
              */
-             'selectionchange'
+            'selectionchange',
+            /**
+             * @event
+             * Fired when a row is focused
+             * @param {Ext.selection.Model} this
+             * @param {Ext.data.Model} oldFocused The previously focused record
+             * @param {Ext.data.Model} newFocused The newly focused record
+             */
+            'focuschange'
         );
 
         me.modes = {
@@ -73,44 +84,33 @@ Ext.define('Ext.selection.Model', {
         me.setSelectionMode(cfg.mode || me.mode);
 
         // maintains the currently selected records.
-        me.selected = Ext.create('Ext.util.MixedCollection');
-        
+        me.selected = new Ext.util.MixedCollection();
+
         me.callParent(arguments);
     },
 
     // binds the store to the selModel.
-    bind : function(store, initial){
+    bindStore: function(store, initial){
         var me = this;
-        
-        if(!initial && me.store){
-            if(store !== me.store && me.store.autoDestroy){
-                me.store.destroy();
-            }else{
-                me.store.un("add", me.onStoreAdd, me);
-                me.store.un("clear", me.onStoreClear, me);
-                me.store.un("remove", me.onStoreRemove, me);
-                me.store.un("update", me.onStoreUpdate, me);
-            }
-        }
-        if(store){
-            store = Ext.data.StoreManager.lookup(store);
-            store.on({
-                add: me.onStoreAdd,
-                clear: me.onStoreClear,
-                remove: me.onStoreRemove,
-                update: me.onStoreUpdate,
-                scope: me
-            });
-        }
-        me.store = store;
-        if(store && !initial) {
+        me.mixins.bindable.bindStore.apply(me, arguments);
+        if(me.store && !initial) {
             me.refresh();
         }
     },
+    
+    getStoreListeners: function() {
+        var me = this;
+        return {
+            add: me.onStoreAdd,
+            clear: me.onStoreClear,
+            remove: me.onStoreRemove,
+            update: me.onStoreUpdate    
+        }; 
+    },
 
     /**
-     * Select all records in the view.
-     * @param {Boolean} suppressEvent True to suppress any selects event
+     * Selects all records in the view.
+     * @param {Boolean} suppressEvent True to suppress any select events
      */
     selectAll: function(suppressEvent) {
         var me = this,
@@ -118,7 +118,7 @@ Ext.define('Ext.selection.Model', {
             i = 0,
             len = selections.length,
             start = me.getSelection().length;
-            
+
         me.bulkChange = true;
         for (; i < len; i++) {
             me.doSelect(selections[i], true, suppressEvent);
@@ -129,7 +129,7 @@ Ext.define('Ext.selection.Model', {
     },
 
     /**
-     * Deselect all records in the view.
+     * Deselects all records in the view.
      * @param {Boolean} suppressEvent True to suppress any deselect events
      */
     deselectAll: function(suppressEvent) {
@@ -138,7 +138,7 @@ Ext.define('Ext.selection.Model', {
             i = 0,
             len = selections.length,
             start = me.getSelection().length;
-            
+
         me.bulkChange = true;
         for (; i < len; i++) {
             me.doDeselect(selections[i], suppressEvent);
@@ -151,9 +151,9 @@ Ext.define('Ext.selection.Model', {
     // Provides differentiation of logic between MULTI, SIMPLE and SINGLE
     // selection modes. Requires that an event be passed so that we can know
     // if user held ctrl or shift.
-    selectWithEvent: function(record, e) {
+    selectWithEvent: function(record, e, keepExisting) {
         var me = this;
-        
+
         switch (me.selectionMode) {
             case 'MULTI':
                 if (e.ctrlKey && me.isSelected(record)) {
@@ -163,7 +163,7 @@ Ext.define('Ext.selection.Model', {
                 } else if (e.ctrlKey) {
                     me.doSelect(record, true, false);
                 } else if (me.isSelected(record) && !e.shiftKey && !e.ctrlKey && me.selected.getCount() > 1) {
-                    me.doSelect(record, false, false);
+                    me.doSelect(record, keepExisting, false);
                 } else {
                     me.doSelect(record, false);
                 }
@@ -202,22 +202,22 @@ Ext.define('Ext.selection.Model', {
             tmp,
             dontDeselect,
             records = [];
-        
+
         if (me.isLocked()){
             return;
         }
-        
+
         if (!keepExisting) {
-            me.clearSelections();
+            me.deselectAll(true);
         }
-        
+
         if (!Ext.isNumber(startRow)) {
             startRow = store.indexOf(startRow);
-        } 
+        }
         if (!Ext.isNumber(endRow)) {
             endRow = store.indexOf(endRow);
         }
-        
+
         // swap values
         if (startRow > endRow){
             tmp = endRow;
@@ -236,7 +236,7 @@ Ext.define('Ext.selection.Model', {
         } else {
             dontDeselect = (dir == 'up') ? startRow : endRow;
         }
-        
+
         for (i = startRow; i <= endRow; i++){
             if (selectedCount == (endRow - startRow + 1)) {
                 if (i != dontDeselect) {
@@ -248,31 +248,34 @@ Ext.define('Ext.selection.Model', {
         }
         me.doMultiSelect(records, true);
     },
-    
+
     /**
      * Selects a record instance by record instance or index.
-     * @param {Ext.data.Model/Index} records An array of records or an index
-     * @param {Boolean} keepExisting
-     * @param {Boolean} suppressEvent Set to false to not fire a select event
+     * @param {Ext.data.Model[]/Number} records An array of records or an index
+     * @param {Boolean} [keepExisting=false] True to retain existing selections
+     * @param {Boolean} [suppressEvent=false] True to not fire a select event
      */
     select: function(records, keepExisting, suppressEvent) {
-        this.doSelect(records, keepExisting, suppressEvent);
+        // Automatically selecting eg store.first() or store.last() will pass undefined, so that must just return;
+        if (Ext.isDefined(records)) {
+            this.doSelect(records, keepExisting, suppressEvent);
+        }
     },
 
     /**
      * Deselects a record instance by record instance or index.
-     * @param {Ext.data.Model/Index} records An array of records or an index
-     * @param {Boolean} suppressEvent Set to false to not fire a deselect event
+     * @param {Ext.data.Model[]/Number} records An array of records or an index
+     * @param {Boolean} [suppressEvent=false] True to not fire a deselect event
      */
     deselect: function(records, suppressEvent) {
         this.doDeselect(records, suppressEvent);
     },
-    
+
     doSelect: function(records, keepExisting, suppressEvent) {
         var me = this,
             record;
-            
-        if (me.locked) {
+
+        if (me.locked || !me.store) {
             return;
         }
         if (typeof records === "number") {
@@ -292,17 +295,24 @@ Ext.define('Ext.selection.Model', {
             change = false,
             i = 0,
             len, record;
-            
+
         if (me.locked) {
             return;
         }
-        
+
 
         records = !Ext.isArray(records) ? [records] : records;
         len = records.length;
         if (!keepExisting && selected.getCount() > 0) {
+            if (me.doDeselect(me.getSelection(), suppressEvent) === false) {
+                return;
+            }
+            // TODO - coalesce the selectionchange event in deselect w/the one below...
+        }
+
+        function commit () {
+            selected.add(record);
             change = true;
-            me.doDeselect(me.getSelection(), suppressEvent);
         }
 
         for (; i < len; i++) {
@@ -310,13 +320,13 @@ Ext.define('Ext.selection.Model', {
             if (keepExisting && me.isSelected(record)) {
                 continue;
             }
-            change = true;
             me.lastSelected = record;
-            selected.add(record);
 
-            me.onSelectChange(record, true, suppressEvent);
+            me.onSelectChange(record, true, suppressEvent, commit);
         }
-        me.setLastFocused(record, suppressEvent);
+        if (!me.preventFocus) {
+            me.setLastFocused(record, suppressEvent);
+        }
         // fire selchange if there was a change and there is no suppressEvent flag
         me.maybeFireSelectionChange(change && !suppressEvent);
     },
@@ -325,38 +335,49 @@ Ext.define('Ext.selection.Model', {
     doDeselect: function(records, suppressEvent) {
         var me = this,
             selected = me.selected,
-            change = false,
             i = 0,
-            len, record;
-            
-        if (me.locked) {
-            return;
+            len, record,
+            attempted = 0,
+            accepted = 0;
+
+        if (me.locked || !me.store) {
+            return false;
         }
 
         if (typeof records === "number") {
             records = [me.store.getAt(records)];
+        } else if (!Ext.isArray(records)) {
+            records = [records];
         }
 
-        records = !Ext.isArray(records) ? [records] : records;
+        function commit () {
+            ++accepted;
+            selected.remove(record);
+        }
+
         len = records.length;
+
         for (; i < len; i++) {
             record = records[i];
-            if (selected.remove(record)) {
+            if (me.isSelected(record)) {
                 if (me.lastSelected == record) {
                     me.lastSelected = selected.last();
                 }
-                me.onSelectChange(record, false, suppressEvent);
-                change = true;
+                ++attempted;
+                me.onSelectChange(record, false, suppressEvent, commit);
             }
         }
+
         // fire selchange if there was a change and there is no suppressEvent flag
-        me.maybeFireSelectionChange(change && !suppressEvent);
+        me.maybeFireSelectionChange(accepted > 0 && !suppressEvent);
+        return accepted === attempted;
     },
 
     doSingleSelect: function(record, suppressEvent) {
         var me = this,
+            changed = false,
             selected = me.selected;
-            
+
         if (me.locked) {
             return;
         }
@@ -365,33 +386,50 @@ Ext.define('Ext.selection.Model', {
         if (me.isSelected(record)) {
             return;
         }
-        if (selected.getCount() > 0) {
-            me.doDeselect(me.lastSelected, suppressEvent);
+
+        function commit () {
+            me.bulkChange = true;
+            if (selected.getCount() > 0 && me.doDeselect(me.lastSelected, suppressEvent) === false) {
+                delete me.bulkChange;
+                return false;
+            }
+            delete me.bulkChange;
+
+            selected.add(record);
+            me.lastSelected = record;
+            changed = true;
         }
-        selected.add(record);
-        me.lastSelected = record;
-        me.onSelectChange(record, true, suppressEvent);
-        if (!suppressEvent) {
-            me.setLastFocused(record);
+
+        me.onSelectChange(record, true, suppressEvent, commit);
+
+        if (changed) {
+            if (!suppressEvent) {
+                me.setLastFocused(record);
+            }
+            me.maybeFireSelectionChange(!suppressEvent);
         }
-        me.maybeFireSelectionChange(!suppressEvent);
     },
 
     /**
-     * @param {Ext.data.Model} record
-     * Set a record as the last focused record. This does NOT mean
+     * Sets a record as the last focused record. This does NOT mean
      * that the record has been selected.
+     * @param {Ext.data.Model} record
      */
     setLastFocused: function(record, supressFocus) {
         var me = this,
             recordBeforeLast = me.lastFocused;
+
         me.lastFocused = record;
-        me.onLastFocusChanged(recordBeforeLast, record, supressFocus);
+         
+        // Only call the changed method if in fact the selected record *has* changed.
+        if (record !== recordBeforeLast) {
+            me.onLastFocusChanged(recordBeforeLast, record, supressFocus);
+        }
     },
-    
+
     /**
      * Determines if this record is currently focused.
-     * @param Ext.data.Record record
+     * @param {Ext.data.Model} record
      */
     isFocused: function(record) {
         return record === this.getLastFocused();
@@ -413,27 +451,30 @@ Ext.define('Ext.selection.Model', {
     getLastSelected: function() {
         return this.lastSelected;
     },
-    
+
     getLastFocused: function() {
         return this.lastFocused;
     },
 
     /**
      * Returns an array of the currently selected records.
+     * @return {Ext.data.Model[]} The selected records
      */
     getSelection: function() {
         return this.selected.getRange();
     },
 
     /**
-     * Returns the current selectionMode. SINGLE, MULTI or SIMPLE.
+     * Returns the current selectionMode.
+     * @return {String} The selectionMode: 'SINGLE', 'MULTI' or 'SIMPLE'.
      */
     getSelectionMode: function() {
         return this.selectionMode;
     },
 
     /**
-     * Sets the current selectionMode. SINGLE, MULTI or SIMPLE.
+     * Sets the current selectionMode.
+     * @param {String} selMode 'SINGLE', 'MULTI' or 'SIMPLE'.
      */
     setSelectionMode: function(selMode) {
         selMode = selMode ? selMode.toUpperCase() : 'SINGLE';
@@ -451,26 +492,25 @@ Ext.define('Ext.selection.Model', {
     },
 
     /**
-     * Locks the current selection and disables any changes from
-     * happening to the selection.
-     * @param {Boolean} locked
+     * Locks the current selection and disables any changes from happening to the selection.
+     * @param {Boolean} locked  True to lock, false to unlock.
      */
     setLocked: function(locked) {
         this.locked = !!locked;
     },
 
     /**
-     * Returns <tt>true</tt> if the specified row is selected.
-     * @param {Record/Number} record The record or index of the record to check
+     * Returns true if the specified row is selected.
+     * @param {Ext.data.Model/Number} record The record or index of the record to check
      * @return {Boolean}
      */
     isSelected: function(record) {
         record = Ext.isNumber(record) ? this.store.getAt(record) : record;
         return this.selected.indexOf(record) !== -1;
     },
-    
+
     /**
-     * Returns true if there is a selected record.
+     * Returns true if there are any a selected records.
      * @return {Boolean}
      */
     hasSelection: function() {
@@ -479,20 +519,26 @@ Ext.define('Ext.selection.Model', {
 
     refresh: function() {
         var me = this,
+            store = me.store,
             toBeSelected = [],
             oldSelections = me.getSelection(),
             len = oldSelections.length,
             selection,
             change,
             i = 0,
-            lastFocused = this.getLastFocused();
+            lastFocused = me.getLastFocused();
+
+        // Not been bound yet.
+        if (!store) {
+            return;
+        }
 
         // check to make sure that there are no records
         // missing after the refresh was triggered, prune
         // them from what is to be selected if so
         for (; i < len; i++) {
             selection = oldSelections[i];
-            if (!this.pruneRemoved || me.store.indexOf(selection) !== -1) {
+            if (!me.pruneRemoved || store.indexOf(selection) !== -1) {
                 toBeSelected.push(selection);
             }
         }
@@ -504,17 +550,17 @@ Ext.define('Ext.selection.Model', {
         }
 
         me.clearSelections();
-        
-        if (me.store.indexOf(lastFocused) !== -1) {
+
+        if (store.indexOf(lastFocused) !== -1) {
             // restore the last focus but supress restoring focus
-            this.setLastFocused(lastFocused, true);
+            me.setLastFocused(lastFocused, true);
         }
 
         if (toBeSelected.length) {
             // perform the selection again
             me.doSelect(toBeSelected, false, true);
         }
-        
+
         me.maybeFireSelectionChange(change);
     },
 
@@ -525,38 +571,30 @@ Ext.define('Ext.selection.Model', {
      */
     clearSelections: function() {
         // reset the entire selection to nothing
-        var me = this;
-        me.selected.clear();
-        me.lastSelected = null;
-        me.setLastFocused(null);
+        this.selected.clear();
+        this.lastSelected = null;
+        this.setLastFocused(null);
     },
 
     // when a record is added to a store
-    onStoreAdd: function() {
-
-    },
+    onStoreAdd: Ext.emptyFn,
 
     // when a store is cleared remove all selections
     // (if there were any)
     onStoreClear: function() {
-        var me = this,
-            selected = this.selected;
-            
-        if (selected.getCount > 0) {
-            selected.clear();
-            me.lastSelected = null;
-            me.setLastFocused(null);
-            me.maybeFireSelectionChange(true);
+        if (this.selected.getCount > 0) {
+            this.clearSelections();
+            this.maybeFireSelectionChange(true);
         }
     },
 
     // prune records from the SelectionModel if
     // they were selected at the time they were
     // removed.
-    onStoreRemove: function(store, record) {
+    onStoreRemove: function(store, record, index) {
         var me = this,
             selected = me.selected;
-            
+
         if (me.locked || !me.pruneRemoved) {
             return;
         }
@@ -572,37 +610,41 @@ Ext.define('Ext.selection.Model', {
         }
     },
 
+    /**
+     * Returns the count of selected records.
+     * @return {Number} The number of selected records
+     */
     getCount: function() {
         return this.selected.getCount();
     },
 
     // cleanup.
-    destroy: function() {
-
-    },
+    destroy: Ext.emptyFn,
 
     // if records are updated
-    onStoreUpdate: function() {
+    onStoreUpdate: Ext.emptyFn,
 
-    },
+    /**
+     * @abstract
+     * @private
+     */
+    onStoreLoad: Ext.emptyFn,
 
     // @abstract
-    onSelectChange: function(record, isSelected, suppressEvent) {
-
-    },
+    onSelectChange: Ext.emptyFn,
 
     // @abstract
     onLastFocusChanged: function(oldFocused, newFocused) {
-
+        this.fireEvent('focuschange', this, oldFocused, newFocused);
     },
 
     // @abstract
-    onEditorKey: function(field, e) {
-
-    },
+    onEditorKey: Ext.emptyFn,
 
     // @abstract
-    bindComponent: function(cmp) {
+    bindComponent: Ext.emptyFn,
 
-    }
+    // @abstract
+    beforeViewRender: Ext.emptyFn
+
 });

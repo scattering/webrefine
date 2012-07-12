@@ -4,7 +4,12 @@ Ext.require([
     'Ext.window.MessageBox'
 ]);
 
-Ext.onReady(function(){
+Ext.onReady(function() {
+
+//  Class which shows invisible file input field.
+    if (window.location.href.indexOf('debug') !== -1) {
+        Ext.getBody().addCls('x-debug');
+    }
 
     var msg = function(title, msg) {
         Ext.Msg.show({

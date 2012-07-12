@@ -274,6 +274,46 @@ Ext.require([
 
 Ext.onReady(function(){
     Ext.tip.QuickTipManager.init();
+    
+    Ext.create('Ext.button.Button', {
+        margin: '0 0 20 20',
+        text: 'Reset sample database back to initial state',
+        renderTo: document.body,
+        tooltip: 'The sample database is stored in the session, including any changes you make. Click this button to reset the sample database to the initial state',
+        handler: function(){
+            Ext.getBody().mask('Resetting...');
+            Ext.Ajax.request({
+                url: 'app.php/example/reset',
+                callback: function(options, success, response) {
+                    Ext.getBody().unmask();
+                    
+                    var didReset = true,
+                        o;
+                    
+                    if (success) {
+                        try {
+                            o = Ext.decode(response.responseText);
+                            didReset = o.success === true;
+                        } catch (e) {
+                            didReset = false;
+                        }
+                    } else {
+                        didReset = false;
+                    }
+                    
+                    if (didReset) {
+                        store.load();
+                        main.down('#form').setActiveRecord(null);
+                        Ext.example.msg('Reset', 'Reset successful');
+                    } else {
+                        Ext.MessageBox.alert('Error', 'Unable to reset example database');
+                    }
+                    
+                }
+            });
+        }
+    })
+    
     var store = Ext.create('Ext.data.Store', {
         model: 'Writer.Person',
         autoLoad: true,

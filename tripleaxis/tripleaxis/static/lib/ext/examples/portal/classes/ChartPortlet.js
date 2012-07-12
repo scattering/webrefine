@@ -13,14 +13,14 @@ Ext.define('Ext.app.ChartPortlet', {
 
     generateData: function(){
         var data = [{
-                name: 'x',
+                name: 0,
                 djia: 10000,
                 sp500: 1100
             }],
             i;
         for (i = 1; i < 50; i++) {
             data.push({
-                name: 'x',
+                name: i,
                 sp500: data[i - 1].sp500 + ((Math.floor(Math.random() * 2) % 2) ? -1 : 1) * Math.floor(Math.random() * 7),
                 djia: data[i - 1].djia + ((Math.floor(Math.random() * 2) % 2) ? -1 : 1) * Math.floor(Math.random() * 7)
             });
@@ -32,7 +32,6 @@ Ext.define('Ext.app.ChartPortlet', {
 
         Ext.apply(this, {
             layout: 'fit',
-            width: 600,
             height: 300,
             items: {
                 xtype: 'chart',
@@ -72,7 +71,9 @@ Ext.define('Ext.app.ChartPortlet', {
                     xField: 'name',
                     yField: 'djia',
                     style: {
-                        'stroke-width': 1
+                        'stroke-width': 1,
+                        stroke: 'rgb(148, 174, 10)'
+
                     }
                 }, {
                     type: 'line',
@@ -82,7 +83,9 @@ Ext.define('Ext.app.ChartPortlet', {
                     xField: 'name',
                     yField: 'sp500',
                     style: {
-                        'stroke-width': 1
+                        'stroke-width': 1,
+                         stroke: 'rgb(17, 95, 166)'
+
                     }
                 }]
             }

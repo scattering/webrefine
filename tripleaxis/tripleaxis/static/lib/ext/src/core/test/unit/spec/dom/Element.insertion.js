@@ -1,5 +1,5 @@
-describe("Ext.core.Element.insertion", function() {
-    var proto = Ext.core.Element.prototype,
+describe("Ext.Element.insertion", function() {
+    var proto = Ext.Element.prototype,
         el, testEl,
         span, testSpanEl,
         child1, child2, child3;
@@ -19,8 +19,8 @@ describe("Ext.core.Element.insertion", function() {
             tag : 'span'
         });
         
-        el    = new Ext.core.Element(Ext.getDom(testEl));
-        span = new Ext.core.Element(Ext.getDom(testSpanEl));
+        el    = new Ext.Element(Ext.getDom(testEl));
+        span = new Ext.Element(Ext.getDom(testSpanEl));
         
         child1 = Ext.get('child1');
         child2 = Ext.get('child2');
@@ -129,7 +129,7 @@ describe("Ext.core.Element.insertion", function() {
             });
         });
         
-        describe("when Ext.core.Element", function() {
+        describe("when Ext.Element", function() {
             describe("after", function() {
                 it("should move the element next to the el", function() {
                     var nodes = Ext.getDom(el).childNodes;
@@ -162,18 +162,6 @@ describe("Ext.core.Element.insertion", function() {
                     expect(nodes.length).toEqual(3);
 
                     child1.insertSibling({
-                        id: 'sibling1'
-                    }, 'after');
-
-                    nodes = Ext.getDom(el).childNodes;
-                    expect(nodes.length).toEqual(4);
-                });
-                
-                it("should move the element next to the el", function() {
-                    var nodes = Ext.getDom(el).childNodes;
-                    expect(nodes.length).toEqual(3);
-
-                    child3.insertSibling({
                         id: 'sibling1'
                     }, 'after');
 

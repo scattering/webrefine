@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -15,15 +15,9 @@
   </script>
 </head>
 <body onload="prettyPrint(); highlight();">
-  <pre class="prettyprint lang-js"><span id='Ext-toolbar-Item-method-constructor'><span id='Ext-toolbar-Item'>/**
-</span></span> * @class Ext.toolbar.Item
- * @extends Ext.Component
- * The base class that other non-interacting Toolbar Item classes should extend in order to
+  <pre class="prettyprint lang-js"><span id='Ext-toolbar-Item'>/**
+</span> * The base class that other non-interacting Toolbar Item classes should extend in order to
  * get some basic common toolbar item functionality.
- * @constructor
- * Creates a new Item
- * @param {HTMLElement} el
- * @xtype tbitem
  */
 Ext.define('Ext.toolbar.Item', {
     extend: 'Ext.Component',
@@ -33,7 +27,8 @@ Ext.define('Ext.toolbar.Item', {
     disable:Ext.emptyFn,
     focus:Ext.emptyFn
 <span id='Ext-toolbar-Item-cfg-overflowText'>    /**
-</span>     * @cfg {String} overflowText Text to be used for the menu if the item is overflowed.
+</span>     * @cfg {String} overflowText
+     * Text to be used for the menu if the item is overflowed.
      */
 });</pre>
 </body>

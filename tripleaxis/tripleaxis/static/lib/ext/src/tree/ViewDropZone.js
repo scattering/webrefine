@@ -1,6 +1,4 @@
 /**
- * @class Ext.tree.ViewDropZone
- * @extends Ext.view.DropZone
  * @private
  */
 Ext.define('Ext.tree.ViewDropZone', {
@@ -9,30 +7,30 @@ Ext.define('Ext.tree.ViewDropZone', {
     /**
      * @cfg {Boolean} allowParentInsert
      * Allow inserting a dragged node between an expanded parent node and its first child that will become a
-     * sibling of the parent when dropped (defaults to false)
+     * sibling of the parent when dropped.
      */
     allowParentInserts: false,
  
     /**
      * @cfg {String} allowContainerDrop
-     * True if drops on the tree container (outside of a specific tree node) are allowed (defaults to false)
+     * True if drops on the tree container (outside of a specific tree node) are allowed.
      */
     allowContainerDrops: false,
 
     /**
      * @cfg {String} appendOnly
-     * True if the tree should only allow append drops (use for trees which are sorted, defaults to false)
+     * True if the tree should only allow append drops (use for trees which are sorted).
      */
     appendOnly: false,
 
     /**
      * @cfg {String} expandDelay
      * The delay in milliseconds to wait before expanding a target tree node while dragging a droppable node
-     * over the target (defaults to 500)
+     * over the target.
      */
     expandDelay : 500,
 
-    indicatorCls: 'x-tree-ddindicator',
+    indicatorCls: Ext.baseCSSPrefix + 'tree-ddindicator',
 
     // private
     expandNode : function(node) {
@@ -117,10 +115,10 @@ Ext.define('Ext.tree.ViewDropZone', {
         }
         
         // Respect the allowDrop field on Tree nodes
-        if (position === 'append' && targetNode.get('allowDrop') == false) {
+        if (position === 'append' && targetNode.get('allowDrop') === false) {
             return false;
         }
-        else if (position != 'append' && targetNode.parentNode.get('allowDrop') == false) {
+        else if (position != 'append' && targetNode.parentNode.get('allowDrop') === false) {
             return false;
         }
 
@@ -149,6 +147,7 @@ Ext.define('Ext.tree.ViewDropZone', {
             this.queueExpand(targetNode);
         }
             
+            
         if (this.isValidDropPoint(node, position, dragZone, e, data)) {
             this.valid = true;
             this.currentPosition = position;
@@ -157,24 +156,26 @@ Ext.define('Ext.tree.ViewDropZone', {
             indicator.setWidth(Ext.fly(node).getWidth());
             indicatorY = Ext.fly(node).getY() - Ext.fly(view.el).getY() - 1;
 
+            /*
+             * In the code below we show the proxy again. The reason for doing this is showing the indicator will
+             * call toFront, causing it to get a new z-index which can sometimes push the proxy behind it. We always 
+             * want the proxy to be above, so calling show on the proxy will call toFront and bring it forward.
+             */
             if (position == 'before') {
                 returnCls = targetNode.isFirst() ? Ext.baseCSSPrefix + 'tree-drop-ok-above' : Ext.baseCSSPrefix + 'tree-drop-ok-between';
                 indicator.showAt(0, indicatorY);
-                indicator.toFront();
-            }
-            else if (position == 'after') {
+                dragZone.proxy.show();
+            } else if (position == 'after') {
                 returnCls = targetNode.isLast() ? Ext.baseCSSPrefix + 'tree-drop-ok-below' : Ext.baseCSSPrefix + 'tree-drop-ok-between';
                 indicatorY += Ext.fly(node).getHeight();
                 indicator.showAt(0, indicatorY);
-                indicator.toFront();
-            }
-            else {
+                dragZone.proxy.show();
+            } else {
                 returnCls = Ext.baseCSSPrefix + 'tree-drop-ok-append';
                 // @TODO: set a class on the parent folder node to be able to style it
                 indicator.hide();
             }
-        }
-        else {
+        } else {
             this.valid = false;
         }
 
@@ -245,7 +246,8 @@ Ext.define('Ext.tree.ViewDropZone', {
 
         // A function to transfer the data into the destination tree
         transferData = function() {
-            var node;
+            var node,
+                r, rLen, color, n;
             for (i = 0, len = data.records.length; i < len; i++) {
                 argList[0] = data.records[i];
                 node = insertionMethod.apply(targetNode, argList);
@@ -260,9 +262,16 @@ Ext.define('Ext.tree.ViewDropZone', {
             if (Ext.enableFx && me.dropHighlight) {
                 //FIXME: the check for n.firstChild is not a great solution here. Ideally the line should simply read 
                 //Ext.fly(n.firstChild) but this yields errors in IE6 and 7. See ticket EXTJSIV-1705 for more details
-                Ext.Array.forEach(recordDomNodes, function(n) {
-                    Ext.fly(n.firstChild ? n.firstChild : n).highlight(me.dropHighlightColor);
-                });
+                rLen  = recordDomNodes.length;
+                color = me.dropHighlightColor;
+
+                for (r = 0; r < rLen; r++) {
+                    n = recordDomNodes[r];
+
+                    if (n) {
+                        Ext.fly(n.firstChild ? n.firstChild : n).highlight(color);
+                    }
+                }
             }
         };
 

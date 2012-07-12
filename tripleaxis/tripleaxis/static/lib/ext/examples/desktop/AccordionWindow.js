@@ -20,9 +20,7 @@ Ext.define('MyDesktop.AccordionWindow', {
     init : function(){
         this.launcher = {
             text: 'Accordion Window',
-            iconCls:'accordion',
-            handler : this.createWindow,
-            scope: this
+            iconCls:'accordion'
         };
     },
 
@@ -136,7 +134,6 @@ Ext.define('MyDesktop.AccordionWindow', {
             });
         }
 
-        win.show();
         return win;
     }
 });

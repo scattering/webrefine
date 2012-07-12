@@ -1,5 +1,4 @@
-/*
- * @class Ext.draw.Matrix
+/**
  * @private
  */
 Ext.define('Ext.draw.Matrix', {
@@ -93,9 +92,7 @@ Ext.define('Ext.draw.Matrix', {
         if (y == null) {
             y = x;
         }
-        me.add(1, 0, 0, 1, cx, cy);
-        me.add(x, 0, 0, y, 0, 0);
-        me.add(1, 0, 0, 1, -cx, -cy);
+        me.add(x, 0, 0, y, cx * (1 - x), cy * (1 - y));
     },
 
     rotate: function(a, x, y) {
@@ -103,8 +100,7 @@ Ext.define('Ext.draw.Matrix', {
         var me = this,
             cos = +Math.cos(a).toFixed(9),
             sin = +Math.sin(a).toFixed(9);
-        me.add(cos, sin, -sin, cos, x, y);
-        me.add(1, 0, 0, 1, -x, -y);
+        me.add(cos, sin, -sin, cos, x - cos * x + sin * y, -(sin * x) + y - cos * y);
     },
 
     x: function(x, y) {
@@ -131,16 +127,18 @@ Ext.define('Ext.draw.Matrix', {
         return "matrix(" + [me.get(0, 0), me.get(1, 0), me.get(0, 1), me.get(1, 1), me.get(0, 2), me.get(1, 2)].join() + ")";
     },
 
-    toFilter: function() {
+    toFilter: function(dx, dy) {
         var me = this;
-        return "progid:DXImageTransform.Microsoft.Matrix(M11=" + me.get(0, 0) +
+        dx = dx || 0;
+        dy = dy || 0;
+        return "progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', filterType='bilinear', M11=" + me.get(0, 0) +
             ", M12=" + me.get(0, 1) + ", M21=" + me.get(1, 0) + ", M22=" + me.get(1, 1) +
-            ", Dx=" + me.get(0, 2) + ", Dy=" + me.get(1, 2) + ")";
+            ", Dx=" + (me.get(0, 2) + dx) + ", Dy=" + (me.get(1, 2) + dy) + ")";
     },
 
     offset: function() {
         var matrix = this.matrix;
-        return [matrix[0][2].toFixed(4), matrix[1][2].toFixed(4)];
+        return [(matrix[0][2] || 0).toFixed(4), (matrix[1][2] || 0).toFixed(4)];
     },
 
     // Split matrix into Translate Scale, Shear, and Rotate

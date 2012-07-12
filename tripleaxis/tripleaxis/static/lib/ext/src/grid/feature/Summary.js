@@ -1,7 +1,4 @@
 /**
- * @class Ext.grid.feature.Summary
- * @extends Ext.grid.feature.AbstractSummary
- * 
  * This feature is used to place a summary row at the bottom of the grid. If using a grouping, 
  * see {@link Ext.grid.feature.GroupingSummary}. There are 2 aspects to calculating the summaries, 
  * calculation and rendering.
@@ -32,6 +29,7 @@
  * 
  * ## Example Usage
  *
+ *     @example
  *     Ext.define('TestResult', {
  *         extend: 'Ext.data.Model',
  *         fields: ['student', {
@@ -162,7 +160,7 @@ Ext.define('Ext.grid.feature.Summary', {
             
         for (i = 0, length = columns.length; i < length; ++i) {
             comp = Ext.getCmp(columns[i].id);
-            data[comp.dataIndex] = me.getSummary(store, comp.summaryType, comp.dataIndex, false);
+            data[comp.id] = me.getSummary(store, comp.summaryType, comp.dataIndex, false);
         }
         return data;
     }

@@ -1,8 +1,34 @@
 Ext.require(['*']);
 Ext.onReady(function() {
     var cw;
-    
-    Ext.create('Ext.Viewport', {
+
+    function closeRegion (e, target, header, tool) {
+        var region = header.ownerCt;
+        newRegions.unshift(region.initialConfig);
+        viewport.remove(region);
+    }
+
+    var newRegions = [{
+            region: 'north',
+            title: 'North 2',
+            height: 100,
+            collapsible: true,
+            weight: -120
+        }, {
+            region: 'east',
+            title: 'East 2',
+            width: 100,
+            collapsible: true,
+            weight: -110
+        }, {
+            region: 'west',
+            title: 'West 2',
+            width: 100,
+            collapsible: true,
+            weight: -110
+        }];
+
+    var viewport = Ext.create('Ext.Viewport', {
         layout: {
             type: 'border',
             padding: 5
@@ -16,6 +42,7 @@ Ext.onReady(function() {
             title: 'North',
             split: true,
             height: 100,
+            minHeight: 60,
             html: 'north'
         },{
             region: 'west',
@@ -23,49 +50,64 @@ Ext.onReady(function() {
             title: 'Starts at width 30%',
             split: true,
             width: '30%',
+            minWidth: 100,
+            minHeight: 140,
             html: 'west<br>I am floatable'
         },{
             region: 'center',
-            layout: 'border',
-            border: false,
-            items: [{
-                region: 'center',
-                html: 'center center',
-                title: 'Center',
-                items: [cw = Ext.create('Ext.Window', {
-                    xtype: 'window',
-                    closable: false,
-                    minimizable: true,
-                    title: 'Constrained Window',
-                    height: 200,
-                    width: 400,
-                    constrain: true,
-                    html: 'I am in a Container',
-                    itemId: 'center-window',
-                    minimize: function() {
-                        this.floatParent.down('button#toggleCw').toggle();
-                    }
-                })],
-                dockedItems: [{
-                    xtype: 'toolbar',
-                    dock: 'bottom',
-                    items: ['Text followed by a spacer',
-                        ' ', {
-                            itemId: 'toggleCw',
-                            text: 'Constrained Window',
-                            enableToggle: true,
-                            toggleHandler: function() {
-                            cw.setVisible(!cw.isVisible());
+            html: 'center center',
+            title: 'Center',
+            minHeight: 80,
+            items: [cw = Ext.create('Ext.Window', {
+                xtype: 'window',
+                closable: false,
+                minimizable: true,
+                title: 'Constrained Window',
+                height: 200,
+                width: 400,
+                constrain: true,
+                html: 'I am in a Container',
+                itemId: 'center-window',
+                minimize: function() {
+                    this.floatParent.down('button#toggleCw').toggle();
+                }
+            })],
+            bbar: [ 'Text followed by a spacer', ' ', {
+                itemId: 'toggleCw',
+                text: 'Constrained Window',
+                enableToggle: true,
+                toggleHandler: function() {
+                    cw.setVisible(!cw.isVisible());
+                }
+            }, {
+                text: 'Add Region',
+                listeners: {
+                    click: function () {
+                        if (newRegions.length) {
+                            var region = newRegions.pop();
+                            region.tools = [ { type: 'close', handler: closeRegion }];
+                            viewport.add(region);
+                        } else {
+                            Ext.Msg.show({
+                                title: 'All added',
+                                msg: 'Close one of the dynamic regions first',
+                                //minWidth: Ext.Msg.minWidth,
+                                buttons: Ext.Msg.OK,
+                                icon: Ext.Msg.ERROR
+                            });
                         }
-                    }]
-                }]
-            },{
-                region: 'south',
-                height: 100,
-                split: true,
-                collapsible: true,
-                title: 'Splitter above me',
-                html: 'center south'
+                    }
+                }
+            }, {
+                text: 'Change Titles',
+                listeners: {
+                    click: function () {
+                        var panels = viewport.query('panel');
+                        Ext.each(panels, function (panel) {
+                            panel.setTitle(panel.title + '!');
+                        })
+                    }
+                }
             }]
         },{
             region: 'east',
@@ -73,6 +115,8 @@ Ext.onReady(function() {
             floatable: true,
             split: true,
             width: 200,
+            minWidth: 120,
+            minHeight: 140,
             title: 'East',
             layout: {
                 type: 'vbox',
@@ -81,6 +125,7 @@ Ext.onReady(function() {
             },
             items: [{
                 xtype: 'textfield',
+                labelWidth: 70,
                 fieldLabel: 'Text field'
             }, {
                 xtype: 'component',
@@ -88,9 +133,19 @@ Ext.onReady(function() {
             }]
         },{
             region: 'south',
+            height: 100,
+            split: true,
+            collapsible: true,
+            title: 'Splitter above me',
+            minHeight: 60,
+            html: 'center south',
+            weight: -100
+        },{
+            region: 'south',
             collapsible: true,
             split: true,
             height: 200,
+            minHeight: 120,
             title: 'South',
             layout: {
                 type: 'border',
@@ -99,21 +154,25 @@ Ext.onReady(function() {
             items: [{
                 title: 'South Central',
                 region: 'center',
+                minWidth: 80,
                 html: 'South Central'
             }, {
                 title: 'South Eastern',
                 region: 'east',
                 flex: 1,
+                minWidth: 80,
                 html: 'South Eastern',
                 split: true,
                 collapsible: true
             }, {
-                title: 'South Western',
+                title: 'South Western - not resizable',
                 region: 'west',
                 flex: 1,
+                minWidth: 80,
                 html: 'South Western<br>I collapse to nothing',
                 split: true,
                 collapsible: true,
+                splitterResize: false,
                 collapseMode: 'mini'
             }]
         }]

@@ -13,8 +13,15 @@ Ext.require([
     'Ext.ux.CheckColumn'
 ]);
 
-Ext.onReady(function(){
+if (window.location.search.indexOf('scopecss') !== -1) {
+    // We are using ext-all-scoped.css, so all rendered ExtJS Components must have a
+    // reset wrapper round them to provide localized CSS resetting.
+    Ext.scopeResetCSS = true;
+}
 
+Ext.onReady(function(){
+    Ext.QuickTips.init();
+ 
     function formatDate(value){
         return value ? Ext.Date.dateFormat(value, 'M d, Y') : '';
     }
@@ -43,10 +50,10 @@ Ext.onReady(function(){
         proxy: {
             type: 'ajax',
             // load remote data using HTTP
-            url: '/plants',
+            url: 'plants.xml',
             // specify a XmlReader (coincides with the XML format of the returned data)
             reader: {
-                type: 'json',
+                type: 'xml',
                 // records will have a 'plant' tag
                 record: 'plant'
             }
@@ -70,15 +77,14 @@ Ext.onReady(function(){
             header: 'Common Name',
             dataIndex: 'common',
             flex: 1,
-            field: {
+            editor: {
                 allowBlank: false
             }
         }, {
             header: 'Light',
             dataIndex: 'light',
             width: 130,
-            field: {
-                xtype: 'combobox',
+            editor: new Ext.form.field.ComboBox({
                 typeAhead: true,
                 triggerAction: 'all',
                 selectOnTab: true,
@@ -91,14 +97,14 @@ Ext.onReady(function(){
                 ],
                 lazyRender: true,
                 listClass: 'x-combo-list-small'
-            }
+            })
         }, {
             header: 'Price',
             dataIndex: 'price',
             width: 70,
             align: 'right',
             renderer: 'usMoney',
-            field: {
+            editor: {
                 xtype: 'numberfield',
                 allowBlank: false,
                 minValue: 0,
@@ -109,7 +115,7 @@ Ext.onReady(function(){
             dataIndex: 'availDate',
             width: 95,
             renderer: formatDate,
-            field: {
+            editor: {
                 xtype: 'datefield',
                 format: 'm/d/y',
                 minValue: '01/01/06',
@@ -120,7 +126,19 @@ Ext.onReady(function(){
             xtype: 'checkcolumn',
             header: 'Indoor?',
             dataIndex: 'indoor',
-            width: 55
+            width: 55,
+            stopSelection: false
+        }, {
+            xtype: 'actioncolumn',
+            width:30,
+            sortable: false,
+            items: [{
+                icon: '../shared/icons/fam/delete.gif',
+                tooltip: 'Delete Plant',
+                handler: function(grid, rowIndex, colIndex) {
+                    store.removeAt(rowIndex); 
+                }
+            }]
         }],
         selModel: {
             selType: 'cellmodel'
@@ -133,14 +151,14 @@ Ext.onReady(function(){
         tbar: [{
             text: 'Add Plant',
             handler : function(){
-                // Create a record instance through the ModelManager
-                var r = Ext.ModelManager.create({
+                // Create a model instance
+                var r = Ext.create('Plant', {
                     common: 'New Plant 1',
                     light: 'Mostly Shady',
                     price: 0,
                     availDate: Ext.Date.clearTime(new Date()),
                     indoor: false
-                }, 'Plant');
+                });
                 store.insert(0, r);
                 cellEditing.startEditByPosition({row: 0, column: 0});
             }

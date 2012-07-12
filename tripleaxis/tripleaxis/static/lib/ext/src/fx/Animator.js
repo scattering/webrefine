@@ -1,59 +1,59 @@
 /**
  * @class Ext.fx.Animator
- * Animation instance
-
-This class is used to run keyframe based animations, which follows the CSS3 based animation structure. 
-Keyframe animations differ from typical from/to animations in that they offer the ability to specify values 
-at various points throughout the animation.
-
-__Using Keyframes__
-The {@link #keyframes} option is the most important part of specifying an animation when using this 
-class. A key frame is a point in a particular animation. We represent this as a percentage of the
-total animation duration. At each key frame, we can specify the target values at that time. Note that
-you *must* specify the values at 0% and 100%, the start and ending values. There is also a {@link keyframe}
-event that fires after each key frame is reached.
-
-__Example Usage__
-In the example below, we modify the values of the element at each fifth throughout the animation.
-
-    Ext.create('Ext.fx.Animator', {
-        target: Ext.getBody().createChild({
-            style: {
-                width: '100px',
-                height: '100px',
-                'background-color': 'red'
-            }
-        }),
-        duration: 10000, // 10 seconds
-        keyframes: {
-            0: {
-                opacity: 1,
-                backgroundColor: 'FF0000'
-            },
-            20: {
-                x: 30,
-                opacity: 0.5    
-            },
-            40: {
-                x: 130,
-                backgroundColor: '0000FF'    
-            },
-            60: {
-                y: 80,
-                opacity: 0.3    
-            },
-            80: {
-                width: 200,
-                y: 200    
-            },
-            100: {
-                opacity: 1,
-                backgroundColor: '00FF00'
-            }
-        }
-    });
-
- * @markdown
+ *
+ * This class is used to run keyframe based animations, which follows the CSS3 based animation structure.
+ * Keyframe animations differ from typical from/to animations in that they offer the ability to specify values
+ * at various points throughout the animation.
+ *
+ * ## Using Keyframes
+ *
+ * The {@link #keyframes} option is the most important part of specifying an animation when using this
+ * class. A key frame is a point in a particular animation. We represent this as a percentage of the
+ * total animation duration. At each key frame, we can specify the target values at that time. Note that
+ * you *must* specify the values at 0% and 100%, the start and ending values. There is also a {@link #keyframe}
+ * event that fires after each key frame is reached.
+ *
+ * ## Example
+ *
+ * In the example below, we modify the values of the element at each fifth throughout the animation.
+ *
+ *     @example
+ *     Ext.create('Ext.fx.Animator', {
+ *         target: Ext.getBody().createChild({
+ *             style: {
+ *                 width: '100px',
+ *                 height: '100px',
+ *                 'background-color': 'red'
+ *             }
+ *         }),
+ *         duration: 10000, // 10 seconds
+ *         keyframes: {
+ *             0: {
+ *                 opacity: 1,
+ *                 backgroundColor: 'FF0000'
+ *             },
+ *             20: {
+ *                 x: 30,
+ *                 opacity: 0.5
+ *             },
+ *             40: {
+ *                 x: 130,
+ *                 backgroundColor: '0000FF'
+ *             },
+ *             60: {
+ *                 y: 80,
+ *                 opacity: 0.3
+ *             },
+ *             80: {
+ *                 width: 200,
+ *                 y: 200
+ *             },
+ *             100: {
+ *                 opacity: 1,
+ *                 backgroundColor: '00FF00'
+ *             }
+ *         }
+ *     });
  */
 Ext.define('Ext.fx.Animator', {
 
@@ -67,6 +67,10 @@ Ext.define('Ext.fx.Animator', {
 
     /* End Definitions */
 
+    /**
+     * @property {Boolean} isAnimator
+     * `true` in this class to identify an object as an instantiated Animator, or subclass thereof.
+     */
     isAnimator: true,
 
     /**
@@ -92,33 +96,34 @@ Ext.define('Ext.fx.Animator', {
 
     /**
      * @cfg {String} easing
-
-This describes how the intermediate values used during a transition will be calculated. It allows for a transition to change
-speed over its duration. 
-
-- backIn
-- backOut
-- bounceIn
-- bounceOut
-- ease
-- easeIn
-- easeOut
-- easeInOut
-- elasticIn
-- elasticOut
-- cubic-bezier(x1, y1, x2, y2)
-
-Note that cubic-bezier will create a custom easing curve following the CSS3 transition-timing-function specification `{@link http://www.w3.org/TR/css3-transitions/#transition-timing-function_tag}`. The four values specify points P1 and P2 of the curve
-as (x1, y1, x2, y2). All values must be in the range [0, 1] or the definition is invalid.
-
-     * @markdown
+     *
+     * This describes how the intermediate values used during a transition will be calculated. It allows for a transition to change
+     * speed over its duration.
+     *
+     *  - backIn
+     *  - backOut
+     *  - bounceIn
+     *  - bounceOut
+     *  - ease
+     *  - easeIn
+     *  - easeOut
+     *  - easeInOut
+     *  - elasticIn
+     *  - elasticOut
+     *  - cubic-bezier(x1, y1, x2, y2)
+     *
+     * Note that cubic-bezier will create a custom easing curve following the CSS3 [transition-timing-function][0]
+     * specification.  The four values specify points P1 and P2 of the curve as (x1, y1, x2, y2). All values must
+     * be in the range [0, 1] or the definition is invalid.
+     *
+     * [0]: http://www.w3.org/TR/css3-transitions/#transition-timing-function_tag
      */
     easing: 'ease',
 
     /**
      * Flag to determine if the animation has started
      * @property running
-     * @type boolean
+     * @type Boolean
      */
     running: false,
 
@@ -126,7 +131,7 @@ as (x1, y1, x2, y2). All values must be in the range [0, 1] or the definition is
      * Flag to determine if the animation is paused. Only set this to true if you need to
      * keep the Anim instance around to be unpaused later; otherwise call {@link #end}.
      * @property paused
-     * @type boolean
+     * @type Boolean
      */
     paused: false,
 
@@ -144,7 +149,7 @@ as (x1, y1, x2, y2). All values must be in the range [0, 1] or the definition is
     /**
      * Current iteration the animation is running.
      * @property currentIteration
-     * @type int
+     * @type Number
      */
     currentIteration: 0,
 
@@ -161,7 +166,7 @@ as (x1, y1, x2, y2). All values must be in the range [0, 1] or the definition is
     animKeyFramesRE: /^(from|to|\d+%?)$/,
 
     /**
-     * @cfg {Ext.fx.target} target
+     * @cfg {Ext.fx.target.Target} target
      * The Ext.fx.target to apply the animation to.  If not specified during initialization, this can be passed to the applyAnimator
      * method to apply the same animation to many targets.
      */
@@ -282,7 +287,7 @@ keyframes : {
      * Applies animation to the Ext.fx.target
      * @private
      * @param target
-     * @type string/object
+     * @type String/Object
      */
     applyAnimator: function(target) {
         var me = this,
@@ -300,7 +305,7 @@ keyframes : {
                 damper = attrs.damper || me.damper;
                 delete attrs.easing;
                 delete attrs.damper;
-                anim = Ext.create('Ext.fx.Anim', {
+                anim = new Ext.fx.Anim({
                     target: target,
                     easing: easing,
                     damper: damper,
@@ -328,7 +333,7 @@ keyframes : {
         }
     },
 
-    /*
+    /**
      * @private
      * Fires beforeanimate and sets the running flag.
      */
@@ -360,7 +365,7 @@ keyframes : {
         }
     },
 
-    /*
+    /**
      * @private
      * Perform lastFrame cleanup and handle iterations
      * @returns a hash of the new attributes.
@@ -384,7 +389,7 @@ keyframes : {
         }
     },
 
-    /*
+    /**
      * Fire afteranimate event and end the animation. Usually called automatically when the
      * animation reaches its final frame, but can also be called manually to pre-emptively
      * stop and destroy the running animation.
@@ -392,5 +397,14 @@ keyframes : {
     end: function() {
         var me = this;
         me.fireEvent('afteranimate', me, me.startTime, new Date() - me.startTime);
+    },
+    
+    isReady: function() {
+        return this.paused === false && this.running === false && this.iterations > 0;
+    },
+    
+    isRunning: function() {
+        // Explicitly return false, we don't want to be run continuously by the manager
+        return false;
     }
 });

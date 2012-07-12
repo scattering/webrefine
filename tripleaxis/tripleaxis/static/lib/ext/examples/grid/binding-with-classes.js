@@ -49,7 +49,7 @@ Ext.Loader.onReady(function() {
             };
 
             // call the superclass's constructor
-            App.BookStore.superclass.constructor.call(this, config);
+            this.callParent([config]);
         }
     });
 
@@ -92,7 +92,7 @@ Ext.Loader.onReady(function() {
                 url: 'sheldon.xml'
             });
             // finally call the superclasses implementation
-            App.BookGrid.superclass.initComponent.call(this);
+            this.callParent();
         }
     });
 
@@ -135,7 +135,7 @@ Ext.Loader.onReady(function() {
                 background: '#ffffff'
             };
             // call the superclass's initComponent implementation
-            App.BookDetail.superclass.initComponent.call(this);
+            this.callParent();
         },
         // add a method which updates the details
         updateDetail: function(data) {
@@ -178,12 +178,12 @@ Ext.Loader.onReady(function() {
                 region: 'center'
             }];
             // call the superclass's initComponent implementation
-            App.BookMasterDetail.superclass.initComponent.call(this);
+            this.callParent();
         },
         // override initEvents
         initEvents: function() {
             // call the superclass's initEvents implementation
-            App.BookMasterDetail.superclass.initEvents.call(this);
+            this.callParent();
 
             // now add application specific events
             // notice we use the selectionmodel's rowselect event rather

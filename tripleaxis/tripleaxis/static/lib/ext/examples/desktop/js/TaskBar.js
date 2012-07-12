@@ -128,9 +128,12 @@ Ext.define('Ext.ux.desktop.TaskBar', {
     },
 
     onQuickStartClick: function (btn) {
-        var module = this.app.getModule(btn.module);
+        var module = this.app.getModule(btn.module),
+            window;
+
         if (module) {
-            module.createWindow();
+            window = module.createWindow();
+            window.show();
         }
     },
     
@@ -161,6 +164,7 @@ Ext.define('Ext.ux.desktop.TaskBar', {
             enableToggle: true,
             toggleGroup: 'all',
             width: 140,
+            margins: '0 2 0 3',
             text: Ext.util.Format.ellipsis(win.title, 20),
             listeners: {
                 click: this.onWindowBtnClick,

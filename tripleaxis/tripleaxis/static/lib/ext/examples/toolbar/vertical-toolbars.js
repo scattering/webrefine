@@ -12,6 +12,9 @@ Ext.onReady(function() {
 
     Ext.QuickTips.init();
 
+    // The default dockedItem weights have TLRB order, but TBLR matches border layout:
+    Ext.panel.AbstractPanel.prototype.defaultDockWeights = { top: 1, bottom: 3, left: 5, right: 7 };
+
     var SamplePanel = Ext.extend(Ext.Panel, {
         width    : 500,
         height   : 250,
@@ -78,19 +81,23 @@ Ext.onReady(function() {
             {
                 xtype:'splitbutton',
                 text: 'Cut',
+                textAlign: 'left',
                 iconCls: 'add16',
                 menu: [{text: 'Cut Menu Item'}]
             },{
                 text: 'Copy',
+                textAlign: 'left',
                 iconCls: 'add16'
             },{
                 text: 'Paste',
+                textAlign: 'left',
                 iconCls: 'add16',
                 menu: [{text: 'Paste Menu Item'}]
             },
             //'-',
             {
                 text: 'Format',
+                textAlign: 'left',
                 iconCls: 'add16'
             }
         ]
@@ -102,21 +109,26 @@ Ext.onReady(function() {
                 xtype:'splitbutton',
                 text: 'Menu Button',
                 iconCls: 'add16',
+                textAlign: 'left',
                 menu: [{text: 'Menu Button 1'}]
             },'-',{
                 xtype:'splitbutton',
                 text: 'Cut Selection',
                 iconCls: 'add16',
+                textAlign: 'left',
                 menu: [{text: 'Cut Menu Item'}]
             },{
                 text: 'Copy Selection',
+                textAlign: 'left',
                 iconCls: 'add16'
             },{
                 text: 'Paste',
                 iconCls: 'add16',
+                textAlign: 'left',
                 menu: [{text: 'Paste Menu Item'}]
             },'-',{
                 text: 'Format',
+                textAlign: 'left',
                 iconCls: 'add16'
             }
         ]

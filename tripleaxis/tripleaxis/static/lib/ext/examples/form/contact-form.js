@@ -1,10 +1,14 @@
 Ext.require([
-    'Ext.form.*'
+    'Ext.form.*',
+    'Ext.tip.QuickTipManager'
 ]);
 
 Ext.onReady(function() {
 
+    var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
     var win;
+
+    Ext.QuickTips.init();
 
     function showContactForm() {
         if (!win) {
@@ -21,10 +25,6 @@ Ext.onReady(function() {
                     labelWidth: 100,
                     labelStyle: 'font-weight:bold'
                 },
-                defaults: {
-                    margins: '0 0 10 0'
-                },
-
                 items: [{
                     xtype: 'fieldcontainer',
                     fieldLabel: 'Your Name',
@@ -39,6 +39,7 @@ Ext.onReady(function() {
                     items: [{
                         flex: 1,
                         name: 'firstName',
+                        afterLabelTextTpl: required,
                         fieldLabel: 'First',
                         allowBlank: false
                     }, {
@@ -49,6 +50,7 @@ Ext.onReady(function() {
                     }, {
                         flex: 2,
                         name: 'lastName',
+                        afterLabelTextTpl: required,
                         fieldLabel: 'Last',
                         allowBlank: false,
                         margins: '0 0 0 5'
@@ -56,11 +58,13 @@ Ext.onReady(function() {
                 }, {
                     xtype: 'textfield',
                     fieldLabel: 'Your Email Address',
+                    afterLabelTextTpl: required,
                     vtype: 'email',
                     allowBlank: false
                 }, {
                     xtype: 'textfield',
                     fieldLabel: 'Subject',
+                    afterLabelTextTpl: required,
                     allowBlank: false
                 }, {
                     xtype: 'textareafield',
@@ -68,6 +72,7 @@ Ext.onReady(function() {
                     labelAlign: 'top',
                     flex: 1,
                     margins: '0',
+                    afterLabelTextTpl: required,
                     allowBlank: false
                 }],
 
@@ -96,7 +101,6 @@ Ext.onReady(function() {
                 closeAction: 'hide',
                 width: 400,
                 height: 400,
-                minHeight: 400,
                 layout: 'fit',
                 resizable: true,
                 modal: true,

@@ -1,16 +1,13 @@
 /**
- * @class Ext.draw.engine.Vml
- * @extends Ext.draw.Surface
  * Provides specific methods to draw with VML.
  */
-
 Ext.define('Ext.draw.engine.Vml', {
 
     /* Begin Definitions */
 
     extend: 'Ext.draw.Surface',
 
-    requires: ['Ext.draw.Draw', 'Ext.draw.Color', 'Ext.draw.Sprite', 'Ext.draw.Matrix', 'Ext.core.Element'],
+    requires: ['Ext.draw.Draw', 'Ext.draw.Color', 'Ext.draw.Sprite', 'Ext.draw.Matrix', 'Ext.Element'],
 
     /* End Definitions */
 
@@ -18,7 +15,7 @@ Ext.define('Ext.draw.engine.Vml', {
 
     map: {M: "m", L: "l", C: "c", Z: "x", m: "t", l: "r", c: "v", z: "x"},
     bitesRe: /([clmz]),?([^clmz]*)/gi,
-    valRe: /-?[^,\s-]+/g,
+    valRe: /-?[^,\s\-]+/g,
     fillUrlRe: /^url\(\s*['"]?([^\)]+?)['"]?\s*\)$/i,
     pathlike: /^(path|rect)$/,
     NonVmlPathRe: /[ahqstv]/ig, // Non-VML Pathing ops
@@ -31,12 +28,15 @@ Ext.define('Ext.draw.engine.Vml', {
     zoom: 21600,
     coordsize: 1000,
     coordorigin: '0 0',
+    zIndexShift: 0,
+    // VML uses CSS z-index and therefore doesn't need sprites to be kept in zIndex order
+    orderSpritesByZIndex: false,
 
     // @private
     // Convert an SVG standard path into a VML path
     path2vml: function (path) {
         var me = this,
-            nonVML =  me.NonVmlPathRe,
+            nonVML = me.NonVmlPathRe,
             map = me.map,
             val = me.valRe,
             zoom = me.zoom,
@@ -51,7 +51,7 @@ Ext.define('Ext.draw.engine.Vml', {
                     isMove = command.toLowerCase() == "m",
                     res = map[command];
                 args.replace(val, function (value) {
-                    if (isMove && vals[length] == 2) {
+                    if (isMove && vals.length === 2) {
                         res += vals + map[command == "m" ? "l" : "L"];
                         vals = [];
                     }
@@ -156,17 +156,17 @@ Ext.define('Ext.draw.engine.Vml', {
     },
 
     // private
-    onMouseEnter: function(e) {
+    onMouseEnter: function (e) {
         this.fireEvent("mouseenter", e);
     },
 
     // private
-    onMouseLeave: function(e) {
+    onMouseLeave: function (e) {
         this.fireEvent("mouseleave", e);
     },
 
     // @private - Normalize a delegated single event from the main container to each sprite and sprite group
-    processEvent: function(name, e) {
+    processEvent: function (name, e) {
         var target = e.getTarget(),
             surface = this.surface,
             sprite;
@@ -178,7 +178,7 @@ Ext.define('Ext.draw.engine.Vml', {
     },
 
     // Create the VML element/elements and append them to the DOM
-    createSpriteElement: function(sprite) {
+    createSpriteElement: function (sprite) {
         var me = this,
             attr = sprite.attr,
             type = sprite.type,
@@ -201,6 +201,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
         el.id = sprite.id;
         sprite.el = Ext.get(el);
+        sprite.el.setStyle('zIndex', -me.zIndexShift);
         me.el.appendChild(el);
         if (type !== 'image') {
             skew = me.createNode("skew");
@@ -208,24 +209,16 @@ Ext.define('Ext.draw.engine.Vml', {
             el.appendChild(skew);
             sprite.skew = skew;
         }
-        sprite.matrix = Ext.create('Ext.draw.Matrix');
+        sprite.matrix = new Ext.draw.Matrix();
         sprite.bbox = {
             plain: null,
             transform: null
         };
+
+        this.applyAttrs(sprite);
+        this.applyTransformations(sprite);        
         sprite.fireEvent("render", sprite);
         return sprite.el;
-    },
-
-    // @private - Get bounding box for the sprite.  The Sprite itself has the public method.
-    getBBox: function (sprite, isWithoutTransform) {
-        var realPath = this["getPath" + sprite.type](sprite);
-        if (isWithoutTransform) {
-            sprite.bbox.plain = sprite.bbox.plain || Ext.draw.Draw.pathDimensions(realPath);
-            return sprite.bbox.plain;
-        }
-        sprite.bbox.transform = sprite.bbox.transform || Ext.draw.Draw.pathDimensions(Ext.draw.Draw.mapPath(realPath, sprite.matrix));
-        return sprite.bbox.transform;
     },
 
     getBBoxText: function (sprite) {
@@ -245,7 +238,8 @@ Ext.define('Ext.draw.engine.Vml', {
             spriteAttr = sprite.attr,
             el = sprite.el,
             dom = el.dom,
-            style, name, groups, i, ln, scrubbedAttrs, font, key, bbox;
+            style, name, groups, i, ln, scrubbedAttrs, font, key,
+            cx, cy, rx, ry;
 
         if (group) {
             groups = [].concat(group);
@@ -272,10 +266,9 @@ Ext.define('Ext.draw.engine.Vml', {
                 width: scrubbedAttrs.width,
                 height: scrubbedAttrs.height
             });
-            bbox = sprite.getBBox();
             el.setStyle({
-                width: bbox.width + 'px',
-                height: bbox.height + 'px'
+                width: scrubbedAttrs.width + 'px',
+                height: scrubbedAttrs.height + 'px'
             });
             dom.src = scrubbedAttrs.src;
         }
@@ -302,16 +295,16 @@ Ext.define('Ext.draw.engine.Vml', {
         // Update path
         if (sprite.dirtyPath) {
             if (sprite.type == "circle" || sprite.type == "ellipse") {
-                var cx = scrubbedAttrs.x,
-                    cy = scrubbedAttrs.y,
-                    rx = scrubbedAttrs.rx || scrubbedAttrs.r || 0,
-                    ry = scrubbedAttrs.ry || scrubbedAttrs.r || 0;
+                cx = scrubbedAttrs.x;
+                cy = scrubbedAttrs.y;
+                rx = scrubbedAttrs.rx || scrubbedAttrs.r || 0;
+                ry = scrubbedAttrs.ry || scrubbedAttrs.r || 0;
                 dom.path = Ext.String.format("ar{0},{1},{2},{3},{4},{1},{4},{1}",
-                            Math.round((cx - rx) * me.zoom),
-                            Math.round((cy - ry) * me.zoom),
-                            Math.round((cx + rx) * me.zoom),
-                            Math.round((cy + ry) * me.zoom),
-                            Math.round(cx * me.zoom));
+                    Math.round((cx - rx) * me.zoom),
+                    Math.round((cy - ry) * me.zoom),
+                    Math.round((cx + rx) * me.zoom),
+                    Math.round((cy + ry) * me.zoom),
+                    Math.round(cx * me.zoom));
                 sprite.dirtyPath = false;
             }
             else if (sprite.type !== "text" && sprite.type !== 'image') {
@@ -332,7 +325,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
 
         // Handle fill and opacity
-        if (scrubbedAttrs.opacity  || scrubbedAttrs['stroke-opacity'] || scrubbedAttrs.fill) {
+        if (scrubbedAttrs.opacity || scrubbedAttrs['stroke-opacity'] || scrubbedAttrs.fill) {
             me.setFill(sprite, scrubbedAttrs);
         }
 
@@ -340,7 +333,7 @@ Ext.define('Ext.draw.engine.Vml', {
         if (scrubbedAttrs.stroke || scrubbedAttrs['stroke-opacity'] || scrubbedAttrs.fill) {
             me.setStroke(sprite, scrubbedAttrs);
         }
-        
+
         //set styles
         style = spriteAttr.style;
         if (style) {
@@ -350,18 +343,41 @@ Ext.define('Ext.draw.engine.Vml', {
         sprite.dirty = false;
     },
 
-    setZIndex: function(sprite) {
-        if (sprite.el) {
-            if (sprite.attr.zIndex != undefined) {
-                sprite.el.setStyle('zIndex', sprite.attr.zIndex);
+    setZIndex: function (sprite) {
+        var me = this,
+            zIndex = sprite.attr.zIndex,
+            shift = me.zIndexShift,
+            items, iLen, item, i;
+
+        if (zIndex < shift) {
+            // This means bad thing happened.
+            // The algorithm below will guarantee O(n) time.
+            items = me.items.items;
+            iLen = items.length;
+
+            for (i = 0; i < iLen; i++) {
+                if ((zIndex = items[i].attr.zIndex) && zIndex < shift) { // zIndex is no longer useful this case
+                    shift = zIndex;
+                }
             }
+
+            me.zIndexShift = shift;
+            for (i = 0; i < iLen; i++) {
+                item = items[i];
+                if (item.el) {
+                    item.el.setStyle('zIndex', item.attr.zIndex - shift);
+                }
+                item.zIndexDirty = false;
+            }
+        } else if (sprite.el) {
+            sprite.el.setStyle('zIndex', zIndex - shift);
             sprite.zIndexDirty = false;
         }
     },
 
     // Normalize all virtualized types into paths.
-    setPaths: function(sprite, params) {
-        var spriteAttr = sprite.attr;
+    setPaths: function (sprite, params) {
+        var spriteAttr = sprite.attr, thickness = sprite.attr['stroke-width'] || 1;
         // Clear bbox cache
         sprite.bbox.plain = null;
         sprite.bbox.transform = null;
@@ -384,7 +400,7 @@ Ext.define('Ext.draw.engine.Vml', {
         return false;
     },
 
-    setFill: function(sprite, params) {
+    setFill: function (sprite, params) {
         var me = this,
             el = sprite.el.dom,
             fillEl = el.fill,
@@ -429,7 +445,11 @@ Ext.define('Ext.draw.engine.Vml', {
                         fillEl.angle = angle;
                         fillEl.type = "gradient";
                         fillEl.method = "sigma";
-                        fillEl.colors.value = gradient.colors;
+                        if (fillEl.colors) {
+                            fillEl.colors.value = gradient.colors;
+                        } else {
+                            fillEl.colors = gradient.colors;
+                        }
                     }
                     // Otherwise treat it as an image
                     else {
@@ -449,7 +469,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
     },
 
-    setStroke: function(sprite, params) {
+    setStroke: function (sprite, params) {
         var me = this,
             el = sprite.el.dom,
             strokeEl = sprite.strokeEl,
@@ -472,6 +492,7 @@ Ext.define('Ext.draw.engine.Vml', {
                 // VML does NOT support a gradient stroke :(
                 strokeEl.color = Ext.draw.Color.toHex(params.stroke);
             }
+            strokeEl.dashstyle = params["stroke-dasharray"] ? "dash" : "solid";
             strokeEl.joinstyle = params["stroke-linejoin"];
             strokeEl.endcap = params["stroke-linecap"] || "round";
             strokeEl.miterlimit = params["stroke-miterlimit"] || 8;
@@ -492,7 +513,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
     },
 
-    setClip: function(sprite, params) {
+    setClip: function (sprite, params) {
         var me = this,
             el = sprite.el,
             clipEl = sprite.clipEl,
@@ -512,7 +533,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
     },
 
-    setTextAttributes: function(sprite, params) {
+    setTextAttributes: function (sprite, params) {
         var me = this,
             vml = sprite.vml,
             textStyle = vml.textpath.style,
@@ -543,9 +564,9 @@ Ext.define('Ext.draw.engine.Vml', {
             }
 
             me.setText(sprite, params.text);
-            
+
             if (vml.textpath.string) {
-                me.span.innerHTML = String(vml.textpath.string).replace(/</g, "&#60;").replace(/&/g, "&#38;").replace(/\n/g, "<br>");
+                me.span.innerHTML = String(vml.textpath.string).replace(/</g, "&#60;").replace(/&/g, "&#38;").replace(/\n/g, "<br/>");
             }
             vml.W = me.span.offsetWidth;
             vml.H = me.span.offsetHeight + 2; // TODO handle baseline differences and offset in VML Textpath
@@ -571,96 +592,80 @@ Ext.define('Ext.draw.engine.Vml', {
         sprite.bbox.transform = null;
         sprite.dirtyFont = false;
     },
-    
-    setText: function(sprite, text) {
+
+    setText: function (sprite, text) {
         sprite.vml.textpath.string = Ext.htmlDecode(text);
     },
 
-    hide: function() {
+    hide: function () {
         this.el.hide();
     },
 
-    show: function() {
+    show: function () {
         this.el.show();
     },
 
-    hidePrim: function(sprite) {
+    hidePrim: function (sprite) {
         sprite.el.addCls(Ext.baseCSSPrefix + 'hide-visibility');
     },
 
-    showPrim: function(sprite) {
+    showPrim: function (sprite) {
         sprite.el.removeCls(Ext.baseCSSPrefix + 'hide-visibility');
     },
 
-    setSize: function(width, height) {
-        var me = this,
-            viewBox = me.viewBox,
-            scaleX, scaleY, items, i, len;
+    setSize: function (width, height) {
+        var me = this;
         width = width || me.width;
         height = height || me.height;
         me.width = width;
         me.height = height;
 
-        if (!me.el) {
-            return;
+        if (me.el) {
+            // Size outer div
+            if (width != undefined) {
+                me.el.setWidth(width);
+            }
+            if (height != undefined) {
+                me.el.setHeight(height);
+            }
         }
 
-        // Size outer div
-        if (width != undefined) {
-            me.el.setWidth(width);
-        }
-        if (height != undefined) {
-            me.el.setHeight(height);
-        }
+        me.callParent(arguments);
+    },
 
-        // Handle viewBox sizing
+    /**
+     * @private Using the current viewBox property and the surface's width and height, calculate the
+     * appropriate viewBoxShift that will be applied as a persistent transform to all sprites.
+     */
+    applyViewBox: function () {
+        var me = this,
+            viewBox = me.viewBox,
+            width = me.width,
+            height = me.height,
+            items,
+            iLen,
+            i;
+        
+        me.callParent();
+
         if (viewBox && (width || height)) {
-            var viewBoxX = viewBox.x,
-                viewBoxY = viewBox.y,
-                viewBoxWidth = viewBox.width,
-                viewBoxHeight = viewBox.height,
-                relativeHeight = height / viewBoxHeight,
-                relativeWidth = width / viewBoxWidth,
-                size;
-            if (viewBoxWidth * relativeHeight < width) {
-                viewBoxX -= (width - viewBoxWidth * relativeHeight) / 2 / relativeHeight;
-            }
-            if (viewBoxHeight * relativeWidth < height) {
-                viewBoxY -= (height - viewBoxHeight * relativeWidth) / 2 / relativeWidth;
-            }
-            size = 1 / Math.max(viewBoxWidth / width, viewBoxHeight / height);
-            // Scale and translate group
-            me.viewBoxShift = {
-                dx: -viewBoxX,
-                dy: -viewBoxY,
-                scale: size
-            };
             items = me.items.items;
-            for (i = 0, len = items.length; i < len; i++) {
-                me.transform(items[i]);
+            iLen = items.length;
+
+            for (i = 0; i < iLen; i++) {
+                me.applyTransformations(items[i]);
             }
         }
-        this.callParent(arguments);
     },
 
-    setViewBox: function(x, y, width, height) {
-        this.callParent(arguments);
-        this.viewBox = {
-            x: x,
-            y: y,
-            width: width,
-            height: height
-        };
-    },
-
-    onAdd: function(item) {
+    onAdd: function (item) {
         this.callParent(arguments);
         if (this.el) {
             this.renderItem(item);
         }
     },
 
-    onRemove: function(sprite) {
+    onRemove: function (sprite) {
         if (sprite.el) {
             sprite.el.remove();
             delete sprite.el;
@@ -670,7 +675,8 @@ Ext.define('Ext.draw.engine.Vml', {
 
     render: function (container) {
         var me = this,
-            doc = Ext.getDoc().dom;
+            doc = Ext.getDoc().dom,
+            el;
         // VML Node factory method (createNode)
         if (!me.createNode) {
             try {
@@ -688,7 +694,7 @@ Ext.define('Ext.draw.engine.Vml', {
         }
 
         if (!me.el) {
-            var el = doc.createElement("div");
+            el = doc.createElement("div");
             me.el = Ext.get(el);
             me.el.addCls(me.baseVmlCls);
 
@@ -696,7 +702,7 @@ Ext.define('Ext.draw.engine.Vml', {
             me.span = doc.createElement("span");
             Ext.get(me.span).addCls(me.measureSpanCls);
             el.appendChild(me.span);
-            me.el.setSize(me.width || 10, me.height || 10);
+            me.el.setSize(me.width || 0, me.height || 0);
             container.appendChild(el);
             me.el.on({
                 scope: me,
@@ -707,17 +713,18 @@ Ext.define('Ext.draw.engine.Vml', {
                 mousemove: me.onMouseMove,
                 mouseenter: me.onMouseEnter,
                 mouseleave: me.onMouseLeave,
-                click: me.onClick
+                click: me.onClick,
+                dblclick: me.onDblClick
             });
         }
         me.renderAll();
     },
 
-    renderAll: function() {
+    renderAll: function () {
         this.items.each(this.renderItem, this);
     },
 
-    redraw: function(sprite) {
+    redraw: function (sprite) {
         sprite.dirty = true;
         this.renderItem(sprite);
     },
@@ -742,7 +749,7 @@ Ext.define('Ext.draw.engine.Vml', {
     },
 
     rotationCompensation: function (deg, dx, dy) {
-        var matrix = Ext.create('Ext.draw.Matrix');
+        var matrix = new Ext.draw.Matrix();
         matrix.rotate(-deg, 0.5, 0.5);
         return {
             x: matrix.x(dx, dy),
@@ -750,9 +757,12 @@ Ext.define('Ext.draw.engine.Vml', {
         };
     },
 
-    transform: function(sprite) {
+    transform: function (sprite, matrixOnly) {
         var me = this,
-            matrix = Ext.create('Ext.draw.Matrix'),
+            bbox = me.getBBox(sprite, true),
+            cx = bbox.x + bbox.width * 0.5,
+            cy = bbox.y + bbox.height * 0.5,
+            matrix = new Ext.draw.Matrix(),
             transforms = sprite.transformations,
             transformsLength = transforms.length,
             i = 0,
@@ -765,7 +775,9 @@ Ext.define('Ext.draw.engine.Vml', {
             domStyle = dom.style,
             zoom = me.zoom,
             skew = sprite.skew,
-            deltaX, deltaY, transform, type, compensate, y, fill, newAngle,zoomScaleX, zoomScaleY, newOrigin;
+            shift = me.viewBoxShift,
+            deltaX, deltaY, transform, type, compensate, y, fill, newAngle, zoomScaleX, zoomScaleY, newOrigin, offset;
+
 
         for (; i < transformsLength; i++) {
             transform = transforms[i];
@@ -784,59 +796,49 @@ Ext.define('Ext.draw.engine.Vml', {
             }
         }
 
-        if (me.viewBoxShift) {
-            matrix.scale(me.viewBoxShift.scale, me.viewBoxShift.scale, -1, -1);
-            matrix.add(1, 0, 0, 1, me.viewBoxShift.dx, me.viewBoxShift.dy);
+        sprite.matrix = matrix.clone();
+
+        if (matrixOnly) {
+            return;
         }
 
-        sprite.matrix = matrix;
-
+        if (shift) {
+            matrix.prepend(shift.scale, 0, 0, shift.scale, shift.dx * shift.scale, shift.dy * shift.scale);
+        }
 
         // Hide element while we transform
-
         if (sprite.type != "image" && skew) {
+            skew.origin = "0,0";
             // matrix transform via VML skew
             skew.matrix = matrix.toString();
-            skew.offset = matrix.offset();
+            // skew.offset = '32767,1' OK
+            // skew.offset = '32768,1' Crash
+            // M$, R U kidding??
+            offset = matrix.offset();
+            if (offset[0] > 32767) {
+                offset[0] = 32767;
+            } else if (offset[0] < -32768) {
+                offset[0] = -32768;
+            }
+            if (offset[1] > 32767) {
+                offset[1] = 32767;
+            } else if (offset[1] < -32768) {
+                offset[1] = -32768;
+            }
+            skew.offset = offset;
         }
         else {
-            deltaX = matrix.matrix[0][2];
-            deltaY = matrix.matrix[1][2];
-            // Scale via coordsize property
-            zoomScaleX = zoom / deltaScaleX;
-            zoomScaleY = zoom / deltaScaleY;
-
-            dom.coordsize = Math.abs(zoomScaleX) + " " + Math.abs(zoomScaleY);
-
-            // Rotate via rotation property
-            newAngle = deltaDegrees * (deltaScaleX * ((deltaScaleY < 0) ? -1 : 1));
-            if (newAngle != domStyle.rotation && !(newAngle === 0 && !domStyle.rotation)) {
-                domStyle.rotation = newAngle;
-            }
-            if (deltaDegrees) {
-                // Compensate x/y position due to rotation
-                compensate = me.rotationCompensation(deltaDegrees, deltaX, deltaY);
-                deltaX = compensate.x;
-                deltaY = compensate.y;
-            }
-
-            // Handle negative scaling via flipping
-            if (deltaScaleX < 0) {
-                flip += "x";
-            }
-            if (deltaScaleY < 0) {
-                flip += " y";
-                y = -1;
-            }
-            if (flip != "" && !dom.style.flip) {
-                domStyle.flip = flip;
-            }
-
-            // Translate via coordorigin property
-            newOrigin = (deltaX * -zoomScaleX) + " " + (deltaY * -zoomScaleY);
-            if (newOrigin != dom.coordorigin) {
-                dom.coordorigin = (deltaX * -zoomScaleX) + " " + (deltaY * -zoomScaleY);
-            }
+            domStyle.filter = matrix.toFilter();
+            domStyle.left = Math.min(
+                matrix.x(bbox.x, bbox.y),
+                matrix.x(bbox.x + bbox.width, bbox.y),
+                matrix.x(bbox.x, bbox.y + bbox.height),
+                matrix.x(bbox.x + bbox.width, bbox.y + bbox.height)) + 'px';
+            domStyle.top = Math.min(
+                matrix.y(bbox.x, bbox.y),
+                matrix.y(bbox.x + bbox.width, bbox.y),
+                matrix.y(bbox.x, bbox.y + bbox.height),
+                matrix.y(bbox.x + bbox.width, bbox.y + bbox.height)) + 'px';
         }
     },
 
@@ -844,17 +846,17 @@ Ext.define('Ext.draw.engine.Vml', {
         return Ext.create('Ext.draw.Sprite', config);
     },
 
-    getRegion: function() {
+    getRegion: function () {
         return this.el.getRegion();
     },
 
-    addCls: function(sprite, className) {
+    addCls: function (sprite, className) {
         if (sprite && sprite.el) {
             sprite.el.addCls(className);
         }
     },
 
-    removeCls: function(sprite, className) {
+    removeCls: function (sprite, className) {
         if (sprite && sprite.el) {
             sprite.el.removeCls(className);
         }
@@ -865,21 +867,34 @@ Ext.define('Ext.draw.engine.Vml', {
      * to its corresponding VML attributes and store it for later use by individual sprites.
      * @param {Object} gradient
      */
-    addGradient: function(gradient) {
+    addGradient: function (gradient) {
         var gradients = this.gradientsColl || (this.gradientsColl = Ext.create('Ext.util.MixedCollection')),
             colors = [],
-            stops = Ext.create('Ext.util.MixedCollection');
+            stops = Ext.create('Ext.util.MixedCollection'),
+            keys,
+            items,
+            iLen,
+            key,
+            item,
+            i;
 
         // Build colors string
         stops.addAll(gradient.stops);
-        stops.sortByKey("ASC", function(a, b) {
+        stops.sortByKey("ASC", function (a, b) {
             a = parseInt(a, 10);
             b = parseInt(b, 10);
             return a > b ? 1 : (a < b ? -1 : 0);
         });
-        stops.eachKey(function(k, v) {
-            colors.push(k + "% " + v.color);
-        });
+
+        keys = stops.keys;
+        items = stops.items;
+        iLen = keys.length;
+
+        for (i = 0; i < iLen; i++) {
+            key = keys[i];
+            item = items[i];
+            colors.push(key + '% ' + item.color);
+        }
 
         gradients.add(gradient.id, {
             colors: colors.join(","),
@@ -887,9 +902,9 @@ Ext.define('Ext.draw.engine.Vml', {
         });
     },
 
-    destroy: function() {
+    destroy: function () {
         var me = this;
-        
+
         me.callParent(arguments);
         if (me.el) {
             me.el.remove();

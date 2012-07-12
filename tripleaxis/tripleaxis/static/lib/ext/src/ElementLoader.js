@@ -1,19 +1,16 @@
 /**
- * @class Ext.ElementLoader
  * A class used to load remote content to an Element. Sample usage:
- * <pre><code>
-Ext.get('el').load({
-    url: 'myPage.php',
-    scripts: true,
-    params: {
-        id: 1
-    }
-});
- * </code></pre>
- * <p>
- * In general this class will not be instanced directly, rather the {@link Ext.core.Element#load} method
+ *
+ *     Ext.get('el').load({
+ *         url: 'myPage.php',
+ *         scripts: true,
+ *         params: {
+ *             id: 1
+ *         }
+ *     });
+ *
+ * In general this class will not be instanced directly, rather the {@link Ext.Element#method-load} method
  * will be used.
- * </p>
  */
 Ext.define('Ext.ElementLoader', {
 
@@ -27,89 +24,122 @@ Ext.define('Ext.ElementLoader', {
         'Ext.data.Connection',
         'Ext.Ajax'
     ],
-    
+
     statics: {
         Renderer: {
             Html: function(loader, response, active){
                 loader.getTarget().update(response.responseText, active.scripts === true);
                 return true;
             }
-        }     
+        }
     },
 
     /* End Definitions */
 
     /**
-     * @cfg {String} url The url to retrieve the content from. Defaults to <tt>null</tt>.
+     * @cfg {String} url (required)
+     * The url to retrieve the content from.
      */
     url: null,
 
     /**
-     * @cfg {Object} params Any params to be attached to the Ajax request. These parameters will
-     * be overridden by any params in the load options. Defaults to <tt>null</tt>.
+     * @cfg {Object} params
+     * Any params to be attached to the Ajax request. These parameters will
+     * be overridden by any params in the load options.
      */
     params: null,
 
     /**
      * @cfg {Object} baseParams Params that will be attached to every request. These parameters
-     * will not be overridden by any params in the load options. Defaults to <tt>null</tt>.
+     * will not be overridden by any params in the load options.
      */
     baseParams: null,
 
     /**
-     * @cfg {Boolean/Object} autoLoad True to have the loader make a request as soon as it is created. Defaults to <tt>false</tt>.
-     * This argument can also be a set of options that will be passed to {@link #load} is called.
+     * @cfg {Boolean/Object} autoLoad
+     * True to have the loader make a request as soon as it is created.
+     * This argument can also be a set of options that will be passed to {@link #method-load} is called.
      */
     autoLoad: false,
 
     /**
-     * @cfg {Mixed} target The target element for the loader. It can be the DOM element, the id or an Ext.Element.
+     * @cfg {HTMLElement/Ext.Element/String} target
+     * The target element for the loader. It can be the DOM element, the id or an {@link Ext.Element}.
      */
     target: null,
 
     /**
-     * @cfg {Mixed} loadMask True or a string to show when the element is loading.
+     * @cfg {Boolean/String} loadMask
+     * True or a string to show when the element is loading.
      */
     loadMask: false,
 
     /**
-     * @cfg {Object} ajaxOptions Any additional options to be passed to the request, for example timeout or headers. Defaults to <tt>null</tt>.
+     * @cfg {Object} ajaxOptions
+     * Any additional options to be passed to the request, for example timeout or headers.
      */
     ajaxOptions: null,
-    
+
     /**
-     * @cfg {Boolean} scripts True to parse any inline script tags in the response.
+     * @cfg {Boolean} scripts
+     * True to parse any inline script tags in the response.
      */
     scripts: false,
 
     /**
-     * @cfg {Function} success A function to be called when a load request is successful.
+     * @cfg {Function} success
+     * A function to be called when a load request is successful.
+     * Will be called with the following config parameters:
+     *
+     * - this - The ElementLoader instance.
+     * - response - The response object.
+     * - options - Ajax options.
      */
 
     /**
      * @cfg {Function} failure A function to be called when a load request fails.
+     * Will be called with the following config parameters:
+     *
+     * - this - The ElementLoader instance.
+     * - response - The response object.
+     * - options - Ajax options.
      */
 
     /**
-     * @cfg {Object} scope The scope to execute the {@link #success} and {@link #failure} functions in.
-     */
-    
-    /**
-     * @cfg {Function} renderer A custom function to render the content to the element. The passed parameters
-     * are
-     * <ul>
-     * <li>The loader</li>
-     * <li>The response</li>
-     * <li>The active request</li>
-     * </ul>
+     * @cfg {Function} callback A function to be called when a load request finishes.
+     * Will be called with the following config parameters:
+     *
+     * - this - The ElementLoader instance.
+     * - success - True if successful request.
+     * - response - The response object.
+     * - options - Ajax options.
      */
 
+    /**
+     * @cfg {Object} scope
+     * The scope to execute the {@link #success} and {@link #failure} functions in.
+     */
+
+    /**
+     * @cfg {Function} renderer
+     * A custom function to render the content to the element. The function should
+     * return false if the renderer could not be applied. The passed parameters are:
+     *
+     * - The loader
+     * - The response
+     * - The active request
+     */
+
+    /**
+     * @property {Boolean} isLoader
+     * `true` in this class to identify an object as an instantiated ElementLoader, or subclass thereof.
+     */
     isLoader: true,
 
     constructor: function(config) {
         var me = this,
             autoLoad;
-        
+
         config = config || {};
         Ext.apply(me, config);
         me.setTarget(me.target);
@@ -134,7 +164,7 @@ Ext.define('Ext.ElementLoader', {
             'exception',
 
             /**
-             * @event exception
+             * @event load
              * Fires after a successful load.
              * @param {Ext.ElementLoader} this
              * @param {Object} response The response from the server
@@ -156,9 +186,9 @@ Ext.define('Ext.ElementLoader', {
     },
 
     /**
-     * Set an {Ext.Element} as the target of this loader. Note that if the target is changed,
-     * any active requests will be aborted.
-     * @param {Mixed} target The element
+     * Sets an {@link Ext.Element} as the target of this loader.
+     * Note that if the target is changed, any active requests will be aborted.
+     * @param {String/HTMLElement/Ext.Element} target The element or its ID.
      */
     setTarget: function(target){
         var me = this;
@@ -170,8 +200,8 @@ Ext.define('Ext.ElementLoader', {
     },
 
     /**
-     * Get the target of this loader.
-     * @return {Ext.Component} target The target, null if none exists.
+     * Returns the target of this loader.
+     * @return {Ext.Component} The target or null if none exists.
      */
     getTarget: function(){
         return this.target || null;
@@ -190,26 +220,26 @@ Ext.define('Ext.ElementLoader', {
             delete this.active;
         }
     },
-    
+
     /**
-     * Remove the mask on the target
+     * Removes the mask on the target
      * @private
      */
     removeMask: function(){
         this.target.unmask();
     },
-    
+
     /**
-     * Add the mask on the target
+     * Adds the mask on the target
      * @private
-     * @param {Mixed} mask The mask configuration
+     * @param {Boolean/Object} mask The mask configuration
      */
     addMask: function(mask){
         this.target.mask(mask === true ? null : mask);
     },
 
     /**
-     * Load new data from the server.
+     * Loads new data from the server.
      * @param {Object} options The options for the request. They can be any configuration option that can be specified for
      * the class, with the exception of the target option. Note that any options passed to the method will override any
      * class defaults.
@@ -276,9 +306,9 @@ Ext.define('Ext.ElementLoader', {
         };
         me.setOptions(me.active, options);
     },
-    
+
     /**
-     * Set any additional options on the active request
+     * Sets any additional options on the active request
      * @private
      * @param {Object} active The active request
      * @param {Object} options The initial options
@@ -286,7 +316,7 @@ Ext.define('Ext.ElementLoader', {
     setOptions: Ext.emptyFn,
 
     /**
-     * Parse the response after the request completes
+     * Parses the response after the request completes
      * @private
      * @param {Object} options Ajax options
      * @param {Boolean} success Success status of the request
@@ -300,7 +330,7 @@ Ext.define('Ext.ElementLoader', {
 
 
         if (success) {
-            success = renderer.call(me, me, response, active);
+            success = renderer.call(me, me, response, active) !== false;
         }
 
         if (success) {
@@ -331,11 +361,11 @@ Ext.define('Ext.ElementLoader', {
         }
         return this.statics().Renderer.Html;
     },
-    
+
     /**
      * Automatically refreshes the content over a specified period.
      * @param {Number} interval The interval to refresh in ms.
-     * @param {Object} options (optional) The options to pass to the load method. See {@link #load}
+     * @param {Object} options (optional) The options to pass to the load method. See {@link #method-load}
      */
     startAutoRefresh: function(interval, options){
         var me = this;
@@ -344,7 +374,7 @@ Ext.define('Ext.ElementLoader', {
             me.load(options);
         }, interval);
     },
-    
+
     /**
      * Clears any auto refresh. See {@link #startAutoRefresh}.
      */
@@ -352,7 +382,7 @@ Ext.define('Ext.ElementLoader', {
         clearInterval(this.autoRefresh);
         delete this.autoRefresh;
     },
-    
+
     /**
      * Checks whether the loader is automatically refreshing. See {@link #startAutoRefresh}.
      * @return {Boolean} True if the loader is automatically refreshing

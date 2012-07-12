@@ -1,16 +1,10 @@
 /**
- * @class Ext.ux.TabCloseMenu
- * Plugin (ptype = 'tabclosemenu') for adding a close context menu to tabs. Note that the menu respects
- * the closable configuration on the tab. As such, commands like remove others and remove all will not
- * remove items that are not closable.
- *
- * @constructor
- * @param {Object} config The configuration options
- * @ptype tabclosemenu
+ * Plugin for adding a close context menu to tabs. Note that the menu respects
+ * the closable configuration on the tab. As such, commands like remove others
+ * and remove all will not remove items that are not closable.
  */
-Ext.define('Ext.tab.TabCloseMenu', {
+Ext.define('Ext.ux.TabCloseMenu', {
     alias: 'plugin.tabclosemenu',
-    alternateClassName: 'Ext.ux.TabCloseMenu',
 
     mixins: {
         observable: 'Ext.util.Observable'
@@ -18,31 +12,31 @@ Ext.define('Ext.tab.TabCloseMenu', {
 
     /**
      * @cfg {String} closeTabText
-     * The text for closing the current tab. Defaults to <tt>'Close Tab'</tt>.
+     * The text for closing the current tab.
      */
     closeTabText: 'Close Tab',
 
     /**
      * @cfg {Boolean} showCloseOthers
-     * Indicates whether to show the 'Close Others' option. Defaults to <tt>true</tt>.
+     * Indicates whether to show the 'Close Others' option.
      */
     showCloseOthers: true,
 
     /**
-     * @cfg {String} closeOtherTabsText
-     * The text for closing all tabs except the current one. Defaults to <tt>'Close Other Tabs'</tt>.
+     * @cfg {String} closeOthersTabsText
+     * The text for closing all tabs except the current one.
      */
     closeOthersTabsText: 'Close Other Tabs',
 
     /**
      * @cfg {Boolean} showCloseAll
-     * Indicates whether to show the 'Close All' option. Defaults to <tt>true</tt>.
+     * Indicates whether to show the 'Close All' option.
      */
     showCloseAll: true,
 
     /**
      * @cfg {String} closeAllTabsText
-     * <p>The text for closing all tabs. Defaults to <tt>'Close All Tabs'</tt>.
+     * <p>The text for closing all tabs.
      */
     closeAllTabsText: 'Close All Tabs',
 

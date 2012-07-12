@@ -1,30 +1,34 @@
 /**
- * @class Ext.LoadMask
- * A simple utility class for generically masking elements while loading data.  If the {@link #store}
- * config option is specified, the masking will be automatically synchronized with the store's loading
- * process and the mask element will be cached for reuse.
- * <p>Example usage:</p>
- * <pre><code>
-// Basic mask:
-var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"Please wait..."});
-myMask.show();
-</code></pre>
-
- * @constructor
- * Create a new LoadMask
- * @param {Mixed} el The element, element ID, or DOM node you wish to mask. Also, may be a Component who's element you wish to mask.
- * @param {Object} config The config object
+ * A modal, floating Component which may be shown above a specified {@link Ext.Component Component} while loading data.
+ * When shown, the configured owning Component will be covered with a modality mask, and the LoadMask's {@link #msg} will be
+ * displayed centered, accompanied by a spinner image.
+ *
+ * If the {@link #store} config option is specified, the masking will be automatically shown and then hidden synchronized with
+ * the Store's loading process.
+ *
+ * Because this is a floating Component, its z-index will be managed by the global {@link Ext.WindowManager ZIndexManager}
+ * object, and upon show, it will place itsef at the top of the hierarchy.
+ *
+ * Example usage:
+ *
+ *     // Basic mask:
+ *     var myMask = new Ext.LoadMask(myPanel, {msg:"Please wait..."});
+ *     myMask.show();
  */
-
 Ext.define('Ext.LoadMask', {
+
+    extend: 'Ext.Component',
+
+    alias: 'widget.loadmask',
 
     /* Begin Definitions */
 
     mixins: {
-        observable: 'Ext.util.Observable'
+        floating: 'Ext.util.Floating',
+        bindable: 'Ext.util.Bindable'
     },
 
-    requires: ['Ext.data.StoreManager'],
+    uses: ['Ext.data.StoreManager'],
 
     /* End Definitions */
 
@@ -34,184 +38,384 @@ Ext.define('Ext.LoadMask', {
      * hidden on either load success, or load fail.
      */
 
+    //<locale>
     /**
-     * @cfg {String} msg
-     * The text to display in a centered loading message box (defaults to 'Loading...')
+     * @cfg {String} [msg="Loading..."]
+     * The text to display in a centered loading message box.
      */
     msg : 'Loading...',
+    //</locale>
+
     /**
-     * @cfg {String} msgCls
-     * The CSS class to apply to the loading message element (defaults to "x-mask-loading")
+     * @cfg {String} [msgCls="x-mask-loading"]
+     * The CSS class to apply to the loading message element.
      */
     msgCls : Ext.baseCSSPrefix + 'mask-loading',
-    
+
     /**
-     * @cfg {Boolean} useMsg
+     * @cfg {String} [maskCls="x-mask"]
+     * The CSS class to apply to the mask element
+     */
+    maskCls: Ext.baseCSSPrefix + 'mask',
+
+    /**
+     * @cfg {Boolean} [useMsg=true]
      * Whether or not to use a loading message class or simply mask the bound element.
      */
     useMsg: true,
 
     /**
-     * Read-only. True if the mask is currently disabled so that it will not be displayed (defaults to false)
-     * @type Boolean
+     * @cfg {Boolean} [useTargetEl=false]
+     * True to mask the {@link Ext.Component#getTargetEl targetEl} of the bound Component. By default,
+     * the {@link Ext.Component#getEl el} will be masked.
      */
-    disabled: false,
+    useTargetEl: false,
 
-    constructor : function(el, config) {
+    baseCls: Ext.baseCSSPrefix + 'mask-msg',
+
+    childEls: [
+        'msgEl'
+    ],
+
+    renderTpl: '<div id="{id}-msgEl" style="position:relative" class="{[values.$comp.msgCls]}"></div>',
+
+    // Private. Obviously, it's floating.
+    floating: {
+        shadow: 'frame'
+    },
+
+    // Private. Masks are not focusable
+    focusOnToFront: false,
+
+    // When we put the load mask to the front of it's owner, we generally don't want to also bring the owning
+    // component to the front.
+    bringParentToFront: false,
+
+    /**
+     * Creates new LoadMask.
+     * @param {Ext.Component} comp The Component you wish to mask. The the mask will be automatically sized
+     * upon Component resize, and the message box will be kept centered.</p>
+     * @param {Object} [config] The config object
+     */
+    constructor : function(comp, config) {
         var me = this;
 
-        if (el.isComponent) {
-            me.bindComponent(el);
-        } else {
-            me.el = Ext.get(el);
+        // Element support to be deprecated
+        if (!comp.isComponent) {
+            //<debug>
+            if (Ext.isDefined(Ext.global.console)) {
+                Ext.global.console.warn('Ext.LoadMask: LoadMask for elements has been deprecated, use Ext.dom.Element.mask & Ext.dom.Element.unmask');
+            }
+            //</debug>
+            comp = Ext.get(comp);
+            this.isElement = true;
         }
-        Ext.apply(me, config);
 
-        me.addEvents('beforeshow', 'show', 'hide');
+        me.ownerCt = comp;
+        if (!this.isElement) {
+            me.bindComponent(comp);
+        }
+        me.callParent([config]);
+
         if (me.store) {
             me.bindStore(me.store, true);
         }
-        me.mixins.observable.constructor.call(me, config);
     },
 
-    bindComponent: function(comp) {
+    bindComponent: function(comp){
         var me = this,
             listeners = {
-                resize: me.onComponentResize,
-                scope: me
-            };
-
-        if (comp.el) {
-            me.onComponentRender(comp);
+                scope: this,
+                resize: me.sizeMask,
+                added: me.onComponentAdded,
+                removed: me.onComponentRemoved
+            },
+            hierarchyEventSource = Ext.container.Container.hierarchyEventSource;
+            
+        if (comp.floating) {
+            listeners.move = me.sizeMask;
+            me.activeOwner = comp;
+        } else if (comp.ownerCt) {
+            me.onComponentAdded(comp.ownerCt);
         } else {
-            listeners.render = {
-                fn: me.onComponentRender,
-                scope: me,
-                single: true
-            };
+            // if the target comp is non-floating and under a floating comp don't bring the load mask to the front of the stack
+            me.preventBringToFront = true;
         }
+
         me.mon(comp, listeners);
+        
+        // subscribe to the observer that manages the hierarchy
+        me.mon(hierarchyEventSource, {
+            show: me.onContainerShow,
+            hide: me.onContainerHide,
+            expand: me.onContainerExpand,
+            collapse: me.onContainerCollapse,
+            scope: me
+        });
+    },
+
+    onComponentAdded: function(owner){
+        var me = this;
+        delete me.activeOwner;
+        me.floatParent = owner;
+        if (!owner.floating) {
+            owner = owner.up('[floating]');
+        }
+        if (owner) {
+            me.activeOwner = owner;
+            me.mon(owner, 'move', me.sizeMask, me);
+        }
+        owner = me.floatParent.ownerCt;
+        if (me.rendered && me.isVisible() && owner) {
+            me.floatOwner = owner;
+            me.mon(owner, 'afterlayout', me.sizeMask, me, {single: true});
+        }
+    },
+
+    onComponentRemoved: function(owner){
+        var me = this,
+            activeOwner = me.activeOwner,
+            floatOwner = me.floatOwner;
+
+        if (activeOwner) {
+            me.mun(activeOwner, 'move', me.sizeMask, me);
+        }
+        if (floatOwner) {
+            me.mun(floatOwner, 'afterlayout', me.sizeMask, me);
+        }
+        delete me.activeOwner;
+        delete me.floatOwner;
+    },
+
+    afterRender: function() {
+        this.callParent(arguments);
+        this.container = this.floatParent.getContentTarget();
+    },
+
+    onContainerShow: function(container){
+        if (this.isActiveContainer(container)) {
+            this.onComponentShow();
+        }
+    },
+
+    onContainerHide: function(container){
+        if (this.isActiveContainer(container)) {
+            this.onComponentHide();
+        }
+    },
+
+    onContainerExpand: function(container){
+        if (this.isActiveContainer(container)) {
+            this.onComponentShow();
+        }
+    },
+
+    onContainerCollapse: function(container){
+        if (this.isActiveContainer(container)) {
+            this.onComponentHide();
+        }
+    },
+
+    isActiveContainer: function(container){
+        return this.isDescendantOf(container);
+    },
+
+    onComponentHide: function(){
+        var me = this;
+
+        if (me.rendered && me.isVisible()) {
+            me.hide();
+            me.showNext = true;
+        }
+    },
+
+    onComponentShow: function(){
+        if (this.showNext) {
+            this.show();
+        }
+        delete this.showNext;
     },
 
     /**
      * @private
-     * Called if we were configured with a Component, and that Component was not yet rendered. Collects the element to mask.
+     * Called when this LoadMask's Component is resized. The toFront method rebases and resizes the modal mask.
      */
-    onComponentRender: function(comp) {
-        this.el = comp.getContentTarget();
-    },
+    sizeMask: function() {
+        var me = this,
+            target;
 
-    /**
-     * @private
-     * Called when this LoadMask's Component is resized. The isMasked method also re-centers any displayed message.
-     */
-    onComponentResize: function(comp, w, h) {
-        this.el.isMasked();
+        if (me.rendered && me.isVisible()) {
+            me.center();
+
+            target = me.getMaskTarget();
+            me.getMaskEl().show().setSize(target.getSize()).alignTo(target, 'tl-tl');
+
+        }
     },
 
     /**
      * Changes the data store bound to this LoadMask.
-     * @param {Store} store The store to bind to this LoadMask
+     * @param {Ext.data.Store} store The store to bind to this LoadMask
      */
     bindStore : function(store, initial) {
         var me = this;
-
-        if (!initial && me.store) {
-            me.mun(me.store, {
-                scope: me,
-                beforeload: me.onBeforeLoad,
-                load: me.onLoad,
-                exception: me.onLoad
-            });
-            if(!store) {
-                me.store = null;
-            }
-        }
-        if (store) {
-            store = Ext.data.StoreManager.lookup(store);
-            me.mon(store, {
-                scope: me,
-                beforeload: me.onBeforeLoad,
-                load: me.onLoad,
-                exception: me.onLoad
-            });
-
-        }
-        me.store = store;
+        me.mixins.bindable.bindStore.apply(me, arguments);
+        store = me.store;
         if (store && store.isLoading()) {
             me.onBeforeLoad();
         }
     },
 
-    /**
-     * Disables the mask to prevent it from being displayed
-     */
-    disable : function() {
-        var me = this;
+    getStoreListeners: function(){
+        return {
+            beforeload: this.onBeforeLoad,
+            load: this.onLoad,
+            exception: this.onLoad,
 
-       me.disabled = true;
-       if (me.loading) {
-           me.onLoad();
-       }
+            // Fired when a range is requested for rendering that is not in the cache
+            cachemiss: this.onBeforeLoad,
+
+            // Fired when a range for rendering which was previously missing from the cache is loaded
+            cachefilled: this.onLoad
+        };
     },
 
-    /**
-     * Enables the mask so that it can be displayed
-     */
-    enable : function() {
-        this.disabled = false;
+    onDisable : function() {
+        this.callParent(arguments);
+        if (this.loading) {
+            this.onLoad();
+        }
     },
 
-    /**
-     * Method to determine whether this LoadMask is currently disabled.
-     * @return {Boolean} the disabled state of this LoadMask.
-     */
-    isDisabled : function() {
-        return this.disabled;
+    getOwner: function(){
+        return this.ownerCt || this.floatParent;
     },
 
-    // private
-    onLoad : function() {
-        var me = this;
-
-        me.loading = false;
-        me.el.unmask();
-        me.fireEvent('hide', me, me.el, me.store);
+    getMaskTarget: function(){
+        var owner = this.getOwner();
+        return this.useTargetEl ? owner.getTargetEl() : owner.getEl();
     },
 
     // private
     onBeforeLoad : function() {
-        var me = this;
+        var me = this,
+            owner = me.getOwner(),
+            origin;
 
-        if (!me.disabled && !me.loading && me.fireEvent('beforeshow', me, me.el, me.store) !== false) {
-            if (me.useMsg) {
-                me.el.mask(me.msg, me.msgCls, false);
-            } else {
-                me.el.mask();
-            }
-            
-            me.fireEvent('show', me, me.el, me.store);
+        if (!me.disabled) {
             me.loading = true;
+            // If the owning Component has not been layed out, defer so that the ZIndexManager
+            // gets to read its layed out size when sizing the modal mask
+            if (owner.componentLayoutCounter) {
+                me.maybeShow();
+            } else {
+                // The code below is a 'run-once' interceptor.
+                origin = owner.afterComponentLayout;
+                owner.afterComponentLayout = function() {
+                    owner.afterComponentLayout = origin;
+                    origin.apply(owner, arguments);
+                    me.maybeShow();
+                };
+            }
         }
     },
 
-    /**
-     * Show this LoadMask over the configured Element.
-     */
-    show: function() {
-        this.onBeforeLoad();
+    maybeShow: function(){
+        var me = this,
+            owner = me.getOwner();
+
+        if (!owner.isVisible(true)) {
+            me.showNext = true;
+        }
+        else if (me.loading && owner.rendered) {
+            me.show();
+        }
     },
 
-    /**
-     * Hide this LoadMask.
-     */
-    hide: function() {
-        this.onLoad();
+    getMaskEl: function(){
+        var me = this;
+        return me.maskEl || (me.maskEl = me.el.insertSibling({
+            cls: me.maskCls,
+            style: {
+                zIndex: me.el.getStyle('zIndex') - 2
+            }
+        }, 'before'));
+    },
+
+    onShow: function() {
+        var me = this,
+            msgEl = me.msgEl;
+
+        me.callParent(arguments);
+        me.loading = true;
+
+        if (me.useMsg) {
+            msgEl.show().update(me.msg);
+        } else {
+            msgEl.parent().hide();
+        }
+    },
+
+    hide: function(){
+        // Element support to be deprecated
+        if (this.isElement) {
+            this.ownerCt.unmask();
+            this.fireEvent('hide', this);
+            return;
+        }
+        delete this.showNext;
+        return this.callParent(arguments);
+    },
+
+    onHide: function(){
+        this.callParent();
+        this.getMaskEl().hide();
+    },
+
+    show: function(){
+        // Element support to be deprecated
+        if (this.isElement) {
+            this.ownerCt.mask(this.useMsg ? this.msg : '', this.msgCls);
+            this.fireEvent('show', this);
+            return;
+        }
+        return this.callParent(arguments);
+    },
+
+    afterShow: function() {
+        this.callParent(arguments);
+        this.sizeMask();
+    },
+
+    setZIndex: function(index) {
+        var me = this,
+            owner = me.activeOwner;
+            
+        if (owner) {
+            // it seems silly to add 1 to have it subtracted in the call below,
+            // but this allows the x-mask el to have the correct z-index (same as the component)
+            // so instead of directly changing the zIndexStack just get the z-index of the owner comp
+            index = parseInt(owner.el.getStyle('zIndex'), 10) + 1;
+        }
+
+        me.getMaskEl().setStyle('zIndex', index - 1);
+        return me.mixins.floating.setZIndex.apply(me, arguments);
     },
 
     // private
-    destroy : function() {
+    onLoad : function() {
+        this.loading = false;
         this.hide();
-        this.clearListeners();
+    },
+
+    onDestroy: function(){
+        var me = this;
+
+        if (me.isElement) {
+            me.ownerCt.unmask();
+        }
+
+        Ext.destroy(me.maskEl);
+        me.callParent();
     }
 });

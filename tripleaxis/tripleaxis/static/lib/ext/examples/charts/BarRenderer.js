@@ -1,22 +1,8 @@
 Ext.require('Ext.chart.*');
-Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit']);
+Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit', 'Ext.window.MessageBox']);
 
 Ext.onReady(function () {
-    var win = Ext.create('Ext.Window', {
-        width: 800,
-        height: 600,
-        hidden: false,
-        maximizable: true,
-        title: 'Bar Renderer',
-        renderTo: Ext.getBody(),
-        layout: 'fit',
-        tbar: [{
-            text: 'Reload Data',
-            handler: function() {
-                store1.loadData(generateData());
-            }
-        }],
-        items: {
+    var chart = Ext.create('Ext.chart.Chart', {
             xtype: 'chart',
             animate: true,
             style: 'background:#fff',
@@ -65,6 +51,36 @@ Ext.onReady(function () {
                     });
                 }
             }]
-        }
+        });
+
+
+    var win = Ext.create('Ext.Window', {
+        width: 800,
+        height: 600,
+        minHeight: 400,
+        minWidth: 550,
+        hidden: false,
+        maximizable: true,
+        title: 'Bar Renderer',
+        renderTo: Ext.getBody(),
+        layout: 'fit',
+        tbar: [{
+            text: 'Save Chart',
+            handler: function() {
+                Ext.MessageBox.confirm('Confirm Download', 'Would you like to download the chart as an image?', function(choice){
+                    if(choice == 'yes'){
+                        chart.save({
+                            type: 'image/png'
+                        });
+                    }
+                });
+            }
+        }, {
+            text: 'Reload Data',
+            handler: function() {
+                store1.loadData(generateData());
+            }
+        }],
+        items: chart
     });
 });

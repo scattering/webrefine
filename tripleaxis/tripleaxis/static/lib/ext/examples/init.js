@@ -16,17 +16,17 @@ Ext.ns('Ext.samples');
                 '<tpl for=".">',
                 '<div><a name="{id}"></a><h2><div>{title}</div></h2>',
                 '<dl>',
-                    '<tpl for="samples">',
+                    '<tpl for="items">',
                         '<dd ext:url="{url}"><img src="shared/screens/{icon}"/>',
                             '<div><h4>{text}',
                                 '<tpl if="this.isNew(values.status)">',
                                     '<span class="new-sample"> (New)</span>',
-                                '</tpl>',
-                                '<tpl if="this.isUpdated(values.status)">',
+                                '<tpl elseif="this.isUpdated(values.status)">',
                                     '<span class="updated-sample"> (Updated)</span>',
-                                '</tpl>',
-                                '<tpl if="this.isExperimental(values.status)">',
+                                '<tpl elseif="this.isExperimental(values.status)">',
                                     '<span class="new-sample"> (Experimental)</span>',
+                                '<tpl elseif="status">',
+                                    '<span class="status"> ({status})</span>',
                                 '</tpl>',
                             '</h4><p>{desc}</p></div>',
                         '</dd>',
@@ -47,20 +47,20 @@ Ext.ns('Ext.samples');
 
         onContainerClick: function(e) {
             var group = e.getTarget('h2', 3, true);
-            
+
             if (group) {
                 group.up('div').toggleCls('collapsed');
             }
         },
-        
+
         onItemClick : function(record, item, index, e){
             var t = e.getTarget('dd', 5, true);
-            
+
             if (t && !e.getTarget('a', 2)) {
                 var url = t.getAttributeNS('ext', 'url');
                 window.open(url);
             }
-            
+
             return this.callParent(arguments);
         }
     });
@@ -78,15 +78,14 @@ Ext.onReady(function() {
             c.id = 'sample-' + i;
         }
 
-        var store = Ext.create('Ext.data.JsonStore', {
-            idProperty : 'id',
-            fields     : ['id', 'title', 'samples'],
+        var store = Ext.create('Ext.data.Store', {
+            fields     : ['id', 'title', 'items'],
             data       : catalog
         });
 
-        var panel = Ext.create('Ext.Panel', {
+        var panel = Ext.create('Ext.panel.Panel', {
             frame      : false,
-            renderTo   : Ext.get('all-demos'),
+            renderTo   : 'all-demos',
             height     : 300,
             autoScroll : true,
             items      : Ext.create('Ext.samples.SamplePanel', {
@@ -99,7 +98,7 @@ Ext.onReady(function() {
         );
         tpl.overwrite('sample-menu', catalog);
 
-        Ext.select('#sample-spacer').remove();
+        Ext.get('sample-spacer').remove();
 
         var headerEl  = Ext.get('hd'),
             footerEl  = Ext.get('ft'),
@@ -159,3 +158,4 @@ Ext.onReady(function() {
 
     },500));
 });
+

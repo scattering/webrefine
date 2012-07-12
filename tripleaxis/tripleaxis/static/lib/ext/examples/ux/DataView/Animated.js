@@ -1,6 +1,4 @@
 /**
- * @class Ext.ux.DataViewTransition
- * @extends Object
  * @author Ed Spencer (http://sencha.com)
  * Transition plugin for DataViews
  */
@@ -187,7 +185,7 @@ Ext.define('Ext.ux.DataView.Animated', {
                 var elapsed  = new Date() - startTime,
                     fraction = elapsed / duration,
                     id;
-                
+
                 if (fraction >= 1) {
                     for (id in newPositions) {
                         Ext.fly(dataviewID + '-' + id).applyStyles({
@@ -195,7 +193,7 @@ Ext.define('Ext.ux.DataView.Animated', {
                             left: newPositions[id].left + "px"
                         });
                     }
-                    
+
                     Ext.TaskManager.stop(task);
                 } else {
                     //move each item
@@ -214,7 +212,7 @@ Ext.define('Ext.ux.DataView.Animated', {
                             diffLeft= fraction * Math.abs(oldLeft - newLeft),
                             midTop  = oldTop  > newTop  ? oldTop  - diffTop  : oldTop  + diffTop,
                             midLeft = oldLeft > newLeft ? oldLeft - diffLeft : oldLeft + diffLeft;
-                        
+
                         Ext.fly(dataviewID + '-' + id).applyStyles({
                             top : midTop + "px",
                             left: midLeft + "px"

@@ -7,8 +7,8 @@ Ext.require([
 ]);
 
 Ext.onReady(function(){
-    var floater, constrainedWin, constrainedWin2;
-
+    var constrainedWin, constrainedWin2;
+    
     Ext.util.Region.override({
         colors: ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'],
         nextColor: 0,
@@ -55,20 +55,13 @@ Ext.onReady(function(){
         closable: false,
         plain: true,
         layout: 'fit',
-        items: [floater = Ext.create('Ext.Component', {
-            xtype: 'component',
-            floating: {
-                shadow: false
-            },
-            height: 50,
-            width: 50,
-            x: 175,
-            y: 75
-        }), constrainedWin = Ext.create('Ext.Window', {
+        items: [constrainedWin = Ext.create('Ext.Window', {
             title: 'Constrained Window',
-            width: 100,
+            width: 200,
             height: 100,
-            x: 20,
+
+            // Constraining will pull the Window leftwards so that it's within the parent Window
+            x: 1000,
             y: 20,
             constrain: true,
             layout: 'fit',
@@ -77,7 +70,7 @@ Ext.onReady(function(){
             }
         }), constrainedWin2 = Ext.create('Ext.Window', {
             title: 'Header-Constrained Win',
-            width: 100,
+            width: 200,
             height: 100,
             x: 120,
             y: 120,
@@ -91,7 +84,6 @@ Ext.onReady(function(){
         }]
     });
     win2.show();
-    floater.show();
     constrainedWin.show();
     constrainedWin2.show();
 

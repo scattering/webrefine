@@ -2,7 +2,6 @@
  * @class Ext.Ajax
  * @singleton
  * @markdown
- * @extends Ext.data.Connection
 
 A singleton instance of an {@link Ext.data.Connection}. This class
 is used to communicate with your server side code. It can be used as follows:
@@ -43,70 +42,58 @@ Ext.define('Ext.Ajax', {
     singleton: true,
 
     /**
-     * @cfg {String} url @hide
-     */
-    /**
      * @cfg {Object} extraParams @hide
      */
     /**
      * @cfg {Object} defaultHeaders @hide
      */
     /**
-     * @cfg {String} method (Optional) @hide
+     * @cfg {String} method @hide
      */
     /**
-     * @cfg {Number} timeout (Optional) @hide
+     * @cfg {Number} timeout @hide
      */
     /**
-     * @cfg {Boolean} autoAbort (Optional) @hide
+     * @cfg {Boolean} autoAbort @hide
+     */
+    /**
+     * @cfg {Boolean} disableCaching @hide
      */
 
     /**
-     * @cfg {Boolean} disableCaching (Optional) @hide
-     */
-
-    /**
-     * @property  disableCaching
-     * True to add a unique cache-buster param to GET requests. (defaults to true)
-     * @type Boolean
+     * @property {Boolean} disableCaching
+     * True to add a unique cache-buster param to GET requests. Defaults to true.
      */
     /**
-     * @property  url
-     * The default URL to be used for requests to the server. (defaults to undefined)
+     * @property {String} url
+     * The default URL to be used for requests to the server.
      * If the server receives all requests through one URL, setting this once is easier than
      * entering it on every request.
-     * @type String
      */
     /**
-     * @property  extraParams
+     * @property {Object} extraParams
      * An object containing properties which are used as extra parameters to each request made
-     * by this object (defaults to undefined). Session information and other data that you need
+     * by this object. Session information and other data that you need
      * to pass with each request are commonly put here.
-     * @type Object
      */
     /**
-     * @property  defaultHeaders
-     * An object containing request headers which are added to each request made by this object
-     * (defaults to undefined).
-     * @type Object
+     * @property {Object} defaultHeaders
+     * An object containing request headers which are added to each request made by this object.
      */
     /**
-     * @property  method
+     * @property {String} method
      * The default HTTP method to be used for requests. Note that this is case-sensitive and
-     * should be all caps (defaults to undefined; if not set but params are present will use
+     * should be all caps (if not set but params are present will use
      * <tt>"POST"</tt>, otherwise will use <tt>"GET"</tt>.)
-     * @type String
      */
     /**
-     * @property  timeout
-     * The timeout in milliseconds to be used for requests. (defaults to 30000)
-     * @type Number
+     * @property {Number} timeout
+     * The timeout in milliseconds to be used for requests. Defaults to 30000.
      */
 
     /**
-     * @property  autoAbort
-     * Whether a new request should abort any pending requests. (defaults to false)
-     * @type Boolean
+     * @property {Boolean} autoAbort
+     * Whether a new request should abort any pending requests.
      */
     autoAbort : false
 });

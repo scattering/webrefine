@@ -52,13 +52,7 @@ Ext.onReady(function(){
     });
 
     var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-        clicksToEdit: 1,
-        listeners: {
-            edit: function(){
-                // refresh summaries
-                grid.getView().refresh();
-            }
-        }
+        clicksToEdit: 1
     });
     var showSummary = true;
     var grid = Ext.create('Ext.grid.Panel', {
@@ -76,6 +70,8 @@ Ext.onReady(function(){
             items: [{
                 tooltip: 'Toggle the visibility of the summary row',
                 text: 'Toggle Summary',
+                enableToggle: true,
+                pressed: true,
                 handler: function(){
                     var view = grid.getView();
                     showSummary = !showSummary;
@@ -104,7 +100,7 @@ Ext.onReady(function(){
             }
         }, {
             header: 'Project',
-            width: 20,
+            width: 180,
             sortable: true,
             dataIndex: 'project'
         }, {

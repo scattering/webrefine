@@ -1,6 +1,6 @@
 /**
  * @class Ext.chart.Tip
- * @ignore
+ * Provides tips for Ext.chart.series.Series.
  */
 Ext.define('Ext.chart.Tip', {
 
@@ -19,15 +19,19 @@ Ext.define('Ext.chart.Tip', {
             me.tipTimeout = null;
             me.tipConfig = Ext.apply({}, config.tips, {
                 renderer: Ext.emptyFn,
-                constrainPosition: false
+                constrainPosition: true,
+                autoHide: true
             });
-            me.tooltip = Ext.create('Ext.tip.ToolTip', me.tipConfig);
-            Ext.getBody().on('mousemove', me.tooltip.onMouseMove, me.tooltip);
+            me.tooltip = new Ext.tip.ToolTip(me.tipConfig);
+            me.chart.surface.on('mousemove', me.tooltip.onMouseMove, me.tooltip);
+            me.chart.surface.on('mouseleave', function() {
+                me.hideTip();
+            });
             if (me.tipConfig.surface) {
                 //initialize a surface
                 surface = me.tipConfig.surface;
                 sprites = surface.sprites;
-                tipSurface = Ext.create('Ext.chart.TipSurface', {
+                tipSurface = new Ext.chart.TipSurface({
                     id: 'tipSurfaceComponent',
                     sprites: sprites
                 });
@@ -41,16 +45,25 @@ Ext.define('Ext.chart.Tip', {
     },
 
     showTip: function(item) {
-        var me = this;
+        var me = this,
+            tooltip,
+            spriteTip,
+            tipConfig,
+            trackMouse,
+            sprite,
+            surface,
+            surfaceExt,
+            pos,
+            x,
+            y;
         if (!me.tooltip) {
             return;
         }
         clearTimeout(me.tipTimeout);
-        var tooltip = me.tooltip,
-            spriteTip = me.spriteTip,
-            tipConfig = me.tipConfig,
-            trackMouse = tooltip.trackMouse,
-            sprite, surface, surfaceExt, pos, x, y;
+        tooltip = me.tooltip;
+        spriteTip = me.spriteTip;
+        tipConfig = me.tipConfig;
+        trackMouse = tooltip.trackMouse;
         if (!trackMouse) {
             tooltip.trackMouse = true;
             sprite = item.sprite;

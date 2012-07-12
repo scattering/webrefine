@@ -1,6 +1,5 @@
 /**
  * @class Ext.direct.JsonProvider
- * @extends Ext.direct.Provider
 
 A base provider for communicating using JSON. This is an abstract class
 and should not be instanced directly.
@@ -10,17 +9,17 @@ and should not be instanced directly.
  */
 
 Ext.define('Ext.direct.JsonProvider', {
-    
+
     /* Begin Definitions */
-    
+
     extend: 'Ext.direct.Provider',
-    
+
     alias: 'direct.jsonprovider',
-    
+
     uses: ['Ext.direct.ExceptionEvent'],
-    
+
     /* End Definitions */
-   
+
    /**
     * Parse the JSON response
     * @private
@@ -41,7 +40,7 @@ Ext.define('Ext.direct.JsonProvider', {
      * Creates a set of events based on the XHR response
      * @private
      * @param {Object} response The XHR response
-     * @return {Array} An array of Ext.direct.Event
+     * @return {Ext.direct.Event[]} An array of Ext.direct.Event
      */
     createEvents: function(response){
         var data = null,
@@ -49,19 +48,19 @@ Ext.define('Ext.direct.JsonProvider', {
             event,
             i = 0,
             len;
-            
+
         try{
             data = this.parseResponse(response);
         } catch(e) {
-            event = Ext.create('Ext.direct.ExceptionEvent', {
+            event = new Ext.direct.ExceptionEvent({
                 data: e,
                 xhr: response,
-                code: Ext.direct.Manager.self.exceptions.PARSE,
+                code: Ext.direct.Manager.exceptions.PARSE,
                 message: 'Error parsing json response: \n\n ' + data
             });
             return [event];
         }
-        
+
         if (Ext.isArray(data)) {
             for (len = data.length; i < len; ++i) {
                 events.push(this.createEvent(data[i]));
@@ -71,7 +70,7 @@ Ext.define('Ext.direct.JsonProvider', {
         }
         return events;
     },
-    
+
     /**
      * Create an event from a response object
      * @param {Object} response The XHR response object

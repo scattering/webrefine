@@ -1,92 +1,133 @@
 /**
- * @class Ext.draw.Sprite
- * @extends Object
+ * A Sprite is an object rendered in a Drawing surface.
  *
- * A Sprite is an object rendered in a Drawing surface. There are different options and types of sprites.
- * The configuration of a Sprite is an object with the following properties:
+ * ## Types
  *
- * - **type** - (String) The type of the sprite. Possible options are 'circle', 'path', 'rect', 'text', 'square', 'image'. 
- * - **width** - (Number) Used in rectangle sprites, the width of the rectangle.
- * - **height** - (Number) Used in rectangle sprites, the height of the rectangle.
- * - **size** - (Number) Used in square sprites, the dimension of the square.
- * - **radius** - (Number) Used in circle sprites, the radius of the circle.
- * - **x** - (Number) The position along the x-axis.
- * - **y** - (Number) The position along the y-axis.
- * - **path** - (Array) Used in path sprites, the path of the sprite written in SVG-like path syntax.
- * - **opacity** - (Number) The opacity of the sprite.
- * - **fill** - (String) The fill color.
- * - **stroke** - (String) The stroke color.
- * - **stroke-width** - (Number) The width of the stroke.
- * - **font** - (String) Used with text type sprites. The full font description. Uses the same syntax as the CSS `font` parameter.
- * - **text** - (String) Used with text type sprites. The text itself.
- * 
- * Additionally there are three transform objects that can be set with `setAttributes` which are `translate`, `rotate` and
- * `scale`.
- * 
- * For translate, the configuration object contains x and y attributes that indicate where to
- * translate the object. For example:
- * 
- *     sprite.setAttributes({
- *       translate: {
- *        x: 10,
- *        y: 10
- *       }
- *     }, true);
- * 
- * For rotation, the configuration object contains x and y attributes for the center of the rotation (which are optional),
- * and a `degrees` attribute that specifies the rotation in degrees. For example:
- * 
- *     sprite.setAttributes({
- *       rotate: {
- *        degrees: 90
- *       }
- *     }, true);
- * 
- * For scaling, the configuration object contains x and y attributes for the x-axis and y-axis scaling. For example:
- * 
- *     sprite.setAttributes({
- *       scale: {
- *        x: 10,
- *        y: 3
- *       }
- *     }, true);
+ * The following sprite types are supported:
  *
- * Sprites can be created with a reference to a {@link Ext.draw.Surface}
+ * ### Rect
  *
- *      var drawComponent = Ext.create('Ext.draw.Component', options here...);
+ * Rectangle requires `width` and `height` attributes:
  *
- *      var sprite = Ext.create('Ext.draw.Sprite', {
- *          type: 'circle',
- *          fill: '#ff0',
- *          surface: drawComponent.surface,
- *          radius: 5
- *      });
- *
- * Sprites can also be added to the surface as a configuration object:
- *
- *      var sprite = drawComponent.surface.add({
- *          type: 'circle',
- *          fill: '#ff0',
- *          radius: 5
- *      });
- *
- * In order to properly apply properties and render the sprite we have to
- * `show` the sprite setting the option `redraw` to `true`:
- *
- *      sprite.show(true);
- *
- * The constructor configuration object of the Sprite can also be used and passed into the {@link Ext.draw.Surface}
- * add method to append a new sprite to the canvas. For example:
- *
- *     drawComponent.surface.add({
- *         type: 'circle',
- *         fill: '#ffc',
- *         radius: 100,
- *         x: 100,
- *         y: 100
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: 'rect',
+ *             width: 100,
+ *             height: 50,
+ *             radius: 10,
+ *             fill: 'green',
+ *             opacity: 0.5,
+ *             stroke: 'red',
+ *             'stroke-width': 2
+ *         }]
  *     });
+ *
+ * ### Circle
+ *
+ * Circle requires `x`, `y` and `radius` attributes:
+ *
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: 'circle',
+ *             radius: 90,
+ *             x: 100,
+ *             y: 100,
+ *             fill: 'blue',
+ *         }]
+ *     });
+ *
+ * ### Ellipse
+ *
+ * Ellipse requires `x`, `y`, `radiusX` and `radiusY` attributes:
+ *
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: "ellipse",
+ *             radiusX: 100,
+ *             radiusY: 50,
+ *             x: 100,
+ *             y: 100,
+ *             fill: 'red'
+ *         }]
+ *     });
+ *
+ * ### Path
+ *
+ * Path requires the `path` attribute:
+ *
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: "path",
+ *             path: "M-66.6 26C-66.6 26 -75 22 -78.2 18.4C-81.4 14.8 -80.948 19.966 " +
+ *                   "-85.8 19.6C-91.647 19.159 -90.6 3.2 -90.6 3.2L-94.6 10.8C-94.6 " +
+ *                   "10.8 -95.8 25.2 -87.8 22.8C-83.893 21.628 -82.6 23.2 -84.2 " +
+ *                   "24C-85.8 24.8 -78.6 25.2 -81.4 26.8C-84.2 28.4 -69.8 23.2 -72.2 " +
+ *                   "33.6L-66.6 26z",
+ *             fill: "purple"
+ *         }]
+ *     });
+ *
+ * ### Text
+ *
+ * Text requires the `text` attribute:
+ *
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: "text",
+ *             text: "Hello, Sprite!",
+ *             fill: "green",
+ *             font: "18px monospace"
+ *         }]
+ *     });
+ *
+ * ### Image
+ *
+ * Image requires `width`, `height` and `src` attributes:
+ *
+ *     @example
+ *     Ext.create('Ext.draw.Component', {
+ *         renderTo: Ext.getBody(),
+ *         width: 200,
+ *         height: 200,
+ *         items: [{
+ *             type: "image",
+ *             src: "http://www.sencha.com/img/apple-touch-icon.png",
+ *             width: 200,
+ *             height: 200
+ *         }]
+ *     });
+ *
+ * ## Creating and adding a Sprite to a Surface
+ *
+ * See {@link Ext.draw.Surface} documentation.
+ *
+ * ## Transforming sprites
+ *
+ * See {@link #setAttributes} method documentation for examples on how to translate, scale and rotate the sprites.
+ *
  */
 Ext.define('Ext.draw.Sprite', {
+
     /* Begin Definitions */
 
     mixins: {
@@ -98,12 +139,98 @@ Ext.define('Ext.draw.Sprite', {
 
     /* End Definitions */
 
+    /**
+     * @cfg {String} type The type of the sprite.
+     * Possible options are 'circle', 'ellipse', 'path', 'rect', 'text', 'image'.
+     *
+     * See {@link Ext.draw.Sprite} class documentation for examples of all types.
+     */
+
+    /**
+     * @cfg {Number} width The width of the rect or image sprite.
+     */
+
+    /**
+     * @cfg {Number} height The height of the rect or image sprite.
+     */
+
+    /**
+     * @cfg {Number} radius The radius of the circle sprite. Or in case of rect sprite, the border radius.
+     */
+
+    /**
+     * @cfg {Number} radiusX The radius of the ellipse sprite along x-axis.
+     */
+
+    /**
+     * @cfg {Number} radiusY The radius of the ellipse sprite along y-axis.
+     */
+
+    /**
+     * @cfg {Number} x Sprite position along the x-axis.
+     */
+
+    /**
+     * @cfg {Number} y Sprite position along the y-axis.
+     */
+
+    /**
+     * @cfg {String} path The path of the path sprite written in SVG-like path syntax.
+     */
+
+    /**
+     * @cfg {Number} opacity The opacity of the sprite. A number between 0 and 1.
+     */
+
+    /**
+     * @cfg {String} fill The fill color.
+     */
+
+    /**
+     * @cfg {String} stroke The stroke color.
+     */
+
+    /**
+     * @cfg {Number} stroke-width The width of the stroke.
+     *
+     * Note that this attribute needs to be quoted when used.  Like so:
+     *
+     *     "stroke-width": 12,
+     */
+
+    /**
+     * @cfg {String} font Used with text type sprites. The full font description.
+     * Uses the same syntax as the CSS font parameter
+     */
+
+    /**
+     * @cfg {String} text The actual text to render in text sprites.
+     */
+
+    /**
+     * @cfg {String} src Path to the image to show in image sprites.
+     */
+
+    /**
+     * @cfg {String/String[]} group The group that this sprite belongs to, or an array of groups.
+     * Only relevant when added to a {@link Ext.draw.Surface Surface}.
+     */
+
+    /**
+     * @cfg {Boolean} draggable True to make the sprite draggable.
+     */
+
     dirty: false,
     dirtyHidden: false,
     dirtyTransform: false,
     dirtyPath: true,
     dirtyFont: true,
     zIndexDirty: true,
+
+    /**
+     * @property {Boolean} isSprite
+     * `true` in this class to identify an object as an instantiated Sprite, or subclass thereof.
+     */
     isSprite: true,
     zIndex: 0,
     fontProperties: [
@@ -131,7 +258,7 @@ Ext.define('Ext.draw.Sprite', {
     ],
     constructor: function(config) {
         var me = this;
-        config = config || {};
+        config = Ext.merge({}, config || {});
         me.id = Ext.id(null, 'ext-sprite-');
         me.transformations = [];
         Ext.copyTo(this, config, 'surface,group,type,draggable');
@@ -162,27 +289,67 @@ Ext.define('Ext.draw.Sprite', {
         delete config.draggable;
         me.setAttributes(config);
         me.addEvents(
+            /**
+             * @event
+             * Fires before the sprite is destroyed. Return false from an event handler to stop the destroy.
+             * @param {Ext.draw.Sprite} this
+             */
             'beforedestroy',
+            /**
+             * @event
+             * Fires after the sprite is destroyed.
+             * @param {Ext.draw.Sprite} this
+             */
             'destroy',
+            /**
+             * @event
+             * Fires after the sprite markup is rendered.
+             * @param {Ext.draw.Sprite} this
+             */
             'render',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#mousedown
+             */
             'mousedown',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#mouseup
+             */
             'mouseup',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#mouseover
+             */
             'mouseover',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#mouseout
+             */
             'mouseout',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#mousemove
+             */
             'mousemove',
+            /**
+             * @event
+             * @inheritdoc Ext.dom.Element#click
+             */
             'click'
         );
         me.mixins.observable.constructor.apply(this, arguments);
     },
 
     /**
-     * <p>If this Sprite is configured {@link #draggable}, this property will contain
-     * an instance of {@link Ext.dd.DragSource} which handles dragging the Sprite.</p>
+     * @property {Ext.dd.DragSource} dd
+     * If this Sprite is configured {@link #draggable}, this property will contain
+     * an instance of {@link Ext.dd.DragSource} which handles dragging the Sprite.
+     *
      * The developer must provide implementations of the abstract methods of {@link Ext.dd.DragSource}
      * in order to supply behaviour for each stage of the drag/drop process. See {@link #draggable}.
-     * @type Ext.dd.DragSource.
-     * @property dd
      */
+
     initDraggable: function() {
         var me = this;
         me.draggable = true;
@@ -190,14 +357,76 @@ Ext.define('Ext.draw.Sprite', {
         if (!me.el) {
             me.surface.createSpriteElement(me);
         }
-        me.dd = Ext.create('Ext.draw.SpriteDD', me, Ext.isBoolean(me.draggable) ? null : me.draggable);
+        me.dd = new Ext.draw.SpriteDD(me, Ext.isBoolean(me.draggable) ? null : me.draggable);
         me.on('beforedestroy', me.dd.destroy, me.dd);
     },
 
     /**
      * Change the attributes of the sprite.
+     *
+     * ## Translation
+     *
+     * For translate, the configuration object contains x and y attributes that indicate where to
+     * translate the object. For example:
+     *
+     *     sprite.setAttributes({
+     *       translate: {
+     *        x: 10,
+     *        y: 10
+     *       }
+     *     }, true);
+     *
+     *
+     * ## Rotation
+     *
+     * For rotation, the configuration object contains x and y attributes for the center of the rotation (which are optional),
+     * and a `degrees` attribute that specifies the rotation in degrees. For example:
+     *
+     *     sprite.setAttributes({
+     *       rotate: {
+     *        degrees: 90
+     *       }
+     *     }, true);
+     *
+     * That example will create a 90 degrees rotation using the centroid of the Sprite as center of rotation, whereas:
+     *
+     *     sprite.setAttributes({
+     *       rotate: {
+     *        x: 0,
+     *        y: 0,
+     *        degrees: 90
+     *       }
+     *     }, true);
+     *
+     * will create a rotation around the `(0, 0)` axis.
+     *
+     *
+     * ## Scaling
+     *
+     * For scaling, the configuration object contains x and y attributes for the x-axis and y-axis scaling. For example:
+     *
+     *     sprite.setAttributes({
+     *       scale: {
+     *        x: 10,
+     *        y: 3
+     *       }
+     *     }, true);
+     *
+     * You can also specify the center of scaling by adding `cx` and `cy` as properties:
+     *
+     *     sprite.setAttributes({
+     *       scale: {
+     *        cx: 0,
+     *        cy: 0,
+     *        x: 10,
+     *        y: 3
+     *       }
+     *     }, true);
+     *
+     * That last example will scale a sprite taking as centers of scaling the `(0, 0)` coordinate.
+     *
      * @param {Object} attrs attributes to be changed on the sprite.
-     * @param {Boolean} redraw Flag to immediatly draw the change.
+     * @param {Boolean} redraw Flag to immediately draw the change.
      * @return {Ext.draw.Sprite} this
      */
     setAttributes: function(attrs, redraw) {
@@ -209,7 +438,8 @@ Ext.define('Ext.draw.Sprite', {
             hasSurface = !!me.surface,
             custom = hasSurface && me.surface.customAttributes || {},
             spriteAttrs = me.attr,
-            attr, i, translate, translation, rotate, rotation, scale, scaling;
+            dirtyBBox = false,
+            attr, i, newTranslation, translation, newRotate, rotation, newScaling, scaling;
 
         attrs = Ext.apply({}, attrs);
         for (attr in custom) {
@@ -228,6 +458,7 @@ Ext.define('Ext.draw.Sprite', {
             attr = pathProps[i];
             if (attr in attrs && attrs[attr] !== spriteAttrs[attr]) {
                 me.dirtyPath = true;
+                dirtyBBox = true;
                 break;
             }
         }
@@ -238,48 +469,73 @@ Ext.define('Ext.draw.Sprite', {
         }
 
         // Flag font/text change
+        if ('text' in attrs) {
+            me.dirtyFont = true;
+            dirtyBBox = true;
+        }
+
         for (i = 0; i < fontPropsLength; i++) {
             attr = fontProps[i];
             if (attr in attrs && attrs[attr] !== spriteAttrs[attr]) {
                 me.dirtyFont = true;
+                dirtyBBox = true;
                 break;
             }
         }
 
-        translate = attrs.translate;
+        newTranslation = attrs.translation || attrs.translate;
+        delete attrs.translate;
+        delete attrs.translation;
         translation = spriteAttrs.translation;
-        if (translate) {
-            if ((translate.x && translate.x !== translation.x) ||
-                (translate.y && translate.y !== translation.y)) {
-                Ext.apply(translation, translate);
+        if (newTranslation) {
+            if (('x' in newTranslation && newTranslation.x !== translation.x) ||
+                ('y' in newTranslation && newTranslation.y !== translation.y)) {
                 me.dirtyTransform = true;
+                translation.x = newTranslation.x;
+                translation.y = newTranslation.y;
             }
-            delete attrs.translate;
         }
 
-        rotate = attrs.rotate;
+        newRotate = attrs.rotation || attrs.rotate;
         rotation = spriteAttrs.rotation;
-        if (rotate) {
-            if ((rotate.x && rotate.x !== rotation.x) || 
-                (rotate.y && rotate.y !== rotation.y) ||
-                (rotate.degrees && rotate.degrees !== rotation.degrees)) {
-                Ext.apply(rotation, rotate);
+        delete attrs.rotate;
+        delete attrs.rotation;
+        if (newRotate) {
+            if (('x' in newRotate && newRotate.x !== rotation.x) ||
+                ('y' in newRotate && newRotate.y !== rotation.y) ||
+                ('degrees' in newRotate && newRotate.degrees !== rotation.degrees)) {
                 me.dirtyTransform = true;
+                rotation.x = newRotate.x;
+                rotation.y = newRotate.y;
+                rotation.degrees = newRotate.degrees;
             }
-            delete attrs.rotate;
         }
 
-        scale = attrs.scale;
+        newScaling = attrs.scaling || attrs.scale;
         scaling = spriteAttrs.scaling;
-        if (scale) {
-            if ((scale.x && scale.x !== scaling.x) || 
-                (scale.y && scale.y !== scaling.y) ||
-                (scale.cx && scale.cx !== scaling.cx) ||
-                (scale.cy && scale.cy !== scaling.cy)) {
-                Ext.apply(scaling, scale);
+        delete attrs.scale;
+        delete attrs.scaling;
+        if (newScaling) {
+            if (('x' in newScaling && newScaling.x !== scaling.x) ||
+                ('y' in newScaling && newScaling.y !== scaling.y) ||
+                ('cx' in newScaling && newScaling.cx !== scaling.cx) ||
+                ('cy' in newScaling && newScaling.cy !== scaling.cy)) {
+                me.dirtyTransform = true;
+                scaling.x = newScaling.x;
+                scaling.y = newScaling.y;
+                scaling.cx = newScaling.cx;
+                scaling.cy = newScaling.cy;
+            }
+        }
+
+        // If the bbox is changed, then the bbox based transforms should be invalidated.
+        if (!me.dirtyTransform && dirtyBBox) {
+            if (spriteAttrs.scaling.x === null ||
+                spriteAttrs.scaling.y === null ||
+                spriteAttrs.rotation.y === null ||
+                spriteAttrs.rotation.y === null) {
                 me.dirtyTransform = true;
             }
-            delete attrs.scale;
         }
 
         Ext.apply(spriteAttrs, attrs);
@@ -292,20 +548,21 @@ Ext.define('Ext.draw.Sprite', {
     },
 
     /**
-     * Retrieve the bounding box of the sprite. This will be returned as an object with x, y, width, and height properties.
+     * Retrieves the bounding box of the sprite.
+     * This will be returned as an object with x, y, width, and height properties.
      * @return {Object} bbox
      */
     getBBox: function() {
         return this.surface.getBBox(this);
     },
-    
+
     setText: function(text) {
         return this.surface.setText(this, text);
     },
 
     /**
-     * Hide the sprite.
-     * @param {Boolean} redraw Flag to immediatly draw the change.
+     * Hides the sprite.
+     * @param {Boolean} redraw Flag to immediately draw the change.
      * @return {Ext.draw.Sprite} this
      */
     hide: function(redraw) {
@@ -316,8 +573,8 @@ Ext.define('Ext.draw.Sprite', {
     },
 
     /**
-     * Show the sprite.
-     * @param {Boolean} redraw Flag to immediatly draw the change.
+     * Shows the sprite.
+     * @param {Boolean} redraw Flag to immediately draw the change.
      * @return {Ext.draw.Sprite} this
      */
     show: function(redraw) {
@@ -328,7 +585,9 @@ Ext.define('Ext.draw.Sprite', {
     },
 
     /**
-     * Remove the sprite.
+     * Removes the sprite.
+     * @return {Boolean} True if sprite was successfully removed.
+     * False when there was no surface to remove it from.
      */
     remove: function() {
         if (this.surface) {
@@ -356,7 +615,7 @@ Ext.define('Ext.draw.Sprite', {
     },
 
     /**
-     * Redraw the sprite.
+     * Redraws the sprite.
      * @return {Ext.draw.Sprite} this
      */
     redraw: function() {
@@ -378,7 +637,7 @@ Ext.define('Ext.draw.Sprite', {
     /**
      * Adds one or more CSS classes to the element. Duplicate classes are automatically filtered out.  Note this method
      * is severly limited in VML.
-     * @param {String/Array} className The CSS class to add, or an array of classes
+     * @param {String/String[]} className The CSS class to add, or an array of classes
      * @return {Ext.draw.Sprite} this
      */
     addCls: function(obj) {
@@ -388,7 +647,7 @@ Ext.define('Ext.draw.Sprite', {
 
     /**
      * Removes one or more CSS classes from the element.
-     * @param {String/Array} className The CSS class to remove, or an array of classes.  Note this method
+     * @param {String/String[]} className The CSS class to remove, or an array of classes.  Note this method
      * is severly limited in VML.
      * @return {Ext.draw.Sprite} this
      */

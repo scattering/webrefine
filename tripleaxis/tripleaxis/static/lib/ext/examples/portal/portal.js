@@ -13,7 +13,7 @@
 Ext.define('Ext.app.Portal', {
 
     extend: 'Ext.container.Viewport',
-
+    //requires: [ 'Ext.diag.layout.ContextItem', 'Ext.diag.layout.Context' ],
     uses: ['Ext.app.PortalPanel', 'Ext.app.PortalColumn', 'Ext.app.GridPortlet', 'Ext.app.ChartPortlet'],
 
     getTools: function(){
@@ -22,7 +22,7 @@ Ext.define('Ext.app.Portal', {
             type: 'gear',
             handler: function(e, target, panelHeader, tool){
                 var portlet = panelHeader.ownerCt;
-                portlet.setLoading('Working...');
+                portlet.setLoading('Loading...');
                 Ext.defer(function() {
                     portlet.setLoading(false);
                 }, 2000);
@@ -59,8 +59,8 @@ Ext.define('Ext.app.Portal', {
                     maxWidth: 400,
                     split: true,
                     collapsible: true,
-                    layout: 'accordion',
-                    layoutConfig:{
+                    layout:{
+                        type: 'accordion',
                         animate: true
                     },
                     items: [{

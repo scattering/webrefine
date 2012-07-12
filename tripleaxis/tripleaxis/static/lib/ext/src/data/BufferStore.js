@@ -1,7 +1,5 @@
 /**
- * @class Ext.data.BufferStore
- * @extends Ext.data.Store
- * @ignore
+ * @private
  */
 Ext.define('Ext.data.BufferStore', {
     extend: 'Ext.data.Store',

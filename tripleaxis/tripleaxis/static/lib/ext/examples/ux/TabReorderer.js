@@ -1,6 +1,4 @@
 /**
- * @class Ext.ux.TabReorderer
- * @extends Ext.ux.BoxReorderer
  * This plugin allow you to reorder tabs of a TabPanel.
  */
 Ext.define('Ext.ux.TabReorderer', {

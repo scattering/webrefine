@@ -23,9 +23,7 @@ Ext.define('MyDesktop.VideoWindow', {
     init : function(){
         this.launcher = {
             text: 'About Ext JS',
-            iconCls:'video',
-            handler : this.createWindow,
-            scope: this
+            iconCls:'video'
         }
     },
 
@@ -93,8 +91,6 @@ Ext.define('MyDesktop.VideoWindow', {
                 }
             });
         }
-
-        win.show();
 
         if (me.tip) {
             me.tip.setTarget(win.taskButton.el);

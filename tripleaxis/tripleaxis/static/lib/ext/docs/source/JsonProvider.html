@@ -3,8 +3,8 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>The source code</title>
-  <link href="../prettify/prettify.css" type="text/css" rel="stylesheet" />
-  <script type="text/javascript" src="../prettify/prettify.js"></script>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
   <style type="text/css">
     .highlight { display: block; background-color: #ddd; }
   </style>
@@ -17,7 +17,6 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js"><span id='Ext-direct-JsonProvider'>/**
 </span> * @class Ext.direct.JsonProvider
- * @extends Ext.direct.Provider
 
 A base provider for communicating using JSON. This is an abstract class
 and should not be instanced directly.
@@ -27,17 +26,17 @@ and should not be instanced directly.
  */
 
 Ext.define('Ext.direct.JsonProvider', {
-    
+
     /* Begin Definitions */
-    
+
     extend: 'Ext.direct.Provider',
-    
+
     alias: 'direct.jsonprovider',
-    
+
     uses: ['Ext.direct.ExceptionEvent'],
-    
+
     /* End Definitions */
-   
+
 <span id='Ext-direct-JsonProvider-method-parseResponse'>   /**
 </span>    * Parse the JSON response
     * @private
@@ -58,7 +57,7 @@ Ext.define('Ext.direct.JsonProvider', {
 </span>     * Creates a set of events based on the XHR response
      * @private
      * @param {Object} response The XHR response
-     * @return {Array} An array of Ext.direct.Event
+     * @return {Ext.direct.Event[]} An array of Ext.direct.Event
      */
     createEvents: function(response){
         var data = null,
@@ -66,19 +65,19 @@ Ext.define('Ext.direct.JsonProvider', {
             event,
             i = 0,
             len;
-            
+
         try{
             data = this.parseResponse(response);
         } catch(e) {
-            event = Ext.create('Ext.direct.ExceptionEvent', {
+            event = new Ext.direct.ExceptionEvent({
                 data: e,
                 xhr: response,
-                code: Ext.direct.Manager.self.exceptions.PARSE,
+                code: Ext.direct.Manager.exceptions.PARSE,
                 message: 'Error parsing json response: \n\n ' + data
             });
             return [event];
         }
-        
+
         if (Ext.isArray(data)) {
             for (len = data.length; i &lt; len; ++i) {
                 events.push(this.createEvent(data[i]));
@@ -88,7 +87,7 @@ Ext.define('Ext.direct.JsonProvider', {
         }
         return events;
     },
-    
+
 <span id='Ext-direct-JsonProvider-method-createEvent'>    /**
 </span>     * Create an event from a response object
      * @param {Object} response The XHR response object

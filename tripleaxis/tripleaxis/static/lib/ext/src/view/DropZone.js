@@ -1,13 +1,11 @@
 /**
- * @class Ext.view.DropZone
- * @extends Ext.dd.DropZone
  * @private
  */
 Ext.define('Ext.view.DropZone', {
     extend: 'Ext.dd.DropZone',
 
-    indicatorHtml: '<div class="x-grid-drop-indicator-left"></div><div class="x-grid-drop-indicator-right"></div>',
-    indicatorCls: 'x-grid-drop-indicator',
+    indicatorHtml: '<div class="' + Ext.baseCSSPrefix + 'grid-drop-indicator-left"></div><div class="' + Ext.baseCSSPrefix + 'grid-drop-indicator-right"></div>',
+    indicatorCls: Ext.baseCSSPrefix + 'grid-drop-indicator',
 
     constructor: function(config) {
         var me = this;
@@ -31,9 +29,12 @@ Ext.define('Ext.view.DropZone', {
 //  Fire an event through the client DataView. Lock this DropZone during the event processing so that
 //  its data does not become corrupted by processing mouse events.
     fireViewEvent: function() {
-        this.lock();
-        var result = this.view.fireEvent.apply(this.view, arguments);
-        this.unlock();
+        var me = this,
+            result;
+
+        me.lock();
+        result = me.view.fireEvent.apply(me.view, arguments);
+        me.unlock();
         return result;
     },
 
@@ -60,7 +61,7 @@ Ext.define('Ext.view.DropZone', {
         var me = this;
 
         if (!me.indicator) {
-            me.indicator = Ext.createWidget('component', {
+            me.indicator = new Ext.Component({
                 html: me.indicatorHtml,
                 cls: me.indicatorCls,
                 ownerCt: me.view,
@@ -110,7 +111,7 @@ Ext.define('Ext.view.DropZone', {
             pos = me.getPosition(e, node),
             overRecord = view.getRecord(node),
             draggingRecords = data.records,
-            indicator, indicatorY;
+            indicatorY;
 
         if (!Ext.Array.contains(draggingRecords, overRecord) && (
             pos == 'before' && !me.containsRecordAtOffset(draggingRecords, overRecord, -1) ||
@@ -144,41 +145,46 @@ Ext.define('Ext.view.DropZone', {
 
     // The mouse is over a View node
     onNodeOver: function(node, dragZone, e, data) {
-        if (!Ext.Array.contains(data.records, this.view.getRecord(node))) {
-            this.positionIndicator(node, data, e);
+        var me = this;
+
+        if (!Ext.Array.contains(data.records, me.view.getRecord(node))) {
+            me.positionIndicator(node, data, e);
         }
-        return this.valid ? this.dropAllowed : this.dropNotAllowed;
+        return me.valid ? me.dropAllowed : me.dropNotAllowed;
     },
 
     // Moved out of the DropZone without dropping.
     // Remove drop position indicator
     notifyOut: function(node, dragZone, e, data) {
-        this.callParent(arguments);
-        delete this.overRecord;
-        delete this.currentPosition;
-        if (this.indicator) {
-            this.indicator.hide();
+        var me = this;
+
+        me.callParent(arguments);
+        delete me.overRecord;
+        delete me.currentPosition;
+        if (me.indicator) {
+            me.indicator.hide();
         }
     },
 
     // The mouse is past the end of all nodes (or there are no nodes)
     onContainerOver : function(dd, e, data) {
-        var v = this.view,
-            c = v.store.getCount();
+        var me = this,
+            view = me.view,
+            count = view.store.getCount();
 
         // There are records, so position after the last one
-        if (c) {
-            this.positionIndicator(v.getNode(c - 1), data, e);
+        if (count) {
+            me.positionIndicator(view.getNode(count - 1), data, e);
         }
 
         // No records, position the indicator at the top
         else {
-            delete this.overRecord;
-            delete this.currentPosition;
-            this.getIndicator().setWidth(Ext.fly(v.el).getWidth()).showAt(0, 0);
-            this.valid = true;
+            delete me.overRecord;
+            delete me.currentPosition;
+            me.getIndicator().setWidth(Ext.fly(view.el).getWidth()).showAt(0, 0);
+            me.valid = true;
         }
-        return this.dropAllowed;
+        return me.dropAllowed;
     },
 
     onContainerDrop : function(dd, e, data) {
@@ -187,34 +193,48 @@ Ext.define('Ext.view.DropZone', {
 
     onNodeDrop: function(node, dragZone, e, data) {
         var me = this,
-            dropped = false,
-
+            dropHandled = false,
+ 
             // Create a closure to perform the operation which the event handler may use.
-            // Users may now return <code>0</code> from the beforedrop handler, and perform any kind
+            // Users may now set the wait parameter in the beforedrop handler, and perform any kind
             // of asynchronous processing such as an Ext.Msg.confirm, or an Ajax request,
-            // and complete the drop gesture at some point in the future by calling this function.
-            processDrop = function () {
-                me.invalidateDrop();
-                me.handleNodeDrop(data, me.overRecord, me.currentPosition);
-                dropped = true;
-                me.fireViewEvent('drop', node, data, me.overRecord, me.currentPosition);
-            },
-            performOperation;
-
-        if (me.valid) {
-            performOperation = me.fireViewEvent('beforedrop', node, data, me.overRecord, me.currentPosition, processDrop);
-            if (performOperation === 0) {
-                return;
-            } else if (performOperation !== false) {
-                // If the processDrop function was called in the event handler, do not do it again.
-                if (!dropped) {
-                    processDrop();
+            // and complete the drop gesture at some point in the future by calling either the
+            // processDrop or cancelDrop methods.
+            dropHandlers = {
+                wait: false,
+                processDrop: function () {
+                    me.invalidateDrop();
+                    me.handleNodeDrop(data, me.overRecord, me.currentPosition);
+                    dropHandled = true;
+                    me.fireViewEvent('drop', node, data, me.overRecord, me.currentPosition);
+                },
+ 
+                cancelDrop: function() {
+                    me.invalidateDrop();
+                    dropHandled = true;
                 }
-            } else {
-                return false;
+            },
+            performOperation = false;
+ 
+        if (me.valid) {
+            performOperation = me.fireViewEvent('beforedrop', node, data, me.overRecord, me.currentPosition, dropHandlers);
+            if (dropHandlers.wait) {
+                return;
             }
-        } else {
-            return false;
+ 
+            if (performOperation !== false) {
+                // If either of the drop handlers were called in the event handler, do not do it again.
+                if (!dropHandled) {
+                    dropHandlers.processDrop();
+                }
+            }
         }
+        return performOperation;
+    },
+    
+    destroy: function(){
+        Ext.destroy(this.indicator);
+        delete this.indicator;
+        this.callParent();
     }
 });

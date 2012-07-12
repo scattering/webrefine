@@ -45,13 +45,6 @@ Ext.define('FeedViewer.FeedPanel', {
         this.callParent(arguments);
     },
 
-    // template method
-    afterRender: function(){
-        this.callParent(arguments);
-        var view = this.view;
-        view.getSelectionModel().select(view.store.first());
-    },
-
     /**
      * Create the DataView to be used for the feed list.
      * @private
@@ -72,7 +65,8 @@ Ext.define('FeedViewer.FeedPanel', {
             },
             listeners: {
                 scope: this,
-                contextmenu: this.onContextMenu
+                contextmenu: this.onContextMenu,
+                viewready: this.onViewReady
             },
             trackOver: true,
             cls: 'feed-list',
@@ -85,6 +79,10 @@ Ext.define('FeedViewer.FeedPanel', {
 
         }, this);
         return this.view;
+    },
+
+    onViewReady: function(){
+        this.view.getSelectionModel().select(this.view.store.first());
     },
 
     /**
@@ -214,12 +212,13 @@ Ext.define('FeedViewer.FeedPanel', {
      * @private
      */
     onAddFeedClick: function(){
-        var win = Ext.create('widget.feedwindow', {
+        var win = this.addFeedWindow || (this.addFeedWindow = Ext.create('widget.feedwindow', {
             listeners: {
                 scope: this,
                 feedvalid: this.onFeedValid
             }
-        });
+        }));
+        win.form.getForm().reset();
         win.show();
     },
 

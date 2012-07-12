@@ -5,6 +5,21 @@ Ext.require([
     'Ext.state.*'
 ]);
 
+// Define Company entity
+// Null out built in convert functions for performance *because the raw data is known to be valid*
+// Specifying defaultValue as undefined will also save code. *As long as there will always be values in the data, or the app tolerates undefined field values*
+Ext.define('Company', {
+    extend: 'Ext.data.Model',
+    fields: [
+       {name: 'company'},
+       {name: 'price',      type: 'float', convert: null,     defaultValue: undefined},
+       {name: 'change',     type: 'float', convert: null,     defaultValue: undefined},
+       {name: 'pctChange',  type: 'float', convert: null,     defaultValue: undefined},
+       {name: 'lastChange', type: 'date',  dateFormat: 'n/j h:ia', defaultValue: undefined}
+    ],
+    idProperty: 'company'
+});
+
 Ext.onReady(function() {
     Ext.QuickTips.init();
     
@@ -72,13 +87,7 @@ Ext.onReady(function() {
 
     // create the data store
     var store = Ext.create('Ext.data.ArrayStore', {
-        fields: [
-           {name: 'company'},
-           {name: 'price',      type: 'float'},
-           {name: 'change',     type: 'float'},
-           {name: 'pctChange',  type: 'float'},
-           {name: 'lastChange', type: 'date', dateFormat: 'n/j h:ia'}
-        ],
+        model: 'Company',
         data: myData
     });
 
@@ -86,6 +95,8 @@ Ext.onReady(function() {
     var grid = Ext.create('Ext.grid.Panel', {
         store: store,
         stateful: true,
+        collapsible: true,
+        multiSelect: true,
         stateId: 'stateGrid',
         columns: [
             {
@@ -123,6 +134,8 @@ Ext.onReady(function() {
                 dataIndex: 'lastChange'
             },
             {
+                menuDisabled: true,
+                sortable: false,
                 xtype: 'actioncolumn',
                 width: 50,
                 items: [{
@@ -154,7 +167,8 @@ Ext.onReady(function() {
         title: 'Array Grid',
         renderTo: 'grid-example',
         viewConfig: {
-            stripeRows: true
+            stripeRows: true,
+            enableTextSelection: true
         }
     });
 });

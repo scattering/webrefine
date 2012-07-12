@@ -1,8 +1,5 @@
 /**
  * @author Ed Spencer
- * @class Ext.data.JsonStore
- * @extends Ext.data.Store
- * @ignore
  *
  * <p>Small helper class to make creating {@link Ext.data.Store}s from JSON data easier.
  * A JsonStore will be automatically configured with a {@link Ext.data.reader.Json}.</p>
@@ -12,8 +9,7 @@
 <pre><code>
 var store = new Ext.data.JsonStore({
     // store configs
-    autoDestroy: true,
-    storeId: 'myStore'
+    storeId: 'myStore',
 
     proxy: {
         type: 'ajax',
@@ -39,30 +35,25 @@ var store = new Ext.data.JsonStore({
 }
 </code></pre>
  *
- * <p>An object literal of this form could also be used as the {@link #data} config option.</p>
- *
- * @constructor
- * @param {Object} config
- * @xtype jsonstore
+ * <p>An object literal of this form could also be used as the {@link #cfg-data} config option.</p>
  */
 Ext.define('Ext.data.JsonStore',  {
     extend: 'Ext.data.Store',
     alias: 'store.json',
+    requires: [
+        'Ext.data.proxy.Ajax',
+        'Ext.data.reader.Json',
+        'Ext.data.writer.Json'
+    ],
 
-    /**
-     * @cfg {Ext.data.DataReader} reader @hide
-     */
     constructor: function(config) {
-        config = config || {};
-
-        Ext.applyIf(config, {
+        config = Ext.apply({
             proxy: {
                 type  : 'ajax',
                 reader: 'json',
                 writer: 'json'
             }
-        });
-
+        }, config);
         this.callParent([config]);
     }
 });
