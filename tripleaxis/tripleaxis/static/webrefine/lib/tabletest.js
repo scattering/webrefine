@@ -121,7 +121,9 @@ Ext.onReady(function () {
         xtype       : 'fieldset',
         border      : false,
         defaultType : 'textfield',
-        layout: 'hbox',
+        layout: { type: 'hbox',
+                  pack: 'start'
+        },
         //defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
         //padding: '0 5 0 5',
         defaults    : {allowBlank : false,
@@ -131,6 +133,10 @@ Ext.onReady(function () {
                        labelAlign:'left',
                        anchor: '100%',
                        hideTrigger: true,
+                       style: {'margin': '0px 5px 5px 0px',
+                               'border':0,
+                               'paddingRight':15
+                       },
                        flex:1
                       },
         items: [{fieldLabel: 'a',
@@ -144,6 +150,40 @@ Ext.onReady(function () {
                 }
                ]
         };
+
+    var latticeFieldSetBottom = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'textfield',
+        layout: { type: 'hbox',
+            pack: 'start'
+        },
+        //defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        //padding: '0 5 0 5',
+        defaults    : {allowBlank : false,
+            decimalPrecision: 10,
+            labelPad:'2',
+            labelWidth:'2',
+            labelAlign:'left',
+            anchor: '100%',
+            hideTrigger: true,
+            style: {'margin': '0px 5px 5px 0px',
+                    'border':0,
+                    'paddingRight':15
+            },
+            flex:1
+        },
+        items: [{fieldLabel: 'α',
+            name: 'alpha'
+        },
+            {fieldLabel: 'β',
+                name: 'beta'
+            },
+            {fieldLabel: 'γ',
+                name: 'gamma'
+            }
+        ]
+    };
 
 
 
@@ -160,12 +200,12 @@ Ext.onReady(function () {
         frame: true,
         defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
         padding: '0 5 0 5',
-        columnWidth: 0.5,
+        //columnWidth: 0.5,
         //anchor: '85%',
         layout: {
                 type:'anchor'
                 },
-        items: [latticeFieldSetTop]
+        items: [latticeFieldSetTop,latticeFieldSetBottom]
     }
 
 
