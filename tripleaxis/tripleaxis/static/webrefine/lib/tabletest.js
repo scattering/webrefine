@@ -151,7 +151,7 @@ Ext.onReady(function () {
                ]
         };
 
-    var latticeFieldSetBottom = {
+    var latticeFieldSetMiddle = {
         xtype       : 'fieldset',
         border      : false,
         defaultType : 'textfield',
@@ -168,8 +168,8 @@ Ext.onReady(function () {
             anchor: '100%',
             hideTrigger: true,
             style: {'margin': '0px 5px 5px 0px',
-                    'border':0,
-                    'paddingRight':15
+                'border':0,
+                'paddingRight':15
             },
             flex:1
         },
@@ -184,6 +184,45 @@ Ext.onReady(function () {
             }
         ]
     };
+
+
+    var spaceGroups = Ext.create('Ext.data.Store', {
+        fields: ['number', 'name'],
+        data : [
+            {"abbr":"1", "name":"P 1"},
+            {"abbr":"2", "name":"P -1"},
+            {"abbr":"3", "name":"P 2"}
+            //...
+        ]
+    });
+
+    var spaceGroupCombo= Ext.create('Ext.form.ComboBox', {
+        fieldLabel: 'Choose Space Group',
+        store: spaceGroups,
+        queryMode: 'local',
+        displayField: 'name',
+        valueField: 'abbr'
+    });
+
+
+    var spaceGroupSetting = Ext.create('Ext.data.Store', {
+        fields: ['number', 'name'],
+        data : [
+            {"abbr":"1", "name":"1"},
+            {"abbr":"2", "name":"2"},
+            {"abbr":"3", "name":"3"}
+            //...
+        ]
+    });
+
+
+    var spaceGroupSettingCombo= Ext.create('Ext.form.ComboBox', {
+        fieldLabel: 'Space Group Setting',
+        store: spaceGroupSetting,
+        queryMode: 'local',
+        displayField: 'name',
+        valueField: 'abbr'
+    });
 
 
 
@@ -205,7 +244,7 @@ Ext.onReady(function () {
         layout: {
                 type:'anchor'
                 },
-        items: [latticeFieldSetTop,latticeFieldSetBottom]
+        items: [latticeFieldSetTop,latticeFieldSetMiddle,spaceGroupCombo, spaceGroupSettingCombo]
     }
 
 
