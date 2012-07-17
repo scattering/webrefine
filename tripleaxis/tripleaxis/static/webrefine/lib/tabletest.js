@@ -17,7 +17,8 @@ Ext.require([
     'Ext.state.*',
     'Ext.form.*',
     'Ext.ux.RowExpander',
-    'Ext.selection.CellModel'
+    'Ext.selection.CellModel',
+    'Ext.button.*'
 ]);
 
 Ext.onReady(function () {
@@ -36,7 +37,7 @@ Ext.onReady(function () {
         decimalPrecision: 7,
         anchor: '-1',
         hideTrigger: true,
-	maxWidth: 80
+	maxWidth: 50
     });
 
     var bField = Ext.create('Ext.form.field.Number',{
@@ -115,8 +116,122 @@ Ext.onReady(function () {
 
 
     // ********* START - Setting up lattice constants GUI  *********
+     Ext.regModel('deviceModel', {
+        fields:[
+            {name:'Symbol', type:'string'},
+            'Element',
+            {name:'Wyckoff Position', type:'string'},
+	    {name:'X', type:'string'},
+            'Y',
+            {name:'Z', type:'string'},
+	    {name:'Occupancy', type:'string'},
+	    {name:'B', type: 'string'}
+        ]
+    });
+    
+    
+    var myData = [
+        ['Ag', 'Silver', '2a' , 0.5, 0.25, 0.25, 4, 6], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
+    ];
+    
+    var store = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
+	
+    var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+        clicksToEdit: 1
+    });
 
+    var resultColumns = [];
+    resultColumns.push({header: '2Ѳ', width:70, sortable:true, dataIndex:'2Ѳ'});
+    resultColumns.push({header: 'h', width:70, sortable:true, dataIndex:'h'});
+    resultColumns.push({header: 'k', width:70, sortable:true, dataIndex:'k'});
+    resultColumns.push({header: 'l', width:70, sortable:true, dataIndex:'l'});
+    resultColumns.push({header: '|F|', width:70, sortable:true, dataIndex:'|F|'});   
 
+    var result = new Ext.grid.GridPanel({
+      store:store,
+      columns:resultColumns,
+      stripeRows:true,
+      height:350,
+      width:350,
+      plugins: [cellEditing],
+      title:'Result Calculations',
+      collapsible: true,
+      animCollapse: false
+    });
+
+    //result.render('resulttest');
+
+    var gridColumns = [];
+
+    gridColumns.push({header:'Symbol', width:120, sortable:true, dataIndex:'Symbol', editor: new Ext.form.field.ComboBox({
+                typeAhead: true,
+                triggerAction: 'all',
+                selectOnTab: true,
+                store: [
+		    ['Ag', 'Ag'], 
+		    ['Al', 'Al'],
+		    ['Am', 'Am']
+                ],
+            })});
+    gridColumns.push({header:'Element', width:120, hidden:false, sortable:true, dataIndex:'Element', editor: new Ext.form.field.ComboBox({
+                typeAhead: true,
+                triggerAction: 'all',
+                selectOnTab: true,
+                store: [
+		    ['Silver', 'Silver'], 
+		    ['Aluminum', 'Aluminum'],
+		    ['Americium', 'Americium']
+                ],
+            })});
+    gridColumns.push({header:'Wyckoff Position', width:120, hidden:false, sortable:true, dataIndex:'Wyckoff Position', editor: {
+                xtype: 'textfield',
+                allowBlank: false}})
+    gridColumns.push({header:'X', width:120, sortable:true, dataIndex:'X', editor: {
+                xtype: 'numberfield',
+                allowBlank: false,
+            }});
+    gridColumns.push({header:'Y', width:120, hidden:false, sortable:true, dataIndex:'Y', editor: {
+                xtype: 'numberfield',
+                allowBlank: false,
+                minValue: 0,
+                maxValue: 100000
+            }});
+    gridColumns.push({header:'Z', width:120, hidden:false, sortable:true, dataIndex:'Z', editor: {
+                xtype: 'numberfield',
+                allowBlank: false,
+                minValue: 0,
+                maxValue: 100000
+            }});
+    gridColumns.push({header:'Occupancy', width:120, sortable:true, dataIndex:'Occupancy', editor: {
+                xtype: 'numberfield',
+                allowBlank: false,
+                minValue: 0,
+                maxValue: 100000
+            }});
+    gridColumns.push({header:'B', width:120, hidden:false, sortable:true, dataIndex:'B', editor: {
+                xtype: 'numberfield',
+                allowBlank: false,
+                minValue: 0,
+                maxValue: 100000
+            }});
+   
+    /*GridPanel that displays the data*/
+    var grid = new Ext.grid.GridPanel({
+        store:store,
+        columns:gridColumns,
+        stripeRows:true,
+        height:350,
+        width:950,
+        plugins: [cellEditing],
+        title:'Element Information',
+        collapsible: true,
+        animCollapse: false
+	
+    });
+
+    //grid.render('gridtest');
+
+   
     var latticeFieldSetTop = {
         xtype       : 'fieldset',
         border      : false,
@@ -124,8 +239,6 @@ Ext.onReady(function () {
         layout: { type: 'hbox',
                   pack: 'start'
         },
-        //defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
-        //padding: '0 5 0 5',
         defaults    : {allowBlank : false,
                        decimalPrecision: 10,
                        labelPad:'2',
@@ -158,8 +271,6 @@ Ext.onReady(function () {
         layout: { type: 'hbox',
             pack: 'start'
         },
-        //defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
-        //padding: '0 5 0 5',
         defaults    : {allowBlank : false,
             decimalPrecision: 10,
             labelPad:'2',
@@ -188,7 +299,7 @@ Ext.onReady(function () {
 
     var spaceGroups = Ext.create('Ext.data.Store', {
         fields: ['number', 'name'],
-        data : [
+        store : [
             {"abbr":"1", "name":"P 1"},
             {"abbr":"2", "name":"P -1"},
             {"abbr":"3", "name":"P 2"}
@@ -224,11 +335,6 @@ Ext.onReady(function () {
         valueField: 'abbr'
     });
 
-
-
-
-
-
     var innerRightTopPanel = {
         xtype       : 'form',
         border      : false,
@@ -237,6 +343,7 @@ Ext.onReady(function () {
         labelAlign: 'left',
         labelPad: '5',
         frame: true,
+	height: 350,
         defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
         padding: '0 5 0 5',
         //columnWidth: 0.5,
@@ -247,25 +354,59 @@ Ext.onReady(function () {
         items: [latticeFieldSetTop,latticeFieldSetMiddle,spaceGroupCombo, spaceGroupSettingCombo]
     }
 
-
-      
-        var TopPanel = new Ext.Panel({
+    var TopPanel = new Ext.Panel({
         layout: 'table',
-        width: 900,
+         width: 1100,
         layoutConfig: {
             columns: 2
         },
-        items: [innerRightTopPanel]
+        items: [innerRightTopPanel, result]
     });
 
+    var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130}); 
+    
+        
+    var BottomPanel = new Ext.Panel({
+	layout: 'table',
+	width: 1100,
+	layoutConfig: {
+	    columns: 2
+	},
+	items: [grid, button]
+    });
 
+    var TotalPanel = {
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'textfield',
+        layout: { type: 'vbox',
+            pack: 'start'
+        },
+        //defaultMargin : {top: 0, right: 5, bottom: 0, left: 5},
+        //padding: '0 5 0 5',
+        defaults    : {allowBlank : false,
+            decimalPrecision: 10,
+            labelPad:'2',
+            labelWidth:'2',
+            labelAlign:'left',
+            anchor: '100%',
+            hideTrigger: true,
+            style: {'margin': '0px 5px 5px 0px',
+                'border':0,
+                'paddingRight':15
+            },
+            flex:1
+        },
+        items: [BottomPanel, TopPanel]
+    };
+    
     var myTabs = new Ext.TabPanel({
         resizeTabs: true, // turn on tab resizing
         minTabWidth: 115,
         tabWidth: 135,
         enableTabScroll: true,
-        width: 793,
-        height: 524,
+        width: 1150,
+        height: 765,
         activeItem: 'webrefinetab', //Making the calculator tab selected first
         defaults: {autoScroll:true},
         items: [
@@ -273,7 +414,7 @@ Ext.onReady(function () {
                 title: 'WebRefine',
                 id: 'webrefinetab',
                 iconCls: '/static/img/silk/calculator.png',
-                items: [TopPanel]
+                items: [TotalPanel]
             }, {
                 title: 'Help Manual',
                 id: 'helpmanualtab',
