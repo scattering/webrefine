@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger #paging for lists
 from django.core.exceptions import ObjectDoesNotExist
+import simplejson
 
 
 ## models
@@ -25,4 +26,11 @@ FILES_DIR=settings.FILES_DIR
 def home(request):
     context = RequestContext(request)
     
+    return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
+
+
+def nuclear_scattering(request):
+    context = RequestContext(request)
+    print "hi"
+    data = simplejson.loads(request.POST['data'])
     return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
