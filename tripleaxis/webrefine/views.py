@@ -33,4 +33,6 @@ def nuclear_scattering(request):
     context = RequestContext(request)
     print "hi"
     data = simplejson.loads(request.POST['data'])
-    return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
+    
+    results=simplejson.dumps(data)
+    return HttpResponse(results)
