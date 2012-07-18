@@ -24,6 +24,7 @@ urlpatterns = patterns('',
 		      url(r'^admin/', include(admin.site.urls)),
 		      (r'', include('registration.urls')),
 		      (r'^profiles/', include('profiles.urls')),
+                      (r'^nuclear_scattering', 'webrefine.views.nuclear_scattering'),
 		      (r'', 'webrefine.views.home'),
 		      
 		      

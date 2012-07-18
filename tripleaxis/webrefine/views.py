@@ -26,3 +26,9 @@ def home(request):
     context = RequestContext(request)
     
     return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
+
+
+def nuclear_scattering(request):
+    context = RequestContext(request)
+    print "hi"
+    return render(request,r'webrefine/test.html', locals(), context_instance=context)
