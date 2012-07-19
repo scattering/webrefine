@@ -27,6 +27,10 @@ Ext.onReady(function () {
      */
 
     //The following line is evil and worse, it is impolite.    We should try to replace it!!
+
+    Ext.namespace("structureFactors");
+
+
       
     var aField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'a',
@@ -163,11 +167,11 @@ Ext.onReady(function () {
 
 
     var myResults= [1, 2, 3, 4, 5]
-    var resultsStore = Ext.create('Ext.data.Store', { model:'resultsModel', data: myResults});
+    structureFactors.resultsStore = Ext.create('Ext.data.Store', { model:'resultsModel', data: myResults});
 
 
-    var result = new Ext.grid.GridPanel({
-      store:resultsStore,
+    structureFactors.resultPanel = Ext.create('Ext.grid.GridPanel',{
+      store:structureFactors.resultsStore,
       columns:resultColumns,
       stripeRows:true,
       height:350,
@@ -235,7 +239,7 @@ Ext.onReady(function () {
             }});
    
     /*GridPanel that displays the data*/
-    var grid = new Ext.grid.GridPanel({
+    structureFactors.grid = new Ext.grid.GridPanel({
         store:store,
         columns:gridColumns,
         stripeRows:true,
@@ -252,8 +256,9 @@ Ext.onReady(function () {
 
 
 
-   
+
     var latticeFieldSetTop = {
+        itemId      : 'latticeFieldSetTop',
         xtype       : 'fieldset',
         border      : false,
         defaultType : 'textfield',
@@ -288,6 +293,7 @@ Ext.onReady(function () {
     var latticeFieldSetMiddle = {
         xtype       : 'fieldset',
         border      : false,
+        itemId      : 'latticeFieldSetMiddle',
         defaultType : 'textfield',
         layout: { type: 'hbox',
             pack: 'start'
@@ -328,8 +334,9 @@ Ext.onReady(function () {
         ]
     });
 
-    var spaceGroupCombo= Ext.create('Ext.form.ComboBox', {
+    structureFactors.spaceGroupCombo= Ext.create('Ext.form.ComboBox', {
         fieldLabel: 'Choose Space Group',
+        itemId:'spaceGroupCombo',
         store: spaceGroups,
         queryMode: 'local',
         displayField: 'name',
@@ -348,18 +355,20 @@ Ext.onReady(function () {
     });
 
 
-    var spaceGroupSettingCombo= Ext.create('Ext.form.ComboBox', {
+    structureFactors.spaceGroupSettingCombo= Ext.create('Ext.form.ComboBox', {
         fieldLabel: 'Space Group Setting',
         store: spaceGroupSetting,
         queryMode: 'local',
+        itemId: 'SpaceGroupSettingCombo',
         displayField: 'name',
         valueField: 'abbr'
     });
 
-    var innerRightTopPanel = {
+    structureFactors.innerRightTopPanel = {
         xtype       : 'form',
         border      : false,
         title: 'LatticeParameters',
+        itemId: 'latticeParameters',
         labelWidth: '2',
         labelAlign: 'left',
         labelPad: '5',
@@ -372,29 +381,29 @@ Ext.onReady(function () {
         layout: {
                 type:'anchor'
                 },
-        items: [latticeFieldSetTop,latticeFieldSetMiddle,spaceGroupCombo, spaceGroupSettingCombo]
+        items: [latticeFieldSetTop,latticeFieldSetMiddle,structureFactors.spaceGroupCombo, structureFactors.spaceGroupSettingCombo]
     }
 
-    var TopPanel = new Ext.Panel({
+    structureFactors.TopPanel = new Ext.Panel({
         layout: 'table',
          width: 1100,
         layoutConfig: {
             columns: 2
         },
-        items: [innerRightTopPanel, result]
+        items: [structureFactors.innerRightTopPanel, structureFactors.resultPanel]
     });
 
     var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, handler: calculateHandler});
     var conn = new Ext.data.Connection();
 
-    function successFunction(responseObject) {
-        idealdata = Ext.decode(responseObject.responseText);
+    structureFactors.successFunction = function(response) {
+        var idealdata = Ext.decode(response.responseText);
 
         //Updating desired data table
         var counter = 0;
         changes = ['twotheta', 'theta', 'omega', 'chi', 'phi'];
-        for (var i = 0; i < idealDataStore.getCount(); i++){
-            var record = resultsStore.getAt(i);
+        for (var i = 0; i < structureFactors.resultsStore.getCount(); i++){
+            var record = structureFactors.resultsStore.getAt(i);
 
             if (record.data['h'] != 0 || record.data['k'] != 0 || record.data['l'] != 0){
                 //if it's not a (0,0,0) vector, update its calculated angles
@@ -420,9 +429,16 @@ Ext.onReady(function () {
         resultsStore.commitChanges();
     }
 
+    //function getVals(){
+    //    console.log('hi');
+    //    console.log(Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[0].items.items[0].name);
+    //    console.log(Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[0].items.items[0].value);
+    //    //keys gives a map of componentId to number
+    //}
+
     function calculateHandler(button, event) {
 
-
+        //var results=getVals();
         params = {'observations': [] };
         params.lattice=[];
         params.lattice.push({
@@ -448,7 +464,7 @@ Ext.onReady(function () {
             data: {'data' : data},
             success: function(response, a, b, c) {
                 //projectid is not in scope here; calling another function that has it.
-                successFunction();
+                structureFactors.successFunction(response);
             }
         });
 
@@ -464,13 +480,13 @@ Ext.onReady(function () {
 //        });
     }
 
-    var BottomPanel = new Ext.Panel({
+    structureFactors.BottomPanel = new Ext.Panel({
 	layout: 'table',
 	width: 1100,
 	layoutConfig: {
 	    columns: 2
 	},
-	items: [grid, button]
+	items: [structureFactors.grid, button]
     });
 
     var TotalPanel = {
@@ -495,7 +511,7 @@ Ext.onReady(function () {
             },
             flex:1
         },
-        items: [BottomPanel, TopPanel]
+        items: [structureFactors.BottomPanel, structureFactors.TopPanel]
     };
     
     var myTabs = new Ext.TabPanel({
