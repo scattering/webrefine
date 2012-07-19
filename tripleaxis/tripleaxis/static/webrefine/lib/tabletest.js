@@ -1,4 +1,4 @@
-//my file
+/my file
 Ext.Loader.setConfig({
     enabled: true
 });
@@ -27,7 +27,7 @@ Ext.onReady(function () {
      */
 
     //The following line is evil and worse, it is impolite.    We should try to replace it!!
-    var conn = new Ext.data.Connection();  
+      
     var aField = Ext.create('Ext.form.field.Number',{
         fieldLabel: 'a',
         labelPad:'2',
@@ -128,58 +128,46 @@ Ext.onReady(function () {
 	    {name:'B', type: 'string'}
         ]
     });
+
+
+
+    Ext.regModel('resultsModel', {
+        fields:[
+            {name:'2Ѳ', type:'number'},
+            {name:'h', type:'number'},
+            {name:'k', type:'number'},
+            {name:'l', type:'number'},
+            {name:'|F|', type:'number'}
+        ]
+    });
     
     
     var myData = [
         ['Ag', 'Silver', '2a' , 0.5, 0.25, 0.25, 4, 6], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
     ];
     
-    var gridStore = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
-    
-    var myResult = [
-        [0.5, 0.25, 0.25, 4, 6]
-    ];
-    
-    var resultStore = Ext.create('Ext.data.Store', { model:'deviceModel', data: myResult});
-	
+    var store = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
+
+
+
     var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
         clicksToEdit: 1
     });
 
     var resultColumns = [];
-    resultColumns.push({header: '2Ѳ', width:70, hidden:false, sortable:true, dataIndex:'2Ѳ', editor: {
-                xtype: 'numberfield',
-                allowBlank: false,
-                minValue: 0,
-                maxValue: 100000
-            }});
-    resultColumns.push({header: 'h', width:70, hidden:false, sortable:true, dataIndex:'h', editor: {
-                xtype: 'numberfield',
-                allowBlank: false,
-                minValue: 0,
-                maxValue: 100000
-            }});
-    resultColumns.push({header: 'k', width:70, hidden:false, sortable:true, dataIndex:'k', editor: {
-                xtype: 'numberfield',
-                allowBlank: false,
-                minValue: 0,
-                maxValue: 100000
-            }});
-    resultColumns.push({header: 'l', width:70, hidden:false, sortable:true, dataIndex:'l', editor: {
-                xtype: 'numberfield',
-                allowBlank: false,
-                minValue: 0,
-                maxValue: 100000
-            }});
-    resultColumns.push({header: '|F|', width:70, hidden:false, sortable:true, dataIndex:'|F|', editor: {
-                xtype: 'numberfield',
-                allowBlank: false,
-                minValue: 0,
-                maxValue: 100000
-            }});   
+    resultColumns.push({header: '2Ѳ', width:70, sortable:true, dataIndex:'2Ѳ'});
+    resultColumns.push({header: 'h', width:70, sortable:true, dataIndex:'h'});
+    resultColumns.push({header: 'k', width:70, sortable:true, dataIndex:'k'});
+    resultColumns.push({header: 'l', width:70, sortable:true, dataIndex:'l'});
+    resultColumns.push({header: '|F|', width:70, sortable:true, dataIndex:'|F|'});
+
+
+    var myResults= [1, 2, 3, 4, 5]
+    var resultsStore = Ext.create('Ext.data.Store', { model:'resultsModel', data: myResults});
+
 
     var result = new Ext.grid.GridPanel({
-      store:resultStore,
+      store:resultsStore,
       columns:resultColumns,
       stripeRows:true,
       height:350,
@@ -248,7 +236,7 @@ Ext.onReady(function () {
    
     /*GridPanel that displays the data*/
     var grid = new Ext.grid.GridPanel({
-        store:gridStore,
+        store:store,
         columns:gridColumns,
         stripeRows:true,
         height:350,
@@ -257,10 +245,12 @@ Ext.onReady(function () {
         title:'Element Information',
         collapsible: true,
         animCollapse: false
-	
+
     });
 
     //grid.render('gridtest');
+
+
 
    
     var latticeFieldSetTop = {
@@ -394,30 +384,86 @@ Ext.onReady(function () {
         items: [innerRightTopPanel, result]
     });
 
-    var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, handler: calculateResults}); 
-    
-    function calculateResults(button, event) {
-        //Calculates the desired angles when the button 'Calculate Results' is pressed
-        params = {'data': [] };
-        params['data'].push({
-	'grid' : grid.getValue()
-            });
+    var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, handler: calculateHandler});
+    var conn = new Ext.data.Connection();
 
-            
-	conn.request({
-	    url: '127.0.0.1/nuclear_scattering',
-	    method: 'POST',
-	    params: Ext.encode(params),
-	    success: function () {
-		Ext.Msg.alert('IT WORKED');
-	    },
-	    failure: function () {
-		Ext.Msg.alert('Error: Failed calculation for Bisecting mode');
-	    }
-	});
-    };
-    
-	
+    function successFunction(responseObject) {
+        idealdata = Ext.decode(responseObject.responseText);
+
+        //Updating desired data table
+        var counter = 0;
+        changes = ['twotheta', 'theta', 'omega', 'chi', 'phi'];
+        for (var i = 0; i < idealDataStore.getCount(); i++){
+            var record = resultsStore.getAt(i);
+
+            if (record.data['h'] != 0 || record.data['k'] != 0 || record.data['l'] != 0){
+                //if it's not a (0,0,0) vector, update its calculated angles
+                if (idealdata[counter] === 'Error') {
+                    //setting up the error message
+                    record.set('twotheta', 'Invalid');
+                    record.set('theta', 'Vector!');
+                    record.set('omega', 'Not in');
+                    record.set('chi', 'Scattering');
+                    record.set('phi', 'Plane.');
+                }
+                else{
+                    for (var c in changes) {
+                        var fieldName = changes[c];
+                        record.set(fieldName, idealdata[counter][fieldName]);
+                    }
+
+                }
+                counter = counter+1;
+            }
+        }
+
+        resultsStore.commitChanges();
+    }
+
+    function calculateHandler(button, event) {
+
+
+        params = {'observations': [] };
+        params.lattice=[];
+        params.lattice.push({
+            'a': aField.getValue(),
+            'b': bField.getValue(),
+            'c': cField.getValue(),
+            'alpha': alphaField.getValue(),
+            'beta': betaField.getValue(),
+            'gamma': gammaField.getValue()
+        });
+
+        //only sends the observations that aren't (0,0,0)
+//        for (var i = 0; i < store.getCount(); i++) {
+//            var record = store.getAt(i)
+//            if (record.data['h'] != 0 || record.data['k'] != 0 || record.data['l'] != 0){
+//                params['data'].push(record.data);
+//            }
+//        };
+        var data=Ext.JSON.encode(params);
+        $.ajax({
+            url: '/nuclear_scattering',
+            type: 'POST',
+            data: {'data' : data},
+            success: function(response, a, b, c) {
+                //projectid is not in scope here; calling another function that has it.
+                successFunction();
+            }
+        });
+
+
+//        conn.request({
+//            url: '/nuclear_scattering/',
+//            method: 'POST',
+//            params: Ext.encode(params),
+//            success: successFunction,
+//            failure: function () {
+//                Ext.Msg.alert('Error: Failed calculation of nuclear structure factors');
+//            }
+//        });
+    }
+
     var BottomPanel = new Ext.Panel({
 	layout: 'table',
 	width: 1100,

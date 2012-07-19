@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger #paging for lists
 from django.core.exceptions import ObjectDoesNotExist
+import simplejson
 
 
 ## models
@@ -31,4 +32,7 @@ def home(request):
 def nuclear_scattering(request):
     context = RequestContext(request)
     print "hi"
-    return render(request,r'webrefine/test.html', locals(), context_instance=context)
+    data = simplejson.loads(request.POST['data'])
+    
+    results=simplejson.dumps(data)
+    return HttpResponse(results)
