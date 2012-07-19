@@ -396,8 +396,8 @@ Ext.onReady(function () {
     var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, handler: calculateHandler});
     var conn = new Ext.data.Connection();
 
-    function successFunction(responseObject) {
-        idealdata = Ext.decode(responseObject.responseText);
+    structureFactors.successFunction = function(response) {
+        var idealdata = Ext.decode(response.responseText);
 
         //Updating desired data table
         var counter = 0;
@@ -464,7 +464,7 @@ Ext.onReady(function () {
             data: {'data' : data},
             success: function(response, a, b, c) {
                 //projectid is not in scope here; calling another function that has it.
-                successFunction();
+                structureFactors.successFunction(response);
             }
         });
 
