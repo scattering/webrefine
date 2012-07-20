@@ -28,7 +28,7 @@ def home(request):
     
     return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
 
-
+@csrf_exempt
 def nuclear_scattering(request):
     context = RequestContext(request)
     print "hi"
