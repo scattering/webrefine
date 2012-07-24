@@ -30,10 +30,19 @@ def calculateStructFact(data):
     #idNum=mycell.addAtom(Mn)
     F=0.0
     a = 0
+    hkl={[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]}
     g=np.array([0,2,0],'Float64') 
-    x=data['num'][0]['num']
-    for x in range(0,2):
-        mycell.generateAtoms(data['element'][x]['element'],(.5,.8,.7))
+    c=data['num'][0]['num']
+    c=int(c)
+    x=data['element'][0]['x']
+    x=float(x)
+    y=data['element'][0]['y']
+    y=float(y)
+    z=data['element'][0]['z']
+    z=float(z)
+    
+    for i in range(0,c):
+        mycell.generateAtoms(data['element'][i]['element'],(x,y,z))
     for key, value in mycell.atoms.items():
         d=value.getPosition()
         sym=value.getElementSymbol()
