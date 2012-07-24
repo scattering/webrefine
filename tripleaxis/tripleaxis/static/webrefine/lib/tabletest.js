@@ -147,7 +147,7 @@ Ext.onReady(function () {
     
     
     var myData = [
-        ['Ag1', 'Ag Silver', '2a' , 0.5, 0.25, 0.25, 4, 6], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
+        ['Ag1', 'Ag', '2a' , 0.5, 0.25, 0.25, 4, 6], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
     ];
     
     var store = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
@@ -698,6 +698,7 @@ Ext.onReady(function () {
         params = {'observations': [] };
         params.lattice=[];
 	params.element=[];
+	params.num=[];
 	
 	var a = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].value;
         var b = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="b"]')[0].value;
@@ -714,6 +715,9 @@ Ext.onReady(function () {
             gamma:gamma
         });
 	var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
+	params.num.push({
+            num: num
+        });
 	for (var i=0; i<num; i++) {
         
 		    var symbol = structureFactors.grid.store.data.items[i].data.Symbol;
@@ -732,9 +736,11 @@ Ext.onReady(function () {
 			y:y,
 			z:z,
 			occupancy:occupancy,
-			b:b
+			B:B
 		    });    
 	}
+	
+	
 
         //only sends the observations that aren't (0,0,0)
 //        for (var i = 0; i < store.getCount(); i++) {

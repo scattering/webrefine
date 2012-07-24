@@ -23,18 +23,17 @@ import periodictable
 import math
 I=np.complex(0,-1)
 
-def calculateStructFact():
+def calculateStructFact(data):
     my_group=SpaceGroups.sg62
     mycell=Cell(my_group)
-    Mn=Atom(mycell, (0,0,0),"Mn")
-    idNum=mycell.addAtom(Mn)
+    #Mn=Atom(mycell, (0,0,0),"Mn")
+    #idNum=mycell.addAtom(Mn)
     F=0.0
     a = 0
-    g=np.array([0,2,0],'Float64')          
-    mycell.generateAtoms("Mn",(0,0,0))
-    mycell.generateAtoms("Ho",(0.093,0.25,0.984))
-    mycell.generateAtoms("O",(.441,0.25,0.136))
-    mycell.generateAtoms("O",(0.330,0.068,0.686))
+    g=np.array([0,2,0],'Float64') 
+    x=data['num'][0]['num']
+    for x in range(0,2):
+        mycell.generateAtoms(data['element'][x]['element'],(.5,.8,.7))
     for key, value in mycell.atoms.items():
         d=value.getPosition()
         sym=value.getElementSymbol()
@@ -67,6 +66,6 @@ def nuclear_scattering(request):
     context = RequestContext(request)
     print "hi"
     data = simplejson.loads(request.POST['data'])
-    results = calculateStructFact()
+    results = calculateStructFact(data)
     print results
     return HttpResponse(simplejson.dumps(results))
