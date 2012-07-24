@@ -1,4 +1,4 @@
-//my file
+
 Ext.Loader.setConfig({
     enabled: true
 });
@@ -194,243 +194,243 @@ Ext.onReady(function () {
                 triggerAction: 'all',
                 selectOnTab: true,
                 store: [
-		    ['Ag Silver','Ag Silver'],
+		    ['Ag','Ag'],
 
-     		['Al Aluminum','Al Aluminum'],
+     		['Al','Al'],
 		
-		    ['Am Americium','Am Americium'],
+		    ['Am','Am'],
 		
-		    ['Ar Argon','Ar Argon'],
+		    ['Ar','Ar'],
 		
-		    ['As Arsenic','As Arsenic'],
+		    ['As','As'],
 		
-		    ['At Astatine','At Astatine'],
+		    ['At','At'],
 		
-		    ['Au Gold','Au Gold'],
+		    ['Au','Au'],
 		
-		    ['B Boron','B Boron'],
+		    ['B','B'],
 		
-		    ['Ba Barium','Ba Barium'],
+		    ['Ba','Ba'],
 		
-		    ['Be Beryllium','Be Beryllium'],
+		    ['Be','Be'],
 		
-		    ['Bh Bohrium','Bh Bohrium'],
+		    ['Bh','Bh'],
 		
-		    ['Bi Bismuth','Bi Bismuth'],
+		    ['Bi','Bi'],
 		
-		    ['Bk Berkelium','Bk Berkelium'],
+		    ['Bk','Bk'],
 		
-		    ['Br Bromine','Br Bromine'],
+		    ['Br','Br'],
 		
-		    ['C Carbon','C Carbon'],
+		    ['C','C'],
 		
-		    ['Ca Calcium','Ca Calcium'],
+		    ['Ca','Ca'],
 		
-		    ['Cd Cadmium','Cd Cadmium'],
+		    ['Cd','Cd'],
 		
-		    ['Ce Cerium','Ce Cerium'],
+		    ['Ce','Ce'],
 		
-		    ['Cf Californium','Cf Californium'],
+		    ['Cf','Cf'],
 		
-		    ['Cl Chlorine','Cl Chlorine'],
+		    ['Cl','Cl'],
 		
-		    ['Cm Curium','Cm Curium'],
+		    ['Cm','Cm'],
 		
-		    ['Co Cobalt','Co Cobalt'],
+		    ['Co','Co'],
 		
-		    ['Cn Copernicium','Cn Copernicium'],
+		    ['Cn','Cn'],
 		
-		    ['Cr Chromium','Cr Chromium'],
+		    ['Cr','Cr'],
 		
-		    ['Cs Cesium','Cs Cesium'],
+		    ['Cs','Cs'],
 		
-		    ['Cu Copper','Cu Copper'],
+		    ['Cu','Cu'],
 		
-		    ['Db Dubnium','Db Dubnium'],
+		    ['Db','Db'],
 		
-		    ['Ds Darmstadtium','Ds Darmstadtium'],
+		    ['Ds','Ds'],
 		
-		    ['Dy Dysprosium','Dy Dysprosium'],
+		    ['Dy','Dy'],
 		
-		    ['Er Erbium','Er Erbium'],
+		    ['Er','Er'],
 		
-		    ['Es Einsteinium','Es Einsteinium'],
+		    ['Es','Es'],
 		
-		    ['Eu Europium','Eu Europium'],
+		    ['Eu','Eu'],
 		
-		    ['F Fluorine','F Fluorine'],
+		    ['F','F'],
 		
-		    ['Fe Iron','Fe Iron'],
+		    ['Fe','Fe'],
 		
-		    ['Fm Fermium','Fm Fermium'],
+		    ['Fm','Fm'],
 		
-		    ['Fr Francium','Fr Francium'],
+		    ['Fr','Fr'],
 		
-		    ['Ga Gallium','Ga Gallium'],
+		    ['Ga','Ga'],
 		
-		    ['Gd Gadolinium','Gd Gadolinium'],
+		    ['Gd','Gd'],
 		
-		    ['Ge Germanium','Ge Germanium'],
+		    ['Ge','Ge'],
 		
-		    ['H Hydrogen','H Hydrogen'],
+		    ['H','H'],
 		
-		    ['He Helium','He Helium'],
+		    ['He','He'],
 		
-		    ['Hf Hafnium','Hf Hafnium'],
+		    ['Hf','Hf'],
 		
-		    ['Hg Mercury','Hg Mercury'],
+		    ['Hg','Hg'],
 		
-		    ['Ho Holmium','Ho Holmium'],
+		    ['Ho','Ho'],
 		
-		    ['Hs Hassium','Hs Hassium'],
+		    ['Hs','Hs'],
 		
-		    ['I Iodine','I Iodine'],
+		    ['I','I'],
 		
-		    ['In Indium','In Indium'],
+		    ['In','In'],
 		
-		    ['Ir Iridium','Ir Iridium'],
+		    ['Ir','Ir'],
 		
-		    ['K Potassium','K Potassium'],
+		    ['K','K'],
 		
-		    ['Kr Krypton','Kr Krypton'],
+		    ['Kr','Kr'],
 		
-		    ['La Lanthanum','La Lanthanum'],
+		    ['La','La'],
 		
-		    ['Li Lithium','Li Lithium'],
+		    ['Li','Li'],
 		
-		    ['Lr Lawrencium','Lr Lawrencium'],
+		    ['Lr','Lr'],
 		
-		    ['Lu Lutetium','Lu Lutetium'],
+		    ['Lu','Lu'],
 		
-		    ['Md Mendelevium','Md Mendelevium'],
+		    ['Md','Md'],
 		
-		    ['Mg Magnesium','Mg Magnesium'],
+		    ['Mg','Mg'],
 		
-		    ['Mn Manganese','Mn Manganese'],
+		    ['Mn','Mn'],
 		
-		    ['Mo Molybdenum','Mo Molybdenum'],
+		    ['Mo','Mo'],
 		
-		    ['Mt Meitnerium','Mt Meitnerium'],
+		    ['Mt','Mt'],
 		
-		    ['N Nitrogen','N Nitrogen'],
+		    ['N','N'],
 		
-		    ['Na Sodium','Na Sodium'],
+		    ['Na','Na'],
 		
-		    ['Nb Niobium','Nb Niobium'],
+		    ['Nb','Nb'],
 		
-		    ['Nd Neodymium','Nd Neodymium'],
+		    ['Nd','Nd'],
 		
-		    ['Ne Neon','Ne Neon'],
+		    ['Ne','Ne'],
 		
-		    ['Ni Nickel','Ni Nickel'],
+		    ['Ni','Ni'],
 		
-		    ['No Nobelium','No Nobelium'],
+		    ['No','No'],
 		
-		    ['Np Neptunium','Np Neptunium'],
+		    ['Np','Np'],
 		
-		    ['O Oxygen','O Oxygen'],
+		    ['O','O'],
 		
-		    ['Os Osmium','Os Osmium'],
+		    ['Os','Os'],
 		
-		    ['P Phosphorus','P Phosphorus'],
+		    ['P','P'],
 		
-		    ['Pa Protactinium','Pa Protactinium'],
+		    ['Pa','Pa'],
 		
-		    ['Pb Lead','Pb Lead'],
+		    ['Pb','Pb'],
 		
-		    ['Pd Palladium','Pd Palladium'],
+		    ['Pd','Pd'],
 		
-		    ['Pm Promethium','Pm Promethium'],
+		    ['Pm','Pm'],
 		
-		    ['Po Polonium','Po Polonium'],
+		    ['Po','Po'],
 		
-		    ['Pr Praseodymium','Pr Praseodymium'],
+		    ['Pr','Pr'],
 		
-		    ['Pt Platinum','Pt Platinum'],
+		    ['Pt','Pt'],
 		
-		    ['Pu Plutonium','Pu Plutonium'],
+		    ['Pu','Pu'],
 		
-		    ['Ra Radium','Ra Radium'],
+		    ['Ra','Ra'],
 		
-		    ['Rb Rubidium','Rb Rubidium'],
+		    ['Rb','Rb'],
 		
-		    ['Re Rhenium','Re Rhenium'],
+		    ['Re','Re'],
 		
-		    ['Rf Rutherfordium','Rf Rutherfordium'],
+		    ['Rf','Rf'],
 		
-		    ['Rg Roentgenium','Rg Roentgenium'],
+		    ['Rg','Rg'],
 		
-		    ['Rh Rhodium','Rh Rhodium'],
+		    ['Rh','Rh'],
 		
-		    ['Rn Radon','Rn Radon'],
+		    ['Rn','Rn'],
 		
-		    ['Ru Ruthenium','Ru Ruthenium'],
+		    ['Ru','Ru'],
 		
-		    ['S Sulfur','S Sulfur'],
+		    ['S','S'],
 		
-		    ['Sb Antimony','Sb Antimony'],
+		    ['Sb','Sb'],
 		
-		    ['Sc Scandium','Sc Scandium'],
+		    ['Sc','Sc'],
 		
-		    ['Se Selenium','Se Selenium'],
+		    ['Se','Se'],
 		
-		    ['Sg Seaborgium','Sg Seaborgium'],
+		    ['Sg','Sg'],
 		
-		    ['Si Silicon','Si Silicon'],
+		    ['Si','Si'],
 		
-		    ['Sm Samarium','Sm Samarium'],
+		    ['Sm','Sm'],
 		
-		    ['Sn Tin','Sn Tin'],
+		    ['Sn','Sn'],
 		
-		    ['Sr Strontium','Sr Strontium'],
+		    ['Sr','Sr'],
 		
-		    ['Ta Tantalum','Ta Tantalum'],
+		    ['Ta','Ta'],
 		
-		    ['Tb Terbium','Tb Terbium'],
+		    ['Tb','Tb'],
 		
-		    ['Tc Technetium','Tc Technetium'],
+		    ['Tc','Tc'],
 		
-		    ['Te Tellurium','Te Tellurium'],
+		    ['Te','Te'],
 		
-		    ['Th Thorium','Th Thorium'],
+		    ['Th','Th'],
 		
-		    ['Ti Titanium','Ti Titanium'],
+		    ['Ti','Ti'],
 		
-		    ['Tl Thallium','Tl Thallium'],
+		    ['Tl','Tl'],
 		
-		    ['Tm Thulium','Tm Thulium'],
+		    ['Tm','Tm'],
 		
-		    ['U Uranium','U Uranium'],
+		    ['U','U'],
 		
-		    ['Uuh Ununhexium','Uuh Ununhexium'],
+		    ['Uuh','Uuh'],
 		
-		    ['Uun Ununnilium','Uun Ununnilium'],
+		    ['Uun','Uun'],
 		
-		    ['Uuo Ununoctium','Uuo Ununoctium'],
+		    ['Uuo','Uuo'],
 		
-		    ['Uup Ununpentium','Uup Ununpentium'],
+		    ['Uup','Uup'],
 		
-		    ['Uuq Ununquadium','Uuq Ununquadium'],
+		    ['Uuq','Uuq'],
 		
-		    ['Uus Ununseptium','Uus Ununseptium'],
+		    ['Uus','Uus'],
 		
-		    ['Uut Ununtrium','Uut Ununtrium'],
+		    ['Uut','Uut'],
 		
-		    ['Uuu Ununumium','Uuu Ununumium'],
+		    ['Uuu','Uuu'],
 		
-		    ['V Vanadium','V Vanadium'],
+		    ['V','V'],
 		
-		    ['W Tungsten','W Tungsten'],
+		    ['W','W'],
 		
-		    ['Xe Xenon','Xe Xenon'],
+		    ['Xe','Xe'],
 		
-		    ['Y Yttrium','Y Yttrium'],
+		    ['Y','Y'],
 		
-		    ['Yb Ytterbium','Yb Ytterbium'],
+		    ['Yb','Yb'],
 		
-		    ['Zn Zinc','Zn Zinc'],
+		    ['Zn','Zn'],
 		
-		    ['Zr Zirconium','Zr Zirconium']
+		    ['Zr','Zr']
                 ]
             })});
     gridColumns.push({header:'Wyckoff Position', width:120, hidden:false, sortable:true, dataIndex:'Wyckoff Position', editor: {
@@ -580,7 +580,7 @@ Ext.onReady(function () {
 
     var spaceGroups = Ext.create('Ext.data.Store', {
         fields: ['number', 'name'],
-        store : [
+        data : [
             {"abbr":"1", "name":"P 1"},
             {"abbr":"2", "name":"P -1"},
             {"abbr":"3", "name":"P 2"}
@@ -693,13 +693,21 @@ Ext.onReady(function () {
     function calculateHandler(button, event) {
 
         //var results=getVals();
+
         var a = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].value;
         var b = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="b"]')[0].value;
         var c = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="c"]')[0].value;
         var alpha = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="alpha"]')[0].value;
         var beta = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="beta"]')[0].value;
         var gamma = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="gamma"]')[0].value;
-        
+        var symbol = structureFactors.grid.store.data.items[0].data.Symbol;
+	var element = structureFactors.grid.store.data.items[0].data.Element;
+	//var wyckoff = structureFactors.grid.store.data.items[0].data.wycoffPosition;
+	var x = structureFactors.grid.store.data.items[0].data.X;
+	var y = structureFactors.grid.store.data.items[0].data.Y;
+	var z = structureFactors.grid.store.data.items[0].data.Z;
+	var occupancy = structureFactors.grid.store.data.items[0].data.Occupancy;
+	var B = structureFactors.grid.store.data.items[0].data.B;
 
         params = {'observations': [] };
         params.lattice=[];
@@ -711,6 +719,19 @@ Ext.onReady(function () {
             beta:beta,
             gamma:gamma
         });
+	
+	params.element=[];
+        params.element.push({
+            symbol:symbol,
+	    element:element,
+	    //wyckoff:wyckoff,
+	    x:x,
+	    y:y,
+	    z:z,
+	    occupancy:occupancy,
+	    b:b
+        });
+	
 
         //only sends the observations that aren't (0,0,0)
 //        for (var i = 0; i < store.getCount(); i++) {
