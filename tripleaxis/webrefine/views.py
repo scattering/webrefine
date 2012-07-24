@@ -20,6 +20,7 @@ from calculations.vtkModel.AtomClass import Atom
 from calculations.vtkModel.CellClass import Cell
 import calculations.vtkModel.SpaceGroups as SpaceGroups
 import periodictable
+import math
 I=np.complex(0,-1)
 
 def calculateStructFact():
@@ -28,6 +29,7 @@ def calculateStructFact():
     Mn=Atom(mycell, (0,0,0),"Mn")
     idNum=mycell.addAtom(Mn)
     F=0.0
+    a = 0
     g=np.array([0,2,0],'Float64')          
     mycell.generateAtoms("Mn",(0,0,0))
     mycell.generateAtoms("Ho",(0.093,0.25,0.984))
@@ -38,14 +40,16 @@ def calculateStructFact():
         sym=value.getElementSymbol()
         b=periodictable.elements.symbol(sym).neutron.b_c#sld(wavelength=1.54)[0]
         F=(F+b*np.exp(-1.0j*2*np.pi*np.dot(g,d)))
-        F = pow(F,2)
+        F =  (F.real)*(F.real) + (F.imag)*(F.imag)
+        F = math.sqrt(F)
+        #F = F*F
     
         print sym,b,d,F
         
     print F
     
     print 'done'
-    return 3
+    return F
 
 ## models
 from django.contrib.auth.models import User 

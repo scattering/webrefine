@@ -693,24 +693,18 @@ Ext.onReady(function () {
     function calculateHandler(button, event) {
 
         //var results=getVals();
-
-        var a = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].value;
+	
+         
+        params = {'observations': [] };
+        params.lattice=[];
+	params.element=[];
+	
+	var a = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].value;
         var b = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="b"]')[0].value;
         var c = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="c"]')[0].value;
         var alpha = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="alpha"]')[0].value;
         var beta = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="beta"]')[0].value;
         var gamma = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="gamma"]')[0].value;
-        var symbol = structureFactors.grid.store.data.items[0].data.Symbol;
-	var element = structureFactors.grid.store.data.items[0].data.Element;
-	//var wyckoff = structureFactors.grid.store.data.items[0].data.wycoffPosition;
-	var x = structureFactors.grid.store.data.items[0].data.X;
-	var y = structureFactors.grid.store.data.items[0].data.Y;
-	var z = structureFactors.grid.store.data.items[0].data.Z;
-	var occupancy = structureFactors.grid.store.data.items[0].data.Occupancy;
-	var B = structureFactors.grid.store.data.items[0].data.B;
-
-        params = {'observations': [] };
-        params.lattice=[];
         params.lattice.push({
             a:a,
             b:b,
@@ -719,19 +713,28 @@ Ext.onReady(function () {
             beta:beta,
             gamma:gamma
         });
-	
-	params.element=[];
-        params.element.push({
-            symbol:symbol,
-	    element:element,
-	    //wyckoff:wyckoff,
-	    x:x,
-	    y:y,
-	    z:z,
-	    occupancy:occupancy,
-	    b:b
-        });
-	
+	var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
+	for (var i=0; i<num; i++) {
+        
+		    var symbol = structureFactors.grid.store.data.items[i].data.Symbol;
+		    var element = structureFactors.grid.store.data.items[i].data.Element;
+		    //var wyckoff = structureFactors.grid.store.data.items[i].data.wycoffPosition;
+		    var x = structureFactors.grid.store.data.items[i].data.X;
+		    var y = structureFactors.grid.store.data.items[i].data.Y;
+		    var z = structureFactors.grid.store.data.items[i].data.Z;
+		    var occupancy = structureFactors.grid.store.data.items[i].data.Occupancy;
+		    var B = structureFactors.grid.store.data.items[i].data.B;
+		    params.element.push({
+			symbol:symbol,
+			element:element,
+			//wyckoff:wyckoff,
+			x:x,
+			y:y,
+			z:z,
+			occupancy:occupancy,
+			b:b
+		    });    
+	}
 
         //only sends the observations that aren't (0,0,0)
 //        for (var i = 0; i < store.getCount(); i++) {
