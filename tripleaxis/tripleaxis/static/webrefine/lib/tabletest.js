@@ -651,7 +651,16 @@ Ext.onReady(function () {
     var conn = new Ext.data.Connection();
 
     structureFactors.successFunction = function(response) {
-        var idealdata = Ext.decode(response.responseText);
+        var idealdata = Ext.decode(response);
+	var h = idealdata[0];
+	var k = idealdata[1];
+	var l = idealdata[2];
+	var f = idealdata[3];
+	structureFactors.resultPanel.store.data.items[0].data["h"] = h;
+	structureFactors.resultPanel.store.data.items[0].data["k"] = k;
+	structureFactors.resultPanel.store.data.items[0].data["l"] = l;
+	structureFactors.resultPanel.store.data.items[0].data["|F|"] = f;
+	structureFactors.resultPanel.getView().refresh();
 
         //Updating desired data table
         var counter = 0;

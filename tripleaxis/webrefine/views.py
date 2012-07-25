@@ -30,18 +30,19 @@ def calculateStructFact(data):
     #idNum=mycell.addAtom(Mn)
     F=0.0
     a = 0
-    hkl={[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]}
+    #hkl={[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]}
     g=np.array([0,2,0],'Float64') 
     c=data['num'][0]['num']
     c=int(c)
-    x=data['element'][0]['x']
-    x=float(x)
-    y=data['element'][0]['y']
-    y=float(y)
-    z=data['element'][0]['z']
-    z=float(z)
+    
     
     for i in range(0,c):
+        x=data['element'][i]['x']
+        x=float(x)
+        y=data['element'][i]['y']
+        y=float(y)
+        z=data['element'][i]['z']
+        z=float(z)        
         mycell.generateAtoms(data['element'][i]['element'],(x,y,z))
     for key, value in mycell.atoms.items():
         d=value.getPosition()
@@ -57,7 +58,7 @@ def calculateStructFact(data):
     print F
     
     print 'done'
-    return F
+    return g[0],g[1],g[2],F
 
 ## models
 from django.contrib.auth.models import User 
