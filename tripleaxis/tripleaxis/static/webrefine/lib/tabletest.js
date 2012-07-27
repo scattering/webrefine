@@ -972,7 +972,7 @@ Ext.onReady(function () {
             url: '/nuclear_scattering',
             type: 'POST',
             data: {'data' : data},
-            success: function(response, a, b, c) {
+            success: function(response) {
                 //projectid is not in scope here; calling another function that has it.
                 structureFactors.successFunction(response);
             }
