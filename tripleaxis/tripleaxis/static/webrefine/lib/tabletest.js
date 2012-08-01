@@ -953,9 +953,11 @@ Ext.onReady(function () {
 			B:B
 		    })};    
 	}
-	params.num.push({
-            num: count
-        });
+	
+		  
+		    params.num.push({
+			num: num
+		    });
 	
 	
 	
@@ -1057,7 +1059,7 @@ Ext.onReady(function () {
         minTabWidth: 115,
         tabWidth: 135,
         enableTabScroll: true,
-        width: 1150,
+        width: 1200,
         height: 765,
         activeItem: 'webrefinetab', //Making the calculator tab selected first
         defaults: {autoScroll:true},

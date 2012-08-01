@@ -27,7 +27,7 @@ I=np.complex(0,-1)
 def calculateStructFact(data):
     spaceG = data['lattice'][0]['spaceGroup']
     shlex.split(spaceG)
-    spaceG = 'sg'+spaceG[0]
+    spaceG = 'sg'+spaceG[0]+spaceG[1]
     print spaceG
     my_group=getattr(SpaceGroups,spaceG)
     mycell=Cell(my_group)
@@ -37,19 +37,18 @@ def calculateStructFact(data):
     
     hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
     #g=np.array([0,2,0],'Float64') 
-    c=data['num'][0]['num']
-    c=int(c)
+    c=int(data['num'][0]['num'])
     n=0
     #x=0
     i=0
     result = []
-    while (i<c):
-        x=data['element'][i]['x']
-        x=float(x)
-        y=data['element'][i]['y']
-        y=float(y)
-        z=data['element'][i]['z']
-        z=float(z)
+    while (i<4):
+        x=float(data['element'][i]['x'])
+        #x=float(x)
+        y=float(data['element'][i]['y'])
+        #y=float(y)
+        z=float(data['element'][i]['z'])
+        #z=float(z)
         name=data['element'][i]['element']
         print name,x,y,z
         mycell.generateAtoms(name,(x,y,z))
