@@ -72,7 +72,7 @@ def calculateStructFact(data):
             sym=value.getElementSymbol()
             b=periodictable.elements.symbol(sym).neutron.b_c#sld(wavelength=1.54)[0]
             F=F+b*np.exp(-1.0j*2*np.pi*np.dot(g,d))
-            F = F.real
+            #F = F.real
         print np.absolute(F)
         print 'done'
         n = n+1   
