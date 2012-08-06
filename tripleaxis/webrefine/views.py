@@ -22,12 +22,13 @@ from calculations.vtkModel.CellClass import Cell
 import calculations.vtkModel.SpaceGroups as SpaceGroups
 import periodictable
 import math
+from ubmatrix_general import calcq, star
 I=np.complex(0,-1)
 
 def calculateStructFact(data):
     spaceG = data['lattice'][0]['spaceGroup']
     shlex.split(spaceG)
-    spaceG = 'sg'+spaceG[0]
+    spaceG = 'sg'+spaceG[0]+spaceG[1]
     print spaceG
     my_group=getattr(SpaceGroups,spaceG)
     mycell=Cell(my_group)
@@ -37,19 +38,18 @@ def calculateStructFact(data):
     
     hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
     #g=np.array([0,2,0],'Float64') 
-    c=data['num'][0]['num']
-    c=int(c)
+    
     n=0
     #x=0
     i=0
     result = []
-    while (i<c):
-        x=data['element'][i]['x']
-        x=float(x)
-        y=data['element'][i]['y']
-        y=float(y)
-        z=data['element'][i]['z']
-        z=float(z)
+    while (i<4):
+        x=float(data['element'][i]['x'])
+        #x=float(x)
+        y=float(data['element'][i]['y'])
+        #y=float(y)
+        z=float(data['element'][i]['z'])
+        #z=float(z)
         name=data['element'][i]['element']
         print name,x,y,z
         mycell.generateAtoms(name,(x,y,z))
@@ -72,12 +72,27 @@ def calculateStructFact(data):
             sym=value.getElementSymbol()
             b=periodictable.elements.symbol(sym).neutron.b_c#sld(wavelength=1.54)[0]
             F=F+b*np.exp(-1.0j*2*np.pi*np.dot(g,d))
-            F = F.real
+            #F = F.real
         print np.absolute(F)
         print 'done'
         n = n+1   
         result = result + [hkl[n-1][0],hkl[n-1][1],hkl[n-1][2],np.absolute(F)]
-        print result
+    return result
+
+def calcTwoTheta(data):
+    stars = star(data['lattice'][0]['a'],data['lattice'][0]['b'], data['lattice'][0]['c'], data['lattice'][0]['alpha'], data['lattice'][0]['beta'], data['lattice'][0]['gamma'])
+    stars_dict = dict(zip(('astar','bstar','cstar','alphastar','betastar','gammastar'),stars))
+    hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
+    n=0
+    wavelength= 1.5418
+    result = []
+    while (n<8):
+        q = calcq (hkl[n][0], hkl[n][1], hkl[n][2], stars_dict)
+        twotheta = np.degrees(2 * np.arcsin(wavelength * q / 4 / np.pi))
+        result = result + [twotheta]
+        n = n + 1
+        
+    print result    
     return result
 
 ## models
@@ -96,6 +111,9 @@ def nuclear_scattering(request):
     context = RequestContext(request)
     print "hi"
     data = simplejson.loads(request.POST['data'])
-    results = calculateStructFact(data)
+    results = calculateStructFact(data)    
     print results
-    return HttpResponse(simplejson.dumps(results))
+    twotheta=calcTwoTheta(data)
+    print twotheta
+    total = [results,twotheta]
+    return HttpResponse(simplejson.dumps(total))

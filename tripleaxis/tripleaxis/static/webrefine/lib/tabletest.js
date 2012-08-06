@@ -882,14 +882,16 @@ Ext.onReady(function () {
     structureFactors.successFunction = function(response) {
         var idealdata = Ext.decode(response);
 	for(var j=0;j<8;j++){
-	var h = idealdata[0+j*4];
-	var k = idealdata[1+j*4];
-	var l = idealdata[2+j*4];
-	var f = idealdata[3+j*4];
+	var h = idealdata[0][0+j*4];
+	var k = idealdata[0][1+j*4];
+	var l = idealdata[0][2+j*4];
+	var f = idealdata[0][3+j*4];
+	var twoTheta = idealdata[1][j];
 	structureFactors.resultPanel.store.data.items[j].data["h"] = h;
 	structureFactors.resultPanel.store.data.items[j].data["k"] = k;
 	structureFactors.resultPanel.store.data.items[j].data["l"] = l;
 	structureFactors.resultPanel.store.data.items[j].data["|F|"] = f;
+	structureFactors.resultPanel.store.data.items[j].data['2Ѳ'] = twoTheta
 	structureFactors.resultPanel.getView().refresh();
 	}
     }
@@ -953,9 +955,11 @@ Ext.onReady(function () {
 			B:B
 		    })};    
 	}
-	params.num.push({
-            num: count
-        });
+	
+		  
+		    params.num.push({
+			num: num
+		    });
 	
 	
 	
@@ -1057,7 +1061,7 @@ Ext.onReady(function () {
         minTabWidth: 115,
         tabWidth: 135,
         enableTabScroll: true,
-        width: 1150,
+        width: 1200,
         height: 765,
         activeItem: 'webrefinetab', //Making the calculator tab selected first
         defaults: {autoScroll:true},
