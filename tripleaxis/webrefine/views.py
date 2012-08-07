@@ -26,11 +26,16 @@ from ubmatrix_general import calcq, star
 I=np.complex(0,-1)
 
 def calculateStructFact(data):
-    spaceG = data['lattice'][0]['spaceGroup']
-    shlex.split(spaceG)
-    spaceG = 'sg'+spaceG[0]+spaceG[1]
-    print spaceG
-    my_group=getattr(SpaceGroups,spaceG)
+    #spaceG = data['lattice'][0]['spaceGroup'].split()[0]
+    sg_name_list= data['lattice'][0]['spaceGroup'].split()[1:]
+    sg_name=''
+    for letter in sg_name_list:
+        sg_name=sg_name+letter
+    #shlex.split(spaceG)
+    #spaceG = 'sg'+spaceG
+    print sg_name
+    #my_group=getattr(SpaceGroups,spaceG)
+    my_group=SpaceGroups.GetSpaceGroup(sg_name)
     mycell=Cell(my_group)
     #Mn=Atom(mycell, (0,0,0),"Mn")
     #idNum=mycell.addAtom(Mn)
@@ -43,17 +48,14 @@ def calculateStructFact(data):
     #x=0
     i=0
     result = []
-    while (i<4):
-        x=float(data['element'][i]['x'])
-        #x=float(x)
-        y=float(data['element'][i]['y'])
-        #y=float(y)
-        z=float(data['element'][i]['z'])
-        #z=float(z)
-        name=data['element'][i]['element']
+    for datum in data['element']:
+        x=float(datum['x'])
+        y=float(datum['y'])
+        z=float(datum['z'])
+        name=datum['element']
         print name,x,y,z
         mycell.generateAtoms(name,(x,y,z))
-        i = i + 1
+        
     while (n<8):
         
         h = hkl[n][0]
@@ -72,7 +74,6 @@ def calculateStructFact(data):
             sym=value.getElementSymbol()
             b=periodictable.elements.symbol(sym).neutron.b_c#sld(wavelength=1.54)[0]
             F=F+b*np.exp(-1.0j*2*np.pi*np.dot(g,d))
-            #F = F.real
         print np.absolute(F)
         print 'done'
         n = n+1   
