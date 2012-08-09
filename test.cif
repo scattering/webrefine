@@ -1,0 +1,89 @@
+###############################################################################
+# Choithrani, R.;Rao, M.N.;Chaplot, S.L.;Gaur, N.K.;Singh, R.K. (2011)
+# Journal of Magnetism and Magnetic Materials 323, 1627-1635
+# Structural and phonon dynamical properties of perovskite manganites: \
+#(Tb, Dy, Ho) Mn O3
+# 
+# CIF by ICSD-for-WWW,  Copyright 2003 FIZ-Karlsruhe & A.W.Hewat (hewat@ill.fr)
+# NOT TO BE PUBLISHED IN ANY FORM. See http://icsd.ill.fr/icsd/conditions.html
+###############################################################################
+
+data_180805-ICSD
+_database_code_ICSD                180805
+_audit_creation_date               2011-08-01
+_chemical_name_systematic
+'Holmium manganate(III)'
+_chemical_formula_structural       
+'Ho (Mn O3)'
+_chemical_formula_sum              
+'Ho1 Mn1 O3'
+_publ_section_title                
+'Ho1 Mn1 O3'
+loop_
+_citation_id
+_citation_journal_abbrev
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Journal of Magnetism and Magnetic Materials' 2011 323 1627 1635 JMMMDC
+loop_
+_publ_author_name
+Choithrani, R.;Rao, M.N.;Chaplot, S.L.;Gaur, N.K.;Singh, R.K.
+_cell_length_a                     5.779
+_cell_length_b                     7.441
+_cell_length_c                     5.213
+_cell_angle_alpha                  90.
+_cell_angle_beta                   90.
+_cell_angle_gamma                  90.
+_cell_volume                       224.17
+_cell_formula_units_Z              4.000
+_symmetry_space_group_name_H-M     'P n m a'
+_symmetry_Int_Tables_number        62
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+   1   'x+1/2, y, -z+1/2'
+   2   'x, -y+1/2, z'
+   3   '-x+1/2, y+1/2, z+1/2'
+   4   '-x, -y, -z'
+   5   '-x+1/2, -y, z+1/2'
+   6   '-x, y+1/2, -z'
+   7   'x+1/2, -y+1/2, -z+1/2'
+   8   'x, y, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Ho3+     3.
+Mn3+     3.
+O2-     -2.
+ loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+Ho1 Ho3+ 4 c 0.093 0.250 0.984 0.0 1.
+Mn1 Mn3+ 4 a 0 0 0 0.0 1.
+O1 O2- 4 c 0.441 0.250 0.136 0.0 1.
+O2 O2- 8 d 0.330 0.068 0.686 0.0 1.
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_type_symbol
+_atom_site_aniso_U_11
+_atom_site_aniso_U_22
+_atom_site_aniso_U_33
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_23
+Ho1 Ho3+ 0. 0. 0. 0 0 0
+Mn1 Mn3+ 0. 0. 0. 0 0 0
+O1 O2- 0. 0. 0. 0 0 0
+O2 O2- 0. 0. 0. 0 0 0
+#End of data_180805-ICSD
+
