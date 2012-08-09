@@ -895,6 +895,23 @@ Ext.onReady(function () {
 	structureFactors.resultPanel.getView().refresh();
 	}
     }
+    
+    cifFile.successFunction = function(response) {
+        var gridData = Ext.decode(response);
+	numOfElements = gridData.atoms.length()
+	for(var j=0;j<num_of_elements;j++){
+	    var elementName = gridData.atoms[j].data["element"];
+	    var x = gridData.atoms[j].data["x"];
+	    var y = gridData.atoms[j].data["y"];
+	    var z = gridData.atoms[j].data["z"];
+	    structureFactors.grid.store.data.items[j].data["element"] = elementName;
+	    structureFactors.grid.store.data.items[j].data["x"] = x;
+	    structureFactors.grid.store.data.items[j].data["y"] = y;
+	    structureFactors.grid.store.data.items[j].data["z"] = z;
+	    structureFactors.grid.getView().refresh();    
+	}
+	
+    }
 
     //function getVals(){
     //    console.log('hi');
@@ -971,6 +988,17 @@ Ext.onReady(function () {
 //                params['data'].push(record.data);
 //            }
 //        };
+        var upload=Ext.JSON.encode(CIFFILE);
+        $.ajax({
+            url: '/cif_file_reading',
+            type: 'POST',
+            data: {'data' : data},
+            success: function(response) {
+                //projectid is not in scope here; calling another function that has it.
+                cifFile.successFunction(response);
+            }
+        });
+        
         var data=Ext.JSON.encode(params);
         $.ajax({
             url: '/nuclear_scattering',
