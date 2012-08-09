@@ -24,6 +24,7 @@ import periodictable
 import math
 from ubmatrix_general import calcq, star
 I=np.complex(0,-1)
+import cifFileHandling
 
 def calculateStructFact(data):
     #spaceG = data['lattice'][0]['spaceGroup'].split()[0]
@@ -117,4 +118,6 @@ def nuclear_scattering(request):
     twotheta=calcTwoTheta(data)
     print twotheta
     total = [results,twotheta]
+    print cifFileHandling.CIF_to_cell()
     return HttpResponse(simplejson.dumps(total))
+   
