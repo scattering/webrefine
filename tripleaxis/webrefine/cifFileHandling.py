@@ -3,7 +3,7 @@ import os       #operating system
 import re       #regular expressions
 import numpy as np  #numeric python
 #from enthought.mayavi import mlab #enthought.mayavi
-import SMMcalc_lib
+#import SMMcalc_lib
 
 def CIF_to_cell(file_name = "C:/Webrefinemain/test.cif", select_atoms = []):
     """read in the contents of a CIF file

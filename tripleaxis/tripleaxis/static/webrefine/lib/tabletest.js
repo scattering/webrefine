@@ -580,7 +580,7 @@ Ext.onReady(function () {
             },
             flex:1
         },
-        items: [{fieldLabel: '# of Elements',
+        items: [{fieldLabel: 'Wavelength',
             name: 'num'
         }
         ]
@@ -896,22 +896,22 @@ Ext.onReady(function () {
 	}
     }
     
-    cifFile.successFunction = function(response) {
-        var gridData = Ext.decode(response);
-	numOfElements = gridData.atoms.length()
-	for(var j=0;j<num_of_elements;j++){
-	    var elementName = gridData.atoms[j].data["element"];
-	    var x = gridData.atoms[j].data["x"];
-	    var y = gridData.atoms[j].data["y"];
-	    var z = gridData.atoms[j].data["z"];
-	    structureFactors.grid.store.data.items[j].data["element"] = elementName;
-	    structureFactors.grid.store.data.items[j].data["x"] = x;
-	    structureFactors.grid.store.data.items[j].data["y"] = y;
-	    structureFactors.grid.store.data.items[j].data["z"] = z;
-	    structureFactors.grid.getView().refresh();    
-	}
+    //cifFile.successFunction = function(response) {
+        //var gridData = Ext.decode(response);
+	//numOfElements = gridData.atoms.length()
+	//for(var j=0;j<num_of_elements;j++){
+	    //var elementName = gridData.atoms[j].data["element"];
+	    //var x = gridData.atoms[j].data["x"];
+	    //var y = gridData.atoms[j].data["y"];
+	    //var z = gridData.atoms[j].data["z"];
+	    //structureFactors.grid.store.data.items[j].data["element"] = elementName;
+	    //structureFactors.grid.store.data.items[j].data["x"] = x;
+	    //structureFactors.grid.store.data.items[j].data["y"] = y;
+	    //structureFactors.grid.store.data.items[j].data["z"] = z;
+	    //structureFactors.grid.getView().refresh();    
+	//}
 	
-    }
+    //}
 
     //function getVals(){
     //    console.log('hi');
@@ -921,10 +921,6 @@ Ext.onReady(function () {
     //}
 
     function calculateHandler(button, event) {
-
-        //var results=getVals();
-	
-         
         params = {'observations': [] };
         params.lattice=[];
 	params.element=[];
@@ -948,12 +944,14 @@ Ext.onReady(function () {
         });
 	var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
 	
-	var count=0;
+	params.num.push({
+			num: num
+		    });
+	
 	for (var i=0; i< structureFactors.grid.store.data.items.length; i++) {
         
 		    var symbol = structureFactors.grid.store.data.items[i].data.Symbol;
 		    var element = structureFactors.grid.store.data.items[i].data.Element;
-		    //var wyckoff = structureFactors.grid.store.data.items[i].data.wycoffPosition;
 		    var x = structureFactors.grid.store.data.items[i].data.X;
 		    var y = structureFactors.grid.store.data.items[i].data.Y;
 		    var z = structureFactors.grid.store.data.items[i].data.Z;
@@ -964,7 +962,6 @@ Ext.onReady(function () {
 		    params.element.push({
 			symbol:symbol,
 			element:element,
-			//wyckoff:wyckoff,
 			x:x,
 			y:y,
 			z:z,
@@ -972,32 +969,17 @@ Ext.onReady(function () {
 			B:B
 		    })};    
 	}
-	
-		  
-		    params.num.push({
-			num: num
-		    });
-	
-	
-	
 
-        //only sends the observations that aren't (0,0,0)
-//        for (var i = 0; i < store.getCount(); i++) {
-//            var record = store.getAt(i)
-//            if (record.data['h'] != 0 || record.data['k'] != 0 || record.data['l'] != 0){
-//                params['data'].push(record.data);
-//            }
-//        };
-        var upload=Ext.JSON.encode(CIFFILE);
-        $.ajax({
-            url: '/cif_file_reading',
-            type: 'POST',
-            data: {'data' : data},
-            success: function(response) {
-                //projectid is not in scope here; calling another function that has it.
-                cifFile.successFunction(response);
-            }
-        });
+        //var upload=Ext.JSON.encode(CIFFILE);
+        //$.ajax({
+            //url: '/cif_file_reading',
+            //type: 'POST',
+            //data: {'data' : data},
+            //success: function(response) {
+                ////projectid is not in scope here; calling another function that has it.
+                //cifFile.successFunction(response);
+            //}
+        //});
         
         var data=Ext.JSON.encode(params);
         $.ajax({
@@ -1009,18 +991,53 @@ Ext.onReady(function () {
                 structureFactors.successFunction(response);
             }
         });
-
-
-//        conn.request({
-//            url: '/nuclear_scattering/',
-//            method: 'POST',
-//            params: Ext.encode(params),
-//            success: successFunction,
-//            failure: function () {
-//                Ext.Msg.alert('Error: Failed calculation of nuclear structure factors');
-//            }
-//        });
     }
+    
+    function cifFileHandler(button, event) {
+
+        var data=Ext.JSON.encode(CIFFILE);
+        $.ajax({
+            url: '/cif_file_reading',
+            type: 'POST',
+            data: {'data' : data},
+            success: function(response) {
+                //projectid is not in scope here; calling another function that has it.
+                cifFile.successFunction(response);
+            }
+        });
+    }    
+    
+    
+    
+    var menu = Ext.create('Ext.menu.Menu', {
+        id: 'mainMenu',
+        style: {
+            overflow: 'visible'     // For the Combo popup
+        },
+        items: [
+            {
+                text: 'Upload Cif File',
+                checkHandler: cifFileHandler
+            }
+        ]
+    });
+
+    var tb = Ext.create('Ext.toolbar.Toolbar',{
+            text: 'Users',
+            iconCls: 'user',
+	    items:[
+	        {
+            text:'File',
+            iconCls: 'bmenu',  // <-- icon
+            menu: menu  // assign menu by instance
+        },]
+	    });
+
+
+
+
+    //tb.suspendLayout = true;
+	
     var twoThetaPanel = {
         xtype       : 'fieldset',
         border      : false,
@@ -1081,7 +1098,7 @@ Ext.onReady(function () {
             },
             flex:1
         },
-        items: [structureFactors.BottomPanel, structureFactors.TopPanel]
+        items: [tb,structureFactors.BottomPanel, structureFactors.TopPanel]
     };
     
     var myTabs = new Ext.TabPanel({

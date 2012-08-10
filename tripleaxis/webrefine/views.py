@@ -86,7 +86,7 @@ def calcTwoTheta(data):
     stars_dict = dict(zip(('astar','bstar','cstar','alphastar','betastar','gammastar'),stars))
     hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
     n=0
-    wavelength= 1.5418
+    wavelength= data['num'][0]['num']
     result = []
     while (n<8):
         q = calcq (hkl[n][0], hkl[n][1], hkl[n][2], stars_dict)
