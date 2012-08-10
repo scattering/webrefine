@@ -24,7 +24,7 @@ import periodictable
 import math
 from ubmatrix_general import calcq, star
 I=np.complex(0,-1)
-import cifFileHandling
+import read_cif
 
 def calculateStructFact(data):
     #spaceG = data['lattice'][0]['spaceGroup'].split()[0]
@@ -120,4 +120,7 @@ def nuclear_scattering(request):
     total = [results,twotheta]
     print cifFileHandling.CIF_to_cell()
     return HttpResponse(simplejson.dumps(total))
-   
+
+def cif_file_reading(request):
+    print "hi"
+    return HttpResponse(simplejson.dumps(['hello']))

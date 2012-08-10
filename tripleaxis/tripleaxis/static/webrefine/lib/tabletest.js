@@ -18,7 +18,8 @@ Ext.require([
     'Ext.form.*',
     'Ext.ux.RowExpander',
     'Ext.selection.CellModel',
-    'Ext.button.*'
+    'Ext.button.*',
+    'Ext.filefield.*'
 ]);
 
 Ext.onReady(function () {
@@ -993,9 +994,13 @@ Ext.onReady(function () {
         });
     }
     
+    //cifFile.successFunction(response){
+	//structureFactors.resultPanel.getView().refresh();
+    //}
+    
     function cifFileHandler(button, event) {
-
-        var data=Ext.JSON.encode(CIFFILE);
+        params = []
+        var data=Ext.JSON.encode(params);
         $.ajax({
             url: '/cif_file_reading',
             type: 'POST',
@@ -1009,19 +1014,65 @@ Ext.onReady(function () {
     
     
     
+    
+    
     var menu = Ext.create('Ext.menu.Menu', {
         id: 'mainMenu',
         style: {
-            overflow: 'visible'     // For the Combo popup
+            overflow: 'visible',     // For the Combo popup
+
         },
+	width: 300,
+	height: 100,
         items: [
             {
-                text: 'Upload Cif File',
-                checkHandler: cifFileHandler
-            }
-        ]
+	    xtype : 'fileuploadfield',
+            anchor : '100%',
+            id : 'inputfile',
+            emptyText : 'Select a file...',
+            fieldLabel : 'File',
+            name : 'file',
+            buttonText : 'Browse...',
+	    labelWidth : 30
+	    
+                //text: 'Upload Cif File',
+	    //checkHandler:cifFileHandler
+	}],
+	 buttons: [{
+        text: 'Upload',
+	handler: cifFileHandler
+        //handler: function() {
+            //var form = this.up('form').getForm();
+            //if(form.isValid()){
+                //form.submit({
+                    //url: 'photo-upload.php',
+                    //waitMsg: 'Uploading your photo...',
+                    //success: function(fp, o) {
+                        //Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+                    //}
+                //});
+            //}
+        //}
+    }]
+		    
+                //checkHandler: cifFileHandler
+	    //handler: function() {
+            //var form = this.up('form').getForm();
+            //if(form.isValid()){
+                //form.submit({
+                    //url: 'photo-upload.php',
+                    //waitMsg: 'Uploading your photo...',
+                    //success: function(fp, o) {
+                        //Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+                    //}
+                //});
+            //}
+        //}
+
+        
     });
 
+    
     var tb = Ext.create('Ext.toolbar.Toolbar',{
             text: 'Users',
             iconCls: 'user',
@@ -1032,6 +1083,40 @@ Ext.onReady(function () {
             menu: menu  // assign menu by instance
         },]
 	    });
+	    
+   var uploader = Ext.create('Ext.form.Panel', {
+    title: 'Upload a Photo',
+    width: 400,
+    bodyPadding: 10,
+    frame: true,
+    //renderTo: Ext.getBody(),    
+    items: [{
+        xtype: 'filefield',
+        name: 'photo',
+        fieldLabel: 'Photo',
+        labelWidth: 50,
+        msgTarget: 'side',
+        allowBlank: false,
+        anchor: '100%',
+        buttonText: 'Select Photo...'
+    }],
+
+    buttons: [{
+        text: 'Upload',
+        handler: function() {
+            var form = this.up('form').getForm();
+            if(form.isValid()){
+                form.submit({
+                    url: 'photo-upload.php',
+                    waitMsg: 'Uploading your photo...',
+                    success: function(fp, o) {
+                        Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
+                    }
+                });
+            }
+        }
+    }]
+});
 
 
 
