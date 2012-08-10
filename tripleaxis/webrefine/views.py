@@ -122,5 +122,7 @@ def nuclear_scattering(request):
     return HttpResponse(simplejson.dumps(total))
 
 def cif_file_reading(request):
+    cifFile = request
     print "hi"
-    return HttpResponse(simplejson.dumps(['hello']))
+    crystalInfo = read_cif.cif_to_cell(cifFile)
+    return HttpResponse(simplejson.dumps(crystalInfo))
