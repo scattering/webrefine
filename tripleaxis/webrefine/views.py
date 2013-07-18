@@ -6,6 +6,7 @@ import types
 import hashlib
 import cStringIO, gzip
 import shlex
+import hklGen
 from django.shortcuts import render_to_response, render
 from django.http import HttpResponse, HttpResponseRedirect, QueryDict
 from django.utils import simplejson
@@ -24,10 +25,10 @@ import periodictable
 import math
 from ubmatrix_general import calcq, star
 I=np.complex(0,-1)
+#hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
 import read_cif
 
 def calculateStructFact(data):
-    #spaceG = data['lattice'][0]['spaceGroup'].split()[0]
     sg_name_list= data['lattice'][0]['spaceGroup'].split()[1:]
     sg_name=''
     for letter in sg_name_list:
@@ -38,11 +39,18 @@ def calculateStructFact(data):
     #my_group=getattr(SpaceGroups,spaceG)
     my_group=SpaceGroups.GetSpaceGroup(sg_name)
     mycell=Cell(my_group)
-    #Mn=Atom(mycell, (0,0,0),"Mn")
-    #idNum=mycell.addAtom(Mn)
     F=0.0
-    
-    hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
+    tMin=float(data['lattice'][0]['tMin'])
+    tMax=float(data['lattice'][0]['tMax'])
+    wavelength=float(data['lattice'][0]['wave'])
+    sMin=hklGen.getS(float(tMin), float(wavelength))
+    sMax=hklGen.getS(float(tMax), float(wavelength))
+    spcgroup=hklGen.SpaceGroup(sg_name)
+    abc=[float(data['lattice'][0]['a']), float(data['lattice'][0]['b']), float(data['lattice'][0]['c'])]
+    albega=[float(data['lattice'][0]['alpha']), float(data['lattice'][0]['beta']), float(data['lattice'][0]['gamma'])]
+    cell=hklGen.CrystalCell(abc, albega)
+    hkl=hklGen.hklGen(spcgroup,cell,float(sMin),float(sMax))
+    #hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
     #g=np.array([0,2,0],'Float64') 
     
     n=0
@@ -57,17 +65,14 @@ def calculateStructFact(data):
         print name,x,y,z
         mycell.generateAtoms(name,(x,y,z))
         
-    while (n<8):
+    while (n<len(hkl)):
+        h = list(hkl[n].hkl)[0]
+        k = list(hkl[n].hkl)[1]
+        l = list(hkl[n].hkl)[2]
+        g=np.array([h,k,l],'Float64')
+        twotheta = np.degrees(2 * np.arcsin(wavelength * hkl[n].s))
         
-        h = hkl[n][0]
-        h = int(h)
-        k = hkl[n][1]
-        k = int(k) 
-        m = hkl[n][2]
-        m = int(m)
-        g=np.array([h,k,m],'Float64')
-        
-        print h,k,m,g
+        print h,k,l,g
         F = 0.0
         for key, value in mycell.atoms.items():                   
             d=value.getPosition()
@@ -78,18 +83,17 @@ def calculateStructFact(data):
         print np.absolute(F)
         print 'done'
         n = n+1   
-        result = result + [hkl[n-1][0],hkl[n-1][1],hkl[n-1][2],np.absolute(F)]
+        result = result + [h,k,l,np.absolute(F),twotheta]
     return result
 
 def calcTwoTheta(data):
     stars = star(data['lattice'][0]['a'],data['lattice'][0]['b'], data['lattice'][0]['c'], data['lattice'][0]['alpha'], data['lattice'][0]['beta'], data['lattice'][0]['gamma'])
     stars_dict = dict(zip(('astar','bstar','cstar','alphastar','betastar','gammastar'),stars))
-    hkl=[[0,1,1],[1,0,1],[0,2,0],[1,1,1],[2,0,0],[2,1,0],[1,2,1],[0,0,2]]
     n=0
-    wavelength= data['num'][0]['num']
+    wavelength= float(data['num'][0]['num'])
     result = []
     while (n<8):
-        q = calcq (hkl[n][0], hkl[n][1], hkl[n][2], stars_dict)
+        q = calcq (list(hkl[n][0]), list(hkl[n][1]), list(hkl[n][2]), stars_dict)
         twotheta = np.degrees(2 * np.arcsin(wavelength * q / 4 / np.pi))
         result = result + [twotheta]
         n = n + 1
@@ -115,11 +119,11 @@ def nuclear_scattering(request):
     data = simplejson.loads(request.POST['data'])
     results = calculateStructFact(data)    
     print results
-    twotheta=calcTwoTheta(data)
-    print twotheta
-    total = [results,twotheta]
-    print cifFileHandling.CIF_to_cell()
-    return HttpResponse(simplejson.dumps(total))
+    #twotheta=calcTwoTheta(data)
+    #print twotheta
+    #total = [results,twotheta]
+    #print cifFileHandling.CIF_to_cell()
+    return HttpResponse(simplejson.dumps(results))
 
 def cif_file_reading(request):
     cifFile = request

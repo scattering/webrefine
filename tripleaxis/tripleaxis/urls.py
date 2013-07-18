@@ -22,8 +22,8 @@ REPO_ROOT=settings.REPO_ROOT
 
 urlpatterns = patterns('',
 		      url(r'^admin/', include(admin.site.urls)),
-		      (r'', include('registration.urls')),
-		      (r'^profiles/', include('profiles.urls')),
+		      #(r'', include('registration.urls')),
+		      #(r'^profiles/', include('profiles.urls')),
                       (r'^nuclear_scattering$', 'webrefine.views.nuclear_scattering'),
                       (r'^cif_file_reading$', 'webrefine.views.cif_file_reading'),
 		      (r'', 'webrefine.views.home'),

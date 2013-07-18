@@ -46,7 +46,7 @@ Ext.onReady(function () {
     });
 
     var bField = Ext.create('Ext.form.field.Number',{
-        fieldLabel: '__b',
+        fieldLabel: 'b',
         labelPad:'2',
         labelWidth:'30',
         labelAlign:'left',
@@ -58,7 +58,7 @@ Ext.onReady(function () {
     });
 
     var cField = Ext.create('Ext.form.field.Number',{
-        fieldLabel: '__c',
+        fieldLabel: 'c',
         labelPad:'2',
         labelWidth:'19',
         labelAlign:'left',
@@ -82,7 +82,7 @@ Ext.onReady(function () {
     });
 
     var betaField = Ext.create('Ext.form.field.Number',{
-        fieldLabel: '__β',
+        fieldLabel: 'β',
         labelPad:'2',
         labelWidth:'19',
         labelAlign:'left',
@@ -94,7 +94,7 @@ Ext.onReady(function () {
     });
 
     var gammaField = Ext.create('Ext.form.field.Number',{
-        fieldLabel: '__γ',
+        fieldLabel: 'γ',
         labelPad:'2',
         labelWidth:'19',
         labelAlign:'left',
@@ -103,6 +103,28 @@ Ext.onReady(function () {
         anchor: '-1',
         hideTrigger: true,
 	maxWidth: 80
+    });
+    var thMinField = Ext.create('Ext.form.field.Number',{
+        fieldLabel: '2θMin',
+        labelPad:'2',
+        labelWidth:'19',
+        labelAlign:'left',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 30
+    });
+    var thMaxField = Ext.create('Ext.form.field.Number',{
+        fieldLabel: '2θMax',
+        labelPad:'2',
+        labelWidth:'19',
+        labelAlign:'left',
+        allowBlank: false,
+        decimalPrecision: 7,
+        anchor: '-1',
+        hideTrigger: true,
+	maxWidth: 30
     });
 
     var spaceGroupField = Ext.create('Ext.form.field.Number',{
@@ -571,7 +593,7 @@ Ext.onReady(function () {
         defaults    : {allowBlank : false,
             decimalPrecision: 10,
             labelPad:'2',
-            labelWidth:'2',
+            labelWidth:'8',
             labelAlign:'left',
             anchor: '100%',
             hideTrigger: true,
@@ -582,11 +604,39 @@ Ext.onReady(function () {
             flex:1
         },
         items: [{fieldLabel: 'Wavelength',
-            name: 'num'
+            name: 'wave'
         }
         ]
     };
-
+    var latticeFieldSetCenter = {
+        itemId      : 'latticeFieldSetCenter',
+        xtype       : 'fieldset',
+        border      : false,
+        defaultType : 'textfield',
+        layout: { type: 'hbox',
+                  pack: 'start'
+        },
+        defaults    : {allowBlank : false,
+                       decimalPrecision: 10,
+                       labelPad:'2',
+                       labelWidth:'5',
+                       labelAlign:'left',
+                       anchor: '100%',
+                       hideTrigger: true,
+                       style: {'margin': '0px 5px 5px 0px',
+                               'border':0,
+                               'paddingRight':15
+                       },
+                       flex:1
+                      },
+        items: [{fieldLabel: '2θMin',
+                 name: 'tMin'
+                 },
+                {fieldLabel: '2θMax',
+                 name: 'tMax'
+                }
+               ]
+        };
 
 
 
@@ -864,7 +914,9 @@ Ext.onReady(function () {
         layout: {
                 type:'anchor'
                 },
-        items: [latticeFieldSetBottom,latticeFieldSetTop,latticeFieldSetMiddle,structureFactors.spaceGroupSettingCombo,]
+        items: [latticeFieldSetBottom,latticeFieldSetTop,latticeFieldSetMiddle,latticeFieldSetCenter,structureFactors.spaceGroupSettingCombo,]
+//	items: [latticeFieldSetBottom,latticeFieldSetTop,latticeFieldSetMiddle,structureFactors.spaceGroupSettingCombo,]
+
     }
 
     structureFactors.TopPanel = new Ext.Panel({
@@ -881,20 +933,43 @@ Ext.onReady(function () {
     
 
     structureFactors.successFunction = function(response) {
+
         var idealdata = Ext.decode(response);
-	for(var j=0;j<8;j++){
-	var h = idealdata[0][0+j*4];
-	var k = idealdata[0][1+j*4];
-	var l = idealdata[0][2+j*4];
-	var f = idealdata[0][3+j*4];
-	var twoTheta = idealdata[1][j];
-	structureFactors.resultPanel.store.data.items[j].data["h"] = h;
-	structureFactors.resultPanel.store.data.items[j].data["k"] = k;
-	structureFactors.resultPanel.store.data.items[j].data["l"] = l;
-	structureFactors.resultPanel.store.data.items[j].data["|F|"] = f;
-	structureFactors.resultPanel.store.data.items[j].data['2Ѳ'] = twoTheta
-	structureFactors.resultPanel.getView().refresh();
+	//console.log(response[0]);
+	structureFactors.resultPanel.store.clearData();
+	for(var j=0;j<idealdata.length/5;j++){
+	//console.log(idealdata[0][0]);
+	//console.log(len(idealdata));
+	//var h = idealdata[0][0+j*5];
+	//var k = idealdata[0][1+j*5];
+	//var l = idealdata[0][2+j*5];
+	//var f = idealdata[0][3+j*5];
+	//var twoTheta = idealdata[0][4+j*5];
+	var h = idealdata[0+j*5];
+	var k = idealdata[1+j*5];
+	var l = idealdata[2+j*5];
+	var f = idealdata[3+j*5];
+	var twoTheta = idealdata[4+j*5];
+	var item={};
+	item["h"]=h;
+	item["k"]=k;
+	item["l"]=l;
+	item["|F|"] = f;
+	item['2Ѳ'] = twoTheta;
+	
+	var itemModel = Ext.create('resultsModel', item);
+	
+	structureFactors.resultPanel.store.data.add(itemModel);
+	//structureFactors.resultPanel.store.data.keys[j]=j;
+	
+	//structureFactors.resultPanel.store.data.items[j].data["h"] = h;
+	//structureFactors.resultPanel.store.data.items[j].data["k"] = k;
+	//structureFactors.resultPanel.store.data.items[j].data["l"] = l;
+	//structureFactors.resultPanel.store.data.items[j].data["|F|"] = f;
+	//structureFactors.resultPanel.store.data.items[j].data['2Ѳ'] = twoTheta
+	
 	}
+	structureFactors.resultPanel.getView().refresh();
     }
     
     //cifFile.successFunction = function(response) {
@@ -933,7 +1008,11 @@ Ext.onReady(function () {
         var alpha = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="alpha"]')[0].value;
         var beta = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="beta"]')[0].value;
         var gamma = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="gamma"]')[0].value;
-	var spaceGroup = Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[3].rawValue;
+	var tMin = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetCenter').query('textfield[name="tMin"]')[0].value;
+        var tMax = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetCenter').query('textfield[name="tMax"]')[0].value;
+	var wave = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="wave"]')[0].value;	
+	var spaceGroup = Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[4].rawValue;
+	//var spaceGroup = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="abbr"]')[0].value;	
         params.lattice.push({
             a:a,
             b:b,
@@ -941,13 +1020,16 @@ Ext.onReady(function () {
             alpha:alpha,
             beta:beta,
             gamma:gamma,
-	    spaceGroup: spaceGroup
+	    spaceGroup: spaceGroup,
+	    tMin:tMin,
+	    tMax:tMax,
+	    wave:wave
         });
-	var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
+	//var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
 	
-	params.num.push({
+/*	params.num.push({
 			num: num
-		    });
+		    });*/
 	
 	for (var i=0; i< structureFactors.grid.store.data.items.length; i++) {
         
@@ -959,7 +1041,7 @@ Ext.onReady(function () {
 		    var occupancy = structureFactors.grid.store.data.items[i].data.Occupancy;
 		    var B = structureFactors.grid.store.data.items[i].data.B;
 		    if  (symbol !== ""){
-		    count++;
+		    //count++;
 		    params.element.push({
 			symbol:symbol,
 			element:element,
@@ -1154,7 +1236,7 @@ Ext.onReady(function () {
     
     structureFactors.BottomPanel = new Ext.Panel({
 	layout: 'table',
-	width: 1200,
+	width: 1100,
 	layoutConfig: {
 	    columns: 2
 	},
@@ -1191,8 +1273,8 @@ Ext.onReady(function () {
         minTabWidth: 115,
         tabWidth: 135,
         enableTabScroll: true,
-        width: 1200,
-        height: 765,
+        width: 1150,
+        height: 800,
         activeItem: 'webrefinetab', //Making the calculator tab selected first
         defaults: {autoScroll:true},
         items: [
