@@ -11,7 +11,10 @@ import os
 from math import floor, sqrt, log, tan, radians
 from string import rstrip, rjust, center
 from copy import deepcopy
-from collections import OrderedDict
+try:
+    from collections import OrderedDict
+except:
+    from ordereddict import OrderedDict
 from ctypes import cdll, Structure, c_int, c_float, c_char, c_bool, c_char_p, \
                    c_void_p, c_ulong, addressof, sizeof, POINTER
 
