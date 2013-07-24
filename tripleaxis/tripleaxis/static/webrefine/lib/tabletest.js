@@ -164,13 +164,13 @@ Ext.onReady(function () {
             {name:'h', type:'number'},
             {name:'k', type:'number'},
             {name:'l', type:'number'},
-            {name:'|F|', type:'number'}
+            {name:'|F|', type:'string'}
         ]
     });
     
     
     var myData = [
-        ['Ag1', 'Ag', '2a' , 0.5, 0.25, 0.25, 4, 6], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
+        ['Ti1', 'Ti', '2a' , 0, 0, 0, 1, 0], ['O1', 'O', '4f' , 0.6952, 0.6952, 0, 1, 0], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
     ];
     
     var store = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
@@ -954,7 +954,24 @@ Ext.onReady(function () {
 	item["h"]=h;
 	item["k"]=k;
 	item["l"]=l;
-	item["|F|"] = f;
+        Number.prototype.noExponents= function(){
+	    var data= String(this).split(/[eE]/);
+	    if(data.length== 1) return data[0]; 
+
+	    var  z= '', sign= this<0? '-':'',
+	    str= data[0].replace('.', ''),
+	    mag= Number(data[1])+ 1;
+
+	    if(mag<0){
+		z= sign + '0.';
+		while(mag++) z += '0';
+		return z + str.replace(/^\-/,'');
+	    }
+	    mag -= str.length;  
+	    while(mag--) z += '0';
+	    return str + z;
+	}
+	item["|F|"] = f.noExponents();
 	item['2Ѳ'] = twoTheta;
 	
 	var itemModel = Ext.create('resultsModel', item);
@@ -971,6 +988,7 @@ Ext.onReady(function () {
 	}
 	structureFactors.resultPanel.getView().refresh();
     }
+
     
     //cifFile.successFunction = function(response) {
         //var gridData = Ext.decode(response);
