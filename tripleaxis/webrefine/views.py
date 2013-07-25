@@ -124,7 +124,7 @@ def nuclear_scattering(request):
     #total = [results,twotheta]
     #print cifFileHandling.CIF_to_cell()
     return HttpResponse(simplejson.dumps(results))
-
+@csrf_exempt
 def cif_file_reading(request):
     cifFile = request
     print "hi"
