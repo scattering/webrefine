@@ -6,7 +6,9 @@ import types
 import hashlib
 import cStringIO, gzip
 import shlex
+sys.stderr.write("before")
 import hklGen
+sys.stderr.write("after")
 from django.shortcuts import render_to_response, render
 from django.http import HttpResponse, HttpResponseRedirect, QueryDict
 from django.utils import simplejson
@@ -109,7 +111,7 @@ FILES_DIR=settings.FILES_DIR
 
 def home(request):
     context = RequestContext(request)
-    
+    sys.stderr.write("home again!\n")
     return render(request,r'webrefine/webrefine.html', locals(), context_instance=context)
 
 @csrf_exempt
