@@ -1,4 +1,3 @@
-
 Ext.Loader.setConfig({
     enabled: true
 });
@@ -221,239 +220,239 @@ Ext.onReady(function () {
 		    ['Ag','Ag'],
 
      		['Al','Al'],
-		
+
 		    ['Am','Am'],
-		
+
 		    ['Ar','Ar'],
-		
+
 		    ['As','As'],
-		
+
 		    ['At','At'],
-		
+
 		    ['Au','Au'],
-		
+
 		    ['B','B'],
-		
+
 		    ['Ba','Ba'],
-		
+
 		    ['Be','Be'],
-		
+
 		    ['Bh','Bh'],
-		
+
 		    ['Bi','Bi'],
-		
+
 		    ['Bk','Bk'],
-		
+
 		    ['Br','Br'],
-		
+
 		    ['C','C'],
-		
+
 		    ['Ca','Ca'],
-		
+
 		    ['Cd','Cd'],
-		
+
 		    ['Ce','Ce'],
-		
+
 		    ['Cf','Cf'],
-		
+
 		    ['Cl','Cl'],
-		
+
 		    ['Cm','Cm'],
-		
+
 		    ['Co','Co'],
-		
+
 		    ['Cn','Cn'],
-		
+
 		    ['Cr','Cr'],
-		
+
 		    ['Cs','Cs'],
-		
+
 		    ['Cu','Cu'],
-		
+
 		    ['Db','Db'],
-		
+
 		    ['Ds','Ds'],
-		
+
 		    ['Dy','Dy'],
-		
+
 		    ['Er','Er'],
-		
+
 		    ['Es','Es'],
-		
+
 		    ['Eu','Eu'],
-		
+
 		    ['F','F'],
-		
+
 		    ['Fe','Fe'],
-		
+
 		    ['Fm','Fm'],
-		
+
 		    ['Fr','Fr'],
-		
+
 		    ['Ga','Ga'],
-		
+
 		    ['Gd','Gd'],
-		
+
 		    ['Ge','Ge'],
-		
+
 		    ['H','H'],
-		
+
 		    ['He','He'],
-		
+
 		    ['Hf','Hf'],
-		
+
 		    ['Hg','Hg'],
-		
+
 		    ['Ho','Ho'],
-		
+
 		    ['Hs','Hs'],
-		
+
 		    ['I','I'],
-		
+
 		    ['In','In'],
-		
+
 		    ['Ir','Ir'],
-		
+
 		    ['K','K'],
-		
+
 		    ['Kr','Kr'],
-		
+
 		    ['La','La'],
-		
+
 		    ['Li','Li'],
-		
+
 		    ['Lr','Lr'],
-		
+
 		    ['Lu','Lu'],
-		
+
 		    ['Md','Md'],
-		
+
 		    ['Mg','Mg'],
-		
+
 		    ['Mn','Mn'],
-		
+
 		    ['Mo','Mo'],
-		
+
 		    ['Mt','Mt'],
-		
+
 		    ['N','N'],
-		
+
 		    ['Na','Na'],
-		
+
 		    ['Nb','Nb'],
-		
+
 		    ['Nd','Nd'],
-		
+
 		    ['Ne','Ne'],
-		
+
 		    ['Ni','Ni'],
-		
+
 		    ['No','No'],
-		
+
 		    ['Np','Np'],
-		
+
 		    ['O','O'],
-		
+
 		    ['Os','Os'],
-		
+
 		    ['P','P'],
-		
+
 		    ['Pa','Pa'],
-		
+
 		    ['Pb','Pb'],
-		
+
 		    ['Pd','Pd'],
-		
+
 		    ['Pm','Pm'],
-		
+
 		    ['Po','Po'],
-		
+
 		    ['Pr','Pr'],
-		
+
 		    ['Pt','Pt'],
-		
+
 		    ['Pu','Pu'],
-		
+
 		    ['Ra','Ra'],
-		
+
 		    ['Rb','Rb'],
-		
+
 		    ['Re','Re'],
-		
+
 		    ['Rf','Rf'],
-		
+
 		    ['Rg','Rg'],
-		
+
 		    ['Rh','Rh'],
-		
+
 		    ['Rn','Rn'],
-		
+
 		    ['Ru','Ru'],
-		
+
 		    ['S','S'],
-		
+
 		    ['Sb','Sb'],
-		
+
 		    ['Sc','Sc'],
-		
+
 		    ['Se','Se'],
-		
+
 		    ['Sg','Sg'],
-		
+
 		    ['Si','Si'],
-		
+
 		    ['Sm','Sm'],
-		
+
 		    ['Sn','Sn'],
-		
+
 		    ['Sr','Sr'],
-		
+
 		    ['Ta','Ta'],
-		
+
 		    ['Tb','Tb'],
-		
+
 		    ['Tc','Tc'],
-		
+
 		    ['Te','Te'],
-		
+
 		    ['Th','Th'],
-		
+
 		    ['Ti','Ti'],
-		
+
 		    ['Tl','Tl'],
-		
+
 		    ['Tm','Tm'],
-		
+
 		    ['U','U'],
-		
+
 		    ['Uuh','Uuh'],
-		
+
 		    ['Uun','Uun'],
-		
+
 		    ['Uuo','Uuo'],
-		
+
 		    ['Uup','Uup'],
-		
+
 		    ['Uuq','Uuq'],
-		
+
 		    ['Uus','Uus'],
-		
+
 		    ['Uut','Uut'],
-		
+
 		    ['Uuu','Uuu'],
-		
+
 		    ['V','V'],
-		
+
 		    ['W','W'],
-		
+
 		    ['Xe','Xe'],
-		
+
 		    ['Y','Y'],
-		
+
 		    ['Yb','Yb'],
-		
+
 		    ['Zn','Zn'],
-		
+
 		    ['Zr','Zr']
                 ]
             })});
@@ -973,18 +972,18 @@ Ext.onReady(function () {
 	}
 	item["|F|"] = f.noExponents();
 	item['2Ѳ'] = twoTheta;
-	
+
 	var itemModel = Ext.create('resultsModel', item);
-	
+
 	structureFactors.resultPanel.store.data.add(itemModel);
 	//structureFactors.resultPanel.store.data.keys[j]=j;
-	
+
 	//structureFactors.resultPanel.store.data.items[j].data["h"] = h;
 	//structureFactors.resultPanel.store.data.items[j].data["k"] = k;
 	//structureFactors.resultPanel.store.data.items[j].data["l"] = l;
 	//structureFactors.resultPanel.store.data.items[j].data["|F|"] = f;
 	//structureFactors.resultPanel.store.data.items[j].data['2Ѳ'] = twoTheta
-	
+
 	}
 	structureFactors.resultPanel.getView().refresh();
     }
@@ -1004,7 +1003,7 @@ Ext.onReady(function () {
 	    //structureFactors.grid.store.data.items[j].data["z"] = z;
 	    //structureFactors.grid.getView().refresh();    
 	//}
-	
+
     //}
 
     //function getVals(){
@@ -1019,7 +1018,7 @@ Ext.onReady(function () {
         params.lattice=[];
 	params.element=[];
 	params.num=[];
-	
+
 	var a = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].value;
         var b = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="b"]')[0].value;
         var c = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="c"]')[0].value;
@@ -1030,6 +1029,7 @@ Ext.onReady(function () {
         var tMax = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetCenter').query('textfield[name="tMax"]')[0].value;
 	var wave = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="wave"]')[0].value;	
 	var spaceGroup = Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[4].rawValue;
+
 	//var spaceGroup = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="abbr"]')[0].value;	
         params.lattice.push({
             a:a,
@@ -1044,11 +1044,11 @@ Ext.onReady(function () {
 	    wave:wave
         });
 	//var num = Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetBottom').query('textfield[name="num"]')[0].value;
-	
+
 /*	params.num.push({
 			num: num
 		    });*/
-	
+
 	for (var i=0; i< structureFactors.grid.store.data.items.length; i++) {
         
 		    var symbol = structureFactors.grid.store.data.items[i].data.Symbol;
@@ -1134,7 +1134,7 @@ Ext.onReady(function () {
             name : 'file',
             buttonText : 'Browse...',
 	    labelWidth : 30
-	    
+
                 //text: 'Upload Cif File',
 	    //checkHandler:cifFileHandler
 	}],
@@ -1154,7 +1154,7 @@ Ext.onReady(function () {
             //}
         //}
     }]
-		    
+
                 //checkHandler: cifFileHandler
 	    //handler: function() {
             //var form = this.up('form').getForm();
@@ -1183,7 +1183,7 @@ Ext.onReady(function () {
             menu: menu  // assign menu by instance
         },]
 	    });
-	    
+
    var uploader = Ext.create('Ext.form.Panel', {
     title: 'Upload a Photo',
     width: 400,
@@ -1222,7 +1222,7 @@ Ext.onReady(function () {
 
 
     //tb.suspendLayout = true;
-	
+
     var twoThetaPanel = {
         xtype       : 'fieldset',
         border      : false,

@@ -31,10 +31,10 @@ I=np.complex(0,-1)
 import read_cif
 
 def calculateStructFact(data):
-    sg_name_list= data['lattice'][0]['spaceGroup'].split()[1:]
-    sg_name=''
-    for letter in sg_name_list:
-        sg_name=sg_name+letter
+    sg_name= data['lattice'][0]['spaceGroup'].split()[0]
+    #sg_name=''
+    #for letter in sg_name_list:
+        #sg_name=sg_name+letter
     #shlex.split(spaceG)
     #spaceG = 'sg'+spaceG
     print sg_name
@@ -48,6 +48,7 @@ def calculateStructFact(data):
     sMin=hklGen.getS(float(tMin), float(wavelength))
     sMax=hklGen.getS(float(tMax), float(wavelength))
     spcgroup=hklGen.SpaceGroup(sg_name)
+    print spcgroup.symbol
     abc=[float(data['lattice'][0]['a']), float(data['lattice'][0]['b']), float(data['lattice'][0]['c'])]
     albega=[float(data['lattice'][0]['alpha']), float(data['lattice'][0]['beta']), float(data['lattice'][0]['gamma'])]
     cell=hklGen.CrystalCell(abc, albega)
@@ -128,6 +129,7 @@ def nuclear_scattering(request):
     return HttpResponse(simplejson.dumps(results))
 @csrf_exempt
 def cif_file_reading(request):
+    
     cifFile = request
     print "hi"
     crystalInfo = read_cif.cif_to_cell(cifFile)
