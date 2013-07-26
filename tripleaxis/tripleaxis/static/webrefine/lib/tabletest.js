@@ -20,6 +20,12 @@ Ext.require([
     'Ext.button.*',
     'Ext.filefield.*'
 ]);
+Ext.override(Ext.form.Field, {
+   setLabel: function(text){
+      var r = this.getEl().up('div.x-form-item');
+      r.dom.firstChild.firstChild.nodeValue = String.format('{0}', text);
+   }
+});  
 
 Ext.onReady(function () {
     /* 
@@ -169,7 +175,7 @@ Ext.onReady(function () {
     
     
     var myData = [
-        ['Ti1', 'Ti', '2a' , 0, 0, 0, 1, 0], ['O1', 'O', '4f' , 0.6952, 0.6952, 0, 1, 0], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
+        ['O2', 'O', '2a' , 0, .4, 0, 1, 0], ['O1', 'O', '4f' , 0.6952, 0.6952, 0, 1, 0], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ], ['', '', '', , , , , ],
     ];
     
     var store = Ext.create('Ext.data.Store', { model:'deviceModel', data: myData});
@@ -511,7 +517,7 @@ Ext.onReady(function () {
     });
 
     //grid.render('gridtest');
-
+    
 
 
 
@@ -537,7 +543,7 @@ Ext.onReady(function () {
                        flex:1
                       },
         items: [{fieldLabel: 'a',
-                 name: 'a'
+                 name: 'a',
                  },
                 {fieldLabel: 'b',
                  name: 'b'
@@ -1098,79 +1104,177 @@ Ext.onReady(function () {
 	//structureFactors.resultPanel.getView().refresh();
     //}
     
-    function cifFileHandler(button, event) {
-        params = []
-        var data=Ext.JSON.encode(params);
-        $.ajax({
-            url: '/cif_file_reading',
-            type: 'POST',
-            data: {'data' : data},
-            success: function(response) {
-                //projectid is not in scope here; calling another function that has it.
-                cifFile.successFunction(response);
-            }
-        });
+    function cifFileHandler(files) {
+        //params = [ importData.getValue().replace("C:\\fakepath\\", "")];
+	
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/cif_file_reading', true);
+	xhr.onload = function(e) {
+	    if (this.status == 200) {
+		console.log(this.responseText);
+		var data=Ext.JSON.decode(this.responseText);
+		console.log(data.atoms[0]["x"]);
+		structureFactors.grid.store.clearData();
+		var atoms={};
+		for(var i=0;i< data.atoms.length; i++)
+		{
+		    atoms["X"]=data.atoms[i]["x"];
+		    atoms["Y"]=data.atoms[i]["y"];
+		    atoms["Z"]=data.atoms[i]["z"];
+		    atoms["Occupancy"]=data.atoms[i]["occ"];
+		    atoms["Wyckoff Position"]=data.atoms[i]["wy"];
+		    atoms["B"]=data.atoms[i]["b"];
+		    atoms["Element"]=data.atoms[i]["element"];
+		    atoms["Symbol"]=data.atoms[i]["symbol"];
+		    var atomsModel = Ext.create('deviceModel', atoms);
+		    structureFactors.grid.store.data.add(atomsModel);
+		}
+		structureFactors.grid.getView().refresh();
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="a"]')[0].setValue(data.lattice['a']);		
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="b"]')[0].setValue(data.lattice['b']);
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetTop').query('textfield[name="c"]')[0].setValue(data.lattice['c']);		
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="alpha"]')[0].setValue(data.lattice['alpha']);	
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="beta"]')[0].setValue(data.lattice['beta']);	
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].getComponent('latticeFieldSetMiddle').query('textfield[name="gamma"]')[0].setValue(data.lattice['gamma']);	
+		Ext.ComponentQuery.query('panel #latticeParameters')[0].items.items[4].setValue(data.space_group_name);
+		//structureFactors.innerRightTopPanel.items[1];		
+		//structureFactors.grid.getView().refresh();		
+		//structureFactors.innerRightTopPanel.latticeFieldSetTop.store.data.afe
+		//console.log(structureFactors.innerRightTopPanel.latticeFieldSetTop.store['a']);
+		
+	 
+	    }
+	};
+
+	var formData = new FormData();
+	formData.append("thefile", files[0]);
+	xhr.send(formData);
+	
+        //var data=Ext.JSON.encode(params);
+        //$.ajax({
+            //url: '/cif_file_reading',
+            //type: 'POST',
+            //data: {'data' : data},
+            //success: function(response) {
+                ////projectid is not in scope here; calling another function that has it.
+                //cifFile.successFunction(response);
+            //}
+        //});
     }    
     
     
     
+    //var importData = Ext.create('Ext.form.field.File', {
+        //width: 400,
+        //hideLabel: true
+    //});
+    //var importButton =  new Ext.Button({
+	//text:'Import',
+	//maxWidth: 100, 
+	//anchor: '100%',
+	//handler: cifFileHandler
+    //});
     
+    
+    
+    
+    
+     Ext.define('Ext.ux.upload.BrowseButton', {
+	extend : 'Ext.form.field.File',
+    
+	buttonOnly : true,
+    
+	iconCls : 'ux-mu-icon-action-browse',
+	buttonText : 'Import Data',
+    
+	initComponent : function() {
+    
+	    this.addEvents({
+		'fileselected' : true
+	    });
+    
+	    Ext.apply(this, {
+		buttonConfig : {
+		    iconCls : this.iconCls,
+		    text : this.buttonText
+		}
+	    });
+    
+	    this.on('afterrender', function() {
+		/*
+		 * Fixing the issue when adding an icon to the button - the text does not render properly. OBSOLETE - from
+		 * ExtJS v4.1 the internal implementation has changed, there is no button object anymore.
+		 */
+		if (this.iconCls) {
+		    // this.button.removeCls('x-btn-icon');
+		    // var width = this.button.getWidth();
+		    // this.setWidth(width);
+		}
+    
+		// Allow picking multiple files at once.   Actually, for now, only allow one file.
+		this.fileInputEl.dom.setAttribute('multiple', '0');
+    
+	    }, this);
+    
+	    this.on('change', function(field, value, options) {
+		var files = this.fileInputEl.dom.files;
+		if (files) {
+		    this.fireEvent('fileselected', this, files);
+		    cifFileHandler(files);
+		}
+	    }, this);
+    
+	    this.callParent(arguments);
+	},
+    
+	// OBSOLETE - the method is not used by the superclass anymore
+	createFileInput : function() {
+	    this.callParent(arguments);
+	    this.fileInputEl.dom.setAttribute('multiple', '1');
+	},
+    
+    });
+    
+    var importDataButton = Ext.create('Ext.ux.upload.BrowseButton', {
+
+    });
     
     var menu = Ext.create('Ext.menu.Menu', {
-        id: 'mainMenu',
-        style: {
-            overflow: 'visible',     // For the Combo popup
-
-        },
-	width: 300,
-	height: 100,
-        items: [
-            {
-	    xtype : 'fileuploadfield',
-            anchor : '100%',
-            id : 'inputfile',
-            emptyText : 'Select a file...',
-            fieldLabel : 'File',
-            name : 'file',
-            buttonText : 'Browse...',
-	    labelWidth : 30
-
-                //text: 'Upload Cif File',
-	    //checkHandler:cifFileHandler
-	}],
-	 buttons: [{
-        text: 'Upload',
-	handler: cifFileHandler
-        //handler: function() {
-            //var form = this.up('form').getForm();
-            //if(form.isValid()){
-                //form.submit({
-                    //url: 'photo-upload.php',
-                    //waitMsg: 'Uploading your photo...',
-                    //success: function(fp, o) {
-                        //Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
-                    //}
-                //});
-            //}
-        //}
-    }]
-
-                //checkHandler: cifFileHandler
-	    //handler: function() {
-            //var form = this.up('form').getForm();
-            //if(form.isValid()){
-                //form.submit({
-                    //url: 'photo-upload.php',
-                    //waitMsg: 'Uploading your photo...',
-                    //success: function(fp, o) {
-                        //Ext.Msg.alert('Success', 'Your photo "' + o.result.file + '" has been uploaded.');
-                    //}
-                //});
-            //}
-        //}
-
-        
+    	width: 75,
+	height: 50,
+	items: [importDataButton,
+	]
     });
+    
+    //var menu = Ext.create('Ext.menu.Menu', {
+        //id: 'mainMenu',
+        //style: {
+            //overflow: 'visible',     // For the Combo popup
+
+        //},
+	//width: 300,
+	//height: 100,
+        //items: [
+            //{
+	    //xtype : 'fileuploadfield',
+            //anchor : '100%',
+            //id : 'inputfile',
+            //emptyText : 'Select a file...',
+            //fieldLabel : 'File',
+            //name : 'file',
+            //buttonText : 'Browse...',
+	    //labelWidth : 30
+
+                ////text: 'Upload Cif File',
+	    ////checkHandler:cifFileHandler
+	//}],
+	 //buttons: [{
+        //text: 'Upload',
+	//handler: cifFileHandler
+    //}]
+
+    //});
 
     
     var tb = Ext.create('Ext.toolbar.Toolbar',{

@@ -127,10 +127,19 @@ def nuclear_scattering(request):
     #total = [results,twotheta]
     #print cifFileHandling.CIF_to_cell()
     return HttpResponse(simplejson.dumps(results))
+
+
+
+def handle_uploaded_file(f):
+    with open(os.path.join('/tmp',str(f.name)), 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
 @csrf_exempt
 def cif_file_reading(request):
-    
-    cifFile = request
+    context = RequestContext(request)
     print "hi"
-    crystalInfo = read_cif.cif_to_cell(cifFile)
+    #cifFile=simplejson.loads(request.POST['data'])
+    handle_uploaded_file(request.FILES['thefile'])    
+    crystalInfo = read_cif.cif_to_cell(os.path.join('/tmp',str(request.FILES['thefile'].name)))
     return HttpResponse(simplejson.dumps(crystalInfo))
