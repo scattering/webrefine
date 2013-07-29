@@ -1393,7 +1393,7 @@ Ext.onReady(function () {
                 id: 'helpmanualtab',
                 padding: 5,
                 iconCls: '/static/img/silk/help.png',
-		        html: '<h1>Hi</h1>'
+		        html: '<font face="Verdana"><font size="5"><h1>WebRefine - Hosted by UTK, Sponsored by NIST NCNR</h1><font size="4">Thank you for choosing to use WebRefine Online! Input various cell parameters<br>including cell sizes (angstroms), cell angles(degrees), atomic positions(relative<br>to the cell sides, wavelength of the neutrons(angstroms), wyckoff positions,<br>and space group settings(numbers in terms of the international crys. journal<br>and observe the expected powder neutron diffraction reflections in terms of <br>hkls, relative intensities, and 2Ѳ positions. Our cifFile reader is currently <br>entirely functional, to save you the time and labor of manually inputting all<br>this tedious data. Again, thank you for choosing WebRefine Online. Buckle up<br>and enjoy this application. We hope you enjoy your stay, and will continue to<br>use this application. <br><br>-Alexander Zhang <br> Last Updated: 07/29/13</font> </font>'
                     
             }
         ]
