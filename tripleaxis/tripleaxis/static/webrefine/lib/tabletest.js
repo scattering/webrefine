@@ -169,7 +169,7 @@ Ext.onReady(function () {
             {name:'h', type:'number'},
             {name:'k', type:'number'},
             {name:'l', type:'number'},
-            {name:'|F|', type:'string'}
+            {name:'|F|', type:'number'}
         ]
     });
     
