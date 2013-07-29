@@ -73,7 +73,7 @@ def cif_to_cell(filestr, select_atoms=None):
                       'y':y_arr[i],
                       'z':z_arr[i],
                       'b':B_arr[i],
-                      'wy':wy_arr[i]+sym_stuff[i],
+                      'wy':sym_stuff[i]+wy_arr[i].upper(),
                       'occ':occ_arr[i],
                       'label':atLab_arr[i],
                       'element':grab_element(atom_species)
