@@ -84,6 +84,8 @@ def calculateStructFact(data):
             b=periodictable.elements.symbol(sym).neutron.b_c#sld(wavelength=1.54)[0]
             F=F+b*np.exp(-1.0j*2*np.pi*np.dot(g,d))
         print np.absolute(F)
+        F=round(F, 5)
+        twotheta=round(twotheta,5)
         print 'done'
         n = n+1   
         result = result + [h,k,l,np.absolute(F),twotheta]
