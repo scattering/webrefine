@@ -21,7 +21,8 @@ TEMPLATE_DEBUG = True
 
 template_dir = os.path.join(HOMEDIR, r'site-templates')
 static_dir = os.path.join(HOMEDIR, r'static')
-
+TRACK_AJAX_REQUESTS=True
+TRACK_PAGEVIEWS=True
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -45,8 +46,8 @@ if 1:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-            #'NAME': r'/home/yee/Databases/testdb1',
-            'NAME': os.path.abspath(os.path.join(HOMEDIR,'..','..','..','www-data','webrefinedb')),		# Or path to database file if using sqlite3.
+            'NAME': r'/home/alexander/Databases/testData',
+            #'NAME': os.path.abspath(os.path.join(HOMEDIR,'..','..','..','www-data','webrefinedb')),		# Or path to database file if using sqlite3.
             'USER': '',                      # Not used with sqlite3.
             'PASSWORD': '',                  # Not used with sqlite3.
             'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -146,6 +147,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',    
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -174,12 +176,14 @@ INSTALLED_APPS = (
     #'registration',
     #'profiles',
     'webrefine',
+    'tracking',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
 # required registration setting
 ACCOUNT_ACTIVATION_DAYS=1
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
