@@ -933,7 +933,7 @@ Ext.onReady(function () {
         items: [structureFactors.innerRightTopPanel, structureFactors.resultPanel]
     });
 
-    var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, handler: calculateHandler});
+    var button =  new Ext.Button({applyTo:'button-div',text:'CALCULATE!', minWidth: 130, minHeight: 350, handler: calculateHandler});
     var conn = new Ext.data.Connection();
     
 
